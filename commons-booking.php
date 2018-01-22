@@ -43,7 +43,6 @@ require_once( CB_PLUGIN_ROOT . 'public/Commons_Booking.php' );
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once( CB_PLUGIN_ROOT . 'includes/CB_WPCli.php' );
 }
-require_once( CB_PLUGIN_ROOT . 'includes/CB_P2P.php' );
 require_once( CB_PLUGIN_ROOT . 'includes/CB_FakePage.php' );
 
 if ( is_admin() ) {
