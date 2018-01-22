@@ -23,7 +23,7 @@ class Commons_Booking {
 	 *
 	 * @var array
 	 */
-	protected $cpts = array( 'demo' );
+	protected $cpts = array( 'CB_Item', 'CB_Location' );
 	
 	/**
 	 * Initialize the plugin by setting localization and loading public scripts
@@ -37,7 +37,7 @@ class Commons_Booking {
 			require_once( CB_PLUGIN_ROOT . 'public/includes/CB_Enqueue.php' );
 			require_once( CB_PLUGIN_ROOT . 'public/includes/CB_Extras.php' );
 			require_once( CB_PLUGIN_ROOT . 'public/includes/CB_Template.php' );
-				require_once( CB_PLUGIN_ROOT . 'public/widgets/sample.php' );
+			require_once( CB_PLUGIN_ROOT . 'public/widgets/sample.php' );
 		}
 		/**
 	 * Return the cpts

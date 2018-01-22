@@ -39,14 +39,18 @@ class CB_PostTypes {
 		return $query;
 	}
 		
-		/**
+	/**
 	 * Load CPT and Taxonomies on WordPress
 	 * 
 	 * @return void
 	 */
 	public function load_cpts() {
-		// Create Custom Post Type https://github.com/johnbillion/extended-cpts/wiki
-		$tax = register_extended_post_type( 'demo', array(
+		// See: https://github.com/johnbillion/extended-cpts/wiki
+		// Create Custom Post Type CB_Item 
+		$CB_Item = register_extended_post_type( 'cb_item', array(
+			# Add as sub-menu to CB Dashboard
+			'show_in_nav_menus' => TRUE,		
+			'show_in_menu' => 'cb_dashboard_page',
 			# Show all posts on the post type archive:
 			'archive' => array(
 				'nopaging' => true
@@ -58,16 +62,8 @@ class CB_PostTypes {
 					'featured_image' => 'thumbnail'
 				),
 				'title',
-				'genre' => array(
-					'taxonomy' => 'demo-section'
-				),
-				'p2p' => array(
-					'title' => 'Connected Posts',
-					'connection' => 'demo_to_pages',
-					'link' => 'edit'
-				),
-				'custom_field' => array(
-					'title' => 'By Lib',
+				'custom_field' => array( //@TODO: Include Timeframes
+					'title' => 'Timeframes',
 					'meta_key' => '_demo_' . CB_TEXTDOMAIN . '_text',
 					'cap' => 'manage_options',
 				),
@@ -76,49 +72,30 @@ class CB_PostTypes {
 					'default' => 'ASC',
 				),
 			),
-			# Add a dropdown filter to the admin screen:
-			'admin_filters' => array(
-				'genre' => array(
-					'taxonomy' => 'demo-section'
-				)
-			)
 				), array(
 			# Override the base names used for labels:
-			'singular' => __( 'Demo', CB_TEXTDOMAIN ),
-			'plural' => __( 'Demos', CB_TEXTDOMAIN ),
-			'slug' => 'demo',
-			'capability_type' => array( 'demo', 'demoes' ),
+			'singular' => __( 'Item', CB_TEXTDOMAIN ),
+			'plural' => __( 'Items', CB_TEXTDOMAIN ),
+			'slug' => 'items',
+			'capability_type' => array( 'demo', 'demoes' ), //@TODO: Roles
+				) );
+		// Create Custom Post Type CB_Location
+		$CB_Location = register_extended_post_type( 'cb_location', array(
+			# Add as sub-menu to CB Dashboard
+			'show_in_nav_menus' => TRUE,		
+			'show_in_menu' => 'cb_dashboard_page',
+			# Show all posts on the post type archive:
+			'archive' => array(
+				'nopaging' => true
+			),
+			), array(
+			# Override the base names used for labels:
+			'singular' => __( 'Location', CB_TEXTDOMAIN ),
+			'plural' => __( 'Locations', CB_TEXTDOMAIN ),
+			'slug' => 'locations',
+			'capability_type' => array( 'demo', 'demoes' ), //@TODO: Roles
 				) );
 		add_filter( 'pre_get_posts', array( $this, 'filter_search' ) );
-		$tax->add_taxonomy( 'demo-section', array(
-			'hierarchical' => false,
-			'show_ui' => false,
-		) );
-		// Create Custom Taxonomy https://github.com/johnbillion/extended-taxos
-		register_extended_taxonomy( 'demo-section', 'demo', array(
-			# Use radio buttons in the meta box for this taxonomy on the post editing screen:
-			'meta_box' => 'radio',
-			# Show this taxonomy in the 'At a Glance' dashboard widget:
-			'dashboard_glance' => true,
-			# Add a custom column to the admin screen:
-			'admin_cols' => array(
-				'featured_image' => array(
-					'title' => 'Featured Image',
-					'featured_image' => 'thumbnail'
-				),
-			),
-				), array(
-			# Override the base names used for labels:
-			'singular' => __( 'Demo Category', CB_TEXTDOMAIN ),
-			'plural' => __( 'Demo Categories', CB_TEXTDOMAIN ),
-			'slug' => 'demo-cat',
-						'capabilities' => array(
-				'manage_terms' => 'manage_demoes',
-				'edit_terms' => 'manage_demoes',
-				'delete_terms' => 'manage_demoes',
-				'assign_terms' => 'read_demo',
-			)
-		) );
 	}
 	
 }

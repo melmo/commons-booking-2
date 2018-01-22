@@ -25,8 +25,8 @@ class Cb_Enqueue_Admin {
 		if ( !apply_filters( 'commons_booking_cb_enqueue_admin_initialize', true ) ) {
 			return;
 		}
-		// Add the options page and menu item.
-		add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
+		// Add the manage menu & options page entry
+		add_action( 'admin_menu', array( $this, 'add_plugin_manage_menu') );
 		// Add an action link pointing to the options page.
 		$plugin_basename = plugin_basename( plugin_dir_path( realpath( dirname( __FILE__ ) ) ) . CB_TEXTDOMAIN . '.php' );
 		add_filter( 'plugin_action_links_' . $plugin_basename, array( $this, 'add_action_links' ) );
@@ -70,33 +70,25 @@ class Cb_Enqueue_Admin {
 		}
 		wp_enqueue_script( CB_TEXTDOMAIN . '-admin-script', plugins_url( 'admin/assets/js/admin.js', CB_PLUGIN_ABSOLUTE ), array( 'jquery' ), CB_VERSION );
 	}
-		
-		/**
-	 * Register the administration menu for this plugin into the WordPress Dashboard menu.
+	/**
+	 * Register the plugin management menu (items, locations, timeframes, bookings) and settings into the WordPress Dashboard menu.
 	 *
 	 * @since 1.0.0
 	 * 
 	 * @return void
 	 */
-	public function add_plugin_admin_menu() {
+	public function add_plugin_manage_menu() {
 		/*
-		 * Add a settings page for this plugin to the Settings menu
-		 *
-		 * @TODO:
-		 *
-		 * - Change 'manage_options' to the capability you see fit
-		 *   For reference: http://codex.wordpress.org/Roles_and_Capabilities
-		  $this->admin_view_page = add_options_page(
-		  __( 'Page Title', CB_TEXTDOMAIN ), CB_NAME, 'manage_options', CB_TEXTDOMAIN, array( $this, 'display_plugin_admin_page' )
-		  );
+		 * Add the CB main entry, sub-menu entries for items and locations are created in CB_Posttypes.php.
 		 * 
 		 */
-		/*
-		 * Add a settings page for this plugin to the main menu
-		 * 
-		 */
-		$this->admin_view_page = add_menu_page( __( 'Page Title', CB_TEXTDOMAIN ), CB_NAME, 'manage_options', CB_TEXTDOMAIN, array( $this, 'display_plugin_admin_page' ), 'dashicons-hammer', 90 );
-	}
+		add_menu_page( __( 'Dashboard', CB_TEXTDOMAIN ), __( 'Commons Booking', CB_TEXTDOMAIN ), 'manage_options', 'cb_dashboard_page', array( $this, 'display_plugin_admin_page' ), 'dashicons-hammer', 6 );
+		// Sub-Menu entries for non-wordpress-cpts -> probably move this to the individual classes
+		add_submenu_page( 'cb_dashboard_page', __( 'Timeframes', CB_TEXTDOMAIN ), __( 'Timeframes', CB_TEXTDOMAIN ), 'manage_options', 'cb_manage_timeframe_page', array( $this, 'display_plugin_admin_page' ) );
+		add_submenu_page( 'cb_dashboard_page', __( 'Bookings', CB_TEXTDOMAIN ), __( 'Bookings', CB_TEXTDOMAIN ), 'manage_options', 'cb_bookings_page', array( $this, 'display_plugin_admin_page' ) );
+		// Settings menu
+		$this->admin_view_page = add_submenu_page( 'cb_dashboard_page', __( 'Settings', CB_TEXTDOMAIN ), __( 'Settings', CB_TEXTDOMAIN ), 'manage_options', 'cb_settings_page', array( $this, 'display_plugin_admin_page' ) );
+	}		
 	/**
 	 * Render the settings page for this plugin.
 	 *
