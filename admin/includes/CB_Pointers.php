@@ -1,0 +1,49 @@
+<?php
+/**
+ * Commons_Booking
+ * 
+ * @package   Commons_Booking
+ * @author    Florian Egermann <florian@wielebenwir.de>
+ * @copyright 2018 wielebenwir e.V.
+ * @license   GPL 2.0+
+ * @link      http://commonsbooking.wielebenwir.de
+ */
+/**
+ * All the WP pointers.
+ */
+class Cb_Pointers {
+	/**
+	 * Initialize the Pointers.
+	 *
+	 * @since 1.0.0
+	 */
+	public function __construct() {
+		if ( !apply_filters( 'commons_booking_cb_pointers_initialize', true ) ) {
+			return;
+		}
+		new PointerPlus( array( 'prefix' => CB_TEXTDOMAIN ) );
+		add_filter( CB_TEXTDOMAIN . '-pointerplus_list', array( $this, 'custom_initial_pointers' ), 10, 2 );
+	}
+	/**
+	 * Add pointers.
+	 * Check on https://github.com/Mte90/pointerplus/blob/master/pointerplus.php for examples
+	 *
+	 * @param array $pointers The list of pointers.
+	 * @param array $prefix   For your pointers.
+	 *
+	 * @return mixed
+	 */
+	function custom_initial_pointers( $pointers, $prefix ) {
+		return array_merge( $pointers, array(
+			$prefix . '_contextual_tab' => array(
+				'selector' => '#contextual-help-link',
+				'title' => __( 'Boilerplate Help', CB_TEXTDOMAIN ),
+				'text' => __( 'A pointer for help tab.<br>Go to Posts, Pages or Users for other pointers.', CB_TEXTDOMAIN ),
+				'edge' => 'top',
+				'align' => 'right',
+				'icon_class' => 'dashicons-welcome-learn-more',
+			)
+				) );
+	}
+}
+new Cb_Pointers();
