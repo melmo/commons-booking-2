@@ -16,8 +16,8 @@
     <h2><?php echo esc_html( get_admin_page_title() ); ?></h2>
     <div id="tabs" class="settings-tab">
 		<ul>
-			<li><a href="#tabs-1"><?php _e( 'Settings' ); ?></a></li>
-			<li><a href="#tabs-2"><?php _e( 'Settings 2', CB_TEXTDOMAIN ); ?></a></li>
+			<li><a href="#tabs-1"><?php _e( 'General' ); ?></a></li>
+			<li><a href="#tabs-2"><?php _e( 'Pages', CB_TEXTDOMAIN ); ?></a></li>
 			<?php
 						?>
 			<li><a href="#tabs-3"><?php _e( 'Import/Export', CB_TEXTDOMAIN ); ?></a></li>
@@ -26,7 +26,7 @@
 		</ul>
 		<?php
 		require_once( plugin_dir_path( __FILE__ ) . 'settings.php' );
-		require_once( plugin_dir_path( __FILE__ ) . 'settings-2.php' );
+		require_once( plugin_dir_path( __FILE__ ) . 'settings-pages.php' );
 		?>
 		<?php
 				?>
