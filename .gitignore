@@ -36,3 +36,4 @@ vendor
 /admin/includes/lib/
 /includes/lib/
 /composer/
+*.code-workspace
