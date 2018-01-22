@@ -11,7 +11,7 @@
 /**
  * All the CMB related code.
  */
-class Cb_CMB {
+class CB_CMB {
 	/**
 	 * Initialize CMB2.
 	 *
@@ -93,4 +93,4 @@ class Cb_CMB {
 		$row->addColumns( array( $field3, $field4 ) );
 			}
 }
-new Cb_CMB();
+new CB_CMB();

@@ -11,7 +11,7 @@
 /**
  * This class contain the Post Types and Taxonomy initialize code
  */
-class Cb_PostTypes {
+class CB_PostTypes {
 	/**
 	 * Initialize the snippet
 	 */
@@ -122,4 +122,4 @@ class Cb_PostTypes {
 	}
 	
 }
-new Cb_PostTypes();
+new CB_PostTypes();
