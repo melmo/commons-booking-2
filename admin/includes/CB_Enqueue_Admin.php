@@ -84,7 +84,7 @@ class Cb_Enqueue_Admin {
 		 */
 		add_menu_page( __( 'Dashboard', CB_TEXTDOMAIN ), __( 'Commons Booking', CB_TEXTDOMAIN ), 'manage_options', 'cb_dashboard_page', array( $this, 'display_plugin_admin_page' ), 'dashicons-hammer', 6 );
 		// Sub-Menu entries for non-wordpress-cpts -> probably move this to the individual classes
-		add_submenu_page( 'cb_dashboard_page', __( 'Timeframes', CB_TEXTDOMAIN ), __( 'Timeframes', CB_TEXTDOMAIN ), 'manage_options', 'cb_manage_timeframe_page', array( $this, 'display_plugin_admin_page' ) );
+		add_submenu_page( 'cb_dashboard_page', __( 'Timeframes', CB_TEXTDOMAIN ), __( 'Timeframes', CB_TEXTDOMAIN ), 'manage_options', 'cb_manage_timeframe_page', array( $this, 'display_timeframe_manage_page' ) );
 		add_submenu_page( 'cb_dashboard_page', __( 'Bookings', CB_TEXTDOMAIN ), __( 'Bookings', CB_TEXTDOMAIN ), 'manage_options', 'cb_bookings_page', array( $this, 'display_plugin_admin_page' ) );
 		// Settings menu
 		$this->admin_view_page = add_submenu_page( 'cb_dashboard_page', __( 'Settings', CB_TEXTDOMAIN ), __( 'Settings', CB_TEXTDOMAIN ), 'manage_options', 'cb_settings_page', array( $this, 'display_plugin_admin_page' ) );
@@ -97,7 +97,17 @@ class Cb_Enqueue_Admin {
 	 * @return void
 	 */
 	public function display_plugin_admin_page() {
-		include_once( CB_PLUGIN_ROOT . 'admin/views/admin.php' );
+		include_once( CB_PLUGIN_ROOT . 'admin/settings/views/admin.php' );
+	}
+	/**
+	 * Render the timeframe management page.
+	 *
+	 * @since 1.0.0
+	 * 
+	 * @return void
+	 */
+	public function display_timeframe_manage_page() {
+		include_once( CB_PLUGIN_ROOT . 'admin/manage/views/timeframe.php' );
 	}
 	/**
 	 * Add settings action link to the plugins page.

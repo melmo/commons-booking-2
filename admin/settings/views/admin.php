@@ -25,8 +25,8 @@
 						?>
 		</ul>
 		<?php
-		require_once( plugin_dir_path( __FILE__ ) . 'settings.php' );
-		require_once( plugin_dir_path( __FILE__ ) . 'settings-pages.php' );
+		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-welcome.php' );
+		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-pages.php' );
 		?>
 		<?php
 				?>

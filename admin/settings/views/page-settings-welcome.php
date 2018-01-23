@@ -9,7 +9,7 @@
  * @link      http://commonsbooking.wielebenwir.de
  */
 /**
- * This class should ideally be used to work with the administrative side of the WordPress site.
+ * Welcome Text
  */
 ?>
 
@@ -32,5 +32,4 @@
 
 	cmb2_metabox_form( CB_TEXTDOMAIN . '_options', CB_TEXTDOMAIN . '-settings' );
 				?>
-	<!-- @TODO: Provide other markup for your options page here. -->
 </div>

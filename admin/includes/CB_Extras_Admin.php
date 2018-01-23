@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin_name
+ * CB_Extras Admin
  * 
- * @package   Plugin_name
+ * @package   Commons Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
  * @license   GPL 2.0+

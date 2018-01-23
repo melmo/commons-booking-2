@@ -9,7 +9,7 @@
  * @link      http://commonsbooking.wielebenwir.de
  */
 /**
- * This class should ideally be used to work with the administrative side of the WordPress site.
+ * Pages settings.
  */
 ?>
 
@@ -27,7 +27,7 @@
 			'before_row'       => __('Pages: Items and calendar', 'commons-booking' ), // Headline                    
 			'name'             => __( 'Items page', 'commons-booking' ),
 			'desc'             => __( 'Display list of items on this page', 'commons-booking' ),
-			'id'               => 'cb-item-page-id',
+			'id'               => 'item-page-id',
 			'type'             => 'select',
 			'show_option_none' => true,
 			'default'          => 'none',
@@ -38,7 +38,7 @@
 			array(
 			'name'             => __( 'Locations page', 'commons-booking' ),
 			'desc'             => __( 'Display list of Locations on this page', 'commons-booking' ),
-			'id'               => 'cb-location-page-id',
+			'id'               => 'location-page-id',
 			'type'             => 'select',
 			'show_option_none' => true,
 			'default'          => 'none',
@@ -49,7 +49,7 @@
 			array(
 			'name'             => __( 'Calendar page', 'commons-booking' ),
 			'desc'             => __( 'Display the calendar on this page', 'commons-booking' ),
-			'id'               => 'cb-calendar-page-id',
+			'id'               => 'calendar-page-id',
 			'type'             => 'select',
 			'show_option_none' => true,
 			'default'          => 'none',
@@ -61,7 +61,7 @@
 			'before_row'       => __('Pages: Bookings', 'commons-booking' ), // Headline                                        
 			'name'             => __( 'Booking review page', 'commons-booking' ),
 			'desc'             => __( 'Shows the pending booking, prompts for confimation.', 'commons-booking' ),
-			'id'               => 'cb-booking-review-page-id',
+			'id'               => 'booking-review-page-id',
 			'type'             => 'select',
 			'show_option_none' => true,
 			'default'          => 'none',
@@ -72,7 +72,7 @@
 				array(
 			'name'             => __( 'Booking confirmed page', 'commons-booking' ),
 			'desc'             => __( 'Displayed when the user has confirmed a booking.', 'commons-booking' ),
-			'id'               => 'cb-booking-confirmed-page-id',
+			'id'               => 'booking-confirmed-page-id',
 			'type'             => 'select',
 			'show_option_none' => true,
 			'default'          => 'none',
@@ -83,7 +83,7 @@
 				array(
 			'name'             => __( 'Booking page', 'commons-booking' ),
 			'desc'             => __( '', 'commons-booking' ),
-			'id'               => 'cb-booking-page-id',
+			'id'               => 'booking-page-id',
 			'type'             => 'select',
 			'show_option_none' => true,
 			'default'          => 'none',
@@ -94,7 +94,7 @@
 				array(
 			'name'             => __( 'My bookings page', 'commons-booking' ),
 			'desc'             => __( 'Shows the user´s bookings.', 'commons-booking' ),
-			'id'               => 'cb-user-bookings-page-id',
+			'id'               => 'user-bookings-page-id',
 			'type'             => 'select',
 			'show_option_none' => true,
 			'default'          => 'none',
