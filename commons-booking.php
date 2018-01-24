@@ -27,6 +27,12 @@ define( 'CB_TEXTDOMAIN', 'commons-booking' );
 define( 'CB_NAME', 'Commons Booking' );
 define( 'CB_PLUGIN_ROOT', plugin_dir_path( __FILE__ ) );
 define( 'CB_PLUGIN_ABSOLUTE',  __FILE__  );
+
+define( 'CB_TIMEFRAMES_TABLE', 'cb_timeframes' );
+define( 'CB_BOOKINGS_TABLE', 'cb_bookings' );
+define( 'CB_SETS_TABLE', 'cb_sets' );
+define( 'CB_SLOTS_TABLE', 'cb_slots' );
+
 /**
  * Load the textdomain of the plugin
  * 
