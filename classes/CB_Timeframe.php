@@ -11,16 +11,19 @@
 /**
  * Interface for Items
  */
-class CB_Timeframe extends CB_Object implements Iterator  {
+class CB_Timeframe extends CB_Object {
 	/**
 	 * Instance of this class.
 	 *
 	 * @var object
 	 */
 	protected static $instance = null;
-
-	var $set_id;
-
+	/**
+	 * Settings specific to this timeframe.
+	 *
+	 * @var object
+	 */
+	public $timeframe_settings;
 	/**
 	 * Initialize the class
 	 *
@@ -57,26 +60,5 @@ class CB_Timeframe extends CB_Object implements Iterator  {
 		return self::$instance;
     }
     
-    	//Iterator Implementation
-    public function rewind(){
-        reset($this->tickets);
-    }  
-    public function current(){
-        $var = current($this->tickets);
-        return $var;
-    }  
-    public function key(){
-        $var = key($this->tickets);
-        return $var;
-    }  
-    public function next(){
-        $var = next($this->tickets);
-        return $var;
-    }  
-    public function valid(){
-        $key = key($this->tickets);
-        $var = ($key !== NULL && $key !== FALSE);
-        return $var;
-    }
 }
 add_action( 'plugins_loaded', array( 'CB_Timeframe', 'get_instance' ) );

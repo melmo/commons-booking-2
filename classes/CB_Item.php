@@ -1,6 +1,6 @@
 <?php
 /**
- * CB_Items
+ * CB_Item
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
@@ -29,7 +29,26 @@ class CB_Item  {
 	public static function initialize() {
 		if ( !apply_filters( 'commons_booking_cb_admin_initialize', true ) ) {
 			return;
+			add_filter( 'the_content', array( $this, 'get_item_template' ) );
+			var_dump("HELLO");
 		}
+	}
+	public function __construct() {
+	}
+	/**
+	* Example for override the template system on the frontend
+	* 
+	* @param string $original_template The original templace HTML.
+	*
+	* @since 1.0.0
+	* 
+	* @return string
+	*/
+	public static function get_item_template( $content ) {
+		if ( is_singular( 'cb_item' ) ) {
+			return wpbp_get_template_part( CB_TEXTDOMAIN, 'content', 'demo', false );
+		}
+		return $content;
 	}
 	/**
 	 * Return an instance of this class.

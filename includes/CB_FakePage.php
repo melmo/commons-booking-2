@@ -9,6 +9,8 @@ new Fake_Page(
 
 function testing() {
     $test = CB_Timeframe::get_instance();
-    $setting = $test->get_setting('pages', 'cb-item-page-id');
-    // var_dump($setting);
+    $setting = $test->get_setting('pages', 'item-page-id');
+    // var_dump( $test->sql_conditions );
+    $args = array ( 'scope' => 'future', 'location_id' => '2' );
+    $test->get( $args );
 }

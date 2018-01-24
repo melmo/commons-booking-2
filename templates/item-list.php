@@ -12,4 +12,11 @@
  */
 ?>
 ITEM LIST TEMPLATE 
-<?php the_title(); ?>
+<?php 
+$tf = new CB_Timeframe;
+$timeframes = $tf->get( array ( 'item_id' => get_the_id() ) );
+?>
+<?php foreach ( $timeframes as $timeframe ) { ?> 
+    <h4><?php echo $timeframe->description; ?></h4>
+    <p><?php echo $timeframe->date_start; ?> - <?php echo $timeframe->date_end; ?></p>
+<?php } ?>

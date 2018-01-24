@@ -9,7 +9,7 @@
  * @link      http://commonsbooking.wielebenwir.de
  */
 /**
- * Interface for Items
+ * Shared Interface for queries. 
  */
 class CB_Object {
 	/**
@@ -31,6 +31,31 @@ class CB_Object {
 	 */
     public static $settings = array();
 	/**
+	 * Formatted sql conditions 
+	 *
+	 * @var array
+	 */
+	private $sql_conditions = array();
+	/**
+	 * default query args 
+	 *
+	 * @var array
+	 */
+
+	public $default_query_args = array();
+	/**
+	 * supplied query args 
+	 *
+	 * @var array
+	 */
+	private $custom_query_args = array();
+	/**
+	 * merged query args
+	 *
+	 * @var array
+	 */
+    private $query_args = array();
+	/**
 	 * Instance of this class.
 	 *
 	 * @var object
@@ -43,39 +68,163 @@ class CB_Object {
 		if ( !apply_filters( 'commons_booking_cb_object_initialize', true ) ) {
 			return;
 		}
-	}
-	
+	}	
 	/**
-	 * Return search parameters
+	 * Return query parameters
 	 * @param array $array
-	 * @return array
+	 * @return array merged query params 
 	 */
-	public function get_default_search( $search = array() ){
+	public function get_default_query( $args ){
         
-        $defaults = array(
-            'limit' => false,
-            'scope' => 'future',
-            'order' => 'ASC',
-            'orderby' => false,
-            'category' => 0,
-            'tag' => 0,
-            'location' => false,
-            'offset'=>0,
-            'page'=>1,
+        $this->default_query_args = array(
+			// date & sorting
+			'scope' 	=> 'future',
+			'day_limit' => false, //@TODO: get this from settings
+			'today'		=> 'today',
+            'order' 	=> 'ASC',
+            'orderby' 	=> false,
+            'category' 	=> 0,
+			'tag' 		=> 0,
+			// limit & pagination
+            'limit' 	=> false,
+			'offset'	=> 0,
+            'page'		=> 1,
             'page_queryvar'=>null,
-            'pagination'=>false,
-            'owner'=>false,
-            'booking'=>false
+            'pagination'	=>false,
+			// query by id 
+            'timeframe_id' 	=> false,
+            'location_id' 	=> false,
+            'item_id' 		=> false,
+            'user_id'		=> false,
+			'booking_id'	=> false,
+			// grouping_sql
+			'group_by'		=> false
             );
         
-        //Return default if nothing passed
-		if( ! empty( $search ) ){
-			return $defaults;
-        } else {           
-            $defaults = array_merge( $search, $defaults );
+        //Return default query if nothing passed
+		if( empty( $args ) ){
+			return $this->default_query_args;
+        } else {      
+            $this->query_args = array_merge( $this->default_query_args, $args );
         }
-        return apply_filters('cb_object_get_default_search', $defaults );
-    }
+        return apply_filters('cb_object_get_default_query', $this->query_args );
+	}
+	/**
+	 * Construct SQL query
+	 * @param array $args
+	 * @return string sql query 
+	 */
+	public function construct_query_sql( $args = array() ) {
+
+		global $wpdb;
+
+		// date & sorting
+		$today = date('Y-m-d');
+
+		if ( $args['scope'] == 'future' ) {
+			$this->sql_conditions[] = sprintf('date_end >= CAST("%s" AS DATE)', $today);
+			
+		} elseif ( $args['scope'] == 'past') {
+			$this->sql_conditions[] = sprintf('date_end <= CAST("%s" AS DATE)', $today);
+
+		} 
+
+		// filter by ids
+		if ( $args['timeframe_id'] && is_numeric( $args['timeframe_id'] ) ) {
+			$this->sql_conditions[] = sprintf(' timeframe_id = %d', $args['timeframe_id'] );	
+		} 
+		if ( $args['location_id'] && is_numeric( $args['location_id'] ) ) {
+			$this->sql_conditions[] = sprintf(' location_id = %d', $args['location_id'] );
+		}
+		if ( $args['item_id'] && is_numeric( $args['item_id'] ) ) {
+			$this->sql_conditions[] = sprintf(' item_id = %d', $args['item_id'] );
+		}
+		if ( $args['user_id'] && is_numeric( $args['user_id'] ) ) {
+			$this->sql_conditions[] = sprintf(' user_id = %d', $args['user_id'] );
+		}
+		if ( $args['booking_id'] && is_numeric( $args['booking_id'] ) ) {
+			$this->sql_conditions[] = sprintf(' booking_id = %d', $args['booking_id'] );
+		}
+
+
+		//limit @TODO
+		if ( ( $args['limit'] ) && is_numeric( $args['limit'] ) ) {
+			$this->sql_conditions['limit'] = sprintf (" LIMIT %d ", $args['limit'] );
+		}
+
+	}
+	public function get( $args = array() ) {
+		
+		global $wpdb;
+		$table_name = CB_TIMEFRAMES_TABLE;
+
+		$query = $this->get_default_query( $args ); 
+		$this->construct_query_sql( $query );
+
+		if ( ! empty ( $this->sql_conditions ) ) {
+			
+			$conditions = implode ( $this->sql_conditions, " AND " );
+			$conditions = "WHERE ".$conditions;
+		}
+
+
+		$results = $wpdb->get_results(
+			" SELECT * FROM {$wpdb->prefix}{$table_name} {$conditions}"  			
+		);
+
+		return $results;
+		// var_dump( $results );
+
+	}
+	/**
+	 * Add condition to mysql query   
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @param string $table_name sql table name 
+	 * @param string $key mysql row
+	 * @param string $condition
+	 * @param string $val mysql val  
+	 * 
+	 */
+	public function add_sql_condition( $table_name, $key, $condition, $val ) {
+
+		global $wpdb;
+		// $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}_votes WHERE post_id = %d AND username = %s", $post_id, $username );
+		$table = $table_name;
+		$sql_string = $wpdb->prepare( "{$wpdb->prefix}{$table_name}.%s %s %d", $key, $condition, $val);
+		array_push ( $this->sql_conditions,  $sql_string);
+	}
+	/**
+	 * Do query   
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @param string $table_name sql table name 
+	 * @param string $key mysql row
+	 * @param string $condition
+	 * @param string $val mysql val  
+	 * 
+	 */
+	public function do_sql_query( ) {
+
+
+	}
+	/**
+	 * Helper: Return table name prefixed   
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @param string $table_name 
+	 * @return string  
+	 * 
+	 */
+	public function get_table_prefixed( $table_name ) {
+		global $wpdb;
+		$table_prefixed = $wpdb->prefix . $table_name;
+		return $table_prefixed;
+	}
+
 	/**
 	 * Returns the id of a particular object in the table it is stored, be it Item (event_id), Location (location_id), Tag, Booking etc.
      *
@@ -99,11 +248,13 @@ class CB_Object {
 	    return 0;
 	}
 	/**
-	 * Return an instance of this class.
+	 * Get a setting from the options table
 	 *
 	 * @since 1.0.0
-	 *
-	 * @return object A single instance of this class.
+	 * 
+ 	 * @param string $option_key_short short name for the option
+ 	 * @param string $field_id name of the field
+	 * @return string the option
 	 */
 	public function get_setting( $option_key_short, $field_id ) {
 
@@ -115,10 +266,6 @@ class CB_Object {
 		} 
 
 	}
-    function hello() {
-		echo "CB Object says hello";
-		echo get_class( $this );
-    }
 
 	/**
 	 * Return an instance of this class.

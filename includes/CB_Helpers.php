@@ -27,3 +27,22 @@ function cb_get_pages_dropdown() {
   }
   return $dropdown;
 }
+/**
+ * Create a date Range
+ *
+ * @return array dates in the format
+ */
+function cb_dateRange( $first, $last, $step = '+1 day', $format = 'Y-m-d' ) {
+
+	$dates = array();
+	$current = strtotime( $first );
+	$last = strtotime( $last );
+
+	while( $current <= $last ) {
+
+		$dates[] = date( $format, $current );
+		$current = strtotime( $step, $current );
+	}
+
+	return $dates;
+}
