@@ -30,7 +30,6 @@ class CB_Item  {
 		if ( !apply_filters( 'commons_booking_cb_admin_initialize', true ) ) {
 			return;
 			add_filter( 'the_content', array( $this, 'get_item_template' ) );
-			var_dump("HELLO");
 		}
 	}
 	public function __construct() {

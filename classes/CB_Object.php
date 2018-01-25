@@ -1,6 +1,6 @@
 <?php
 /**
- * The main object, base class 
+ * Base class, template for other classes 
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
@@ -54,7 +54,13 @@ class CB_Object {
 	 *
 	 * @var array
 	 */
-    private $query_args = array();
+    public $query_args;
+	/**
+	 * weekday names
+	 *
+	 * @var array
+	 */
+    public $weekday_names;
 	/**
 	 * Instance of this class.
 	 *
@@ -74,17 +80,17 @@ class CB_Object {
 	 * @param array $array
 	 * @return array merged query params 
 	 */
-	public function get_default_query( $args ){
+	public function merge_queries( $args ){
         
-        $this->default_query_args = array(
+        $default_query_args = array(
 			// date & sorting
 			'scope' 	=> 'future',
 			'day_limit' => false, //@TODO: get this from settings
 			'today'		=> 'today',
             'order' 	=> 'ASC',
-            'orderby' 	=> false,
-            'category' 	=> 0,
-			'tag' 		=> 0,
+            'orderby' 	=> 'DATE',
+            'category' 	=> '',
+			'tag' 		=> '',
 			// limit & pagination
             'limit' 	=> false,
 			'offset'	=> 0,
@@ -101,13 +107,16 @@ class CB_Object {
 			'group_by'		=> false
             );
         
-        //Return default query if nothing passed
-		if( empty( $args ) ){
-			return $this->default_query_args;
+		//Return default query if nothing passed
+		
+		if( ! empty( $args ) ){
+			return $default_query_args;
         } else {      
-            $this->query_args = array_merge( $this->default_query_args, $args );
+			$query_args = array_merge( $default_query_args, $args );
         }
-        return apply_filters('cb_object_get_default_query', $this->query_args );
+		return apply_filters('cb_object_merge_queries', $query_args );
+		
+
 	}
 	/**
 	 * Construct SQL query
@@ -156,10 +165,10 @@ class CB_Object {
 	public function get( $args = array() ) {
 		
 		global $wpdb;
-		$table_name = CB_TIMEFRAMES_TABLE;
+		$timeframes_table_name = CB_TIMEFRAMES_TABLE;
 
-		$query = $this->get_default_query( $args ); 
-		$this->construct_query_sql( $query );
+		$this->query_args = $this->merge_queries( $args ); 
+		$this->construct_query_sql( $this->query_args );
 
 		if ( ! empty ( $this->sql_conditions ) ) {
 			
@@ -167,13 +176,11 @@ class CB_Object {
 			$conditions = "WHERE ".$conditions;
 		}
 
-
 		$results = $wpdb->get_results(
-			" SELECT * FROM {$wpdb->prefix}{$table_name} {$conditions}"  			
+			" SELECT * FROM {$wpdb->prefix}{$timeframes_table_name} {$conditions}"  			
 		);
 
 		return $results;
-		// var_dump( $results );
 
 	}
 	/**
@@ -256,7 +263,7 @@ class CB_Object {
  	 * @param string $field_id name of the field
 	 * @return string the option
 	 */
-	public function get_setting( $option_key_short, $field_id ) {
+	public static function get_setting( $option_key_short, $field_id ) {
 
 		$option_key = 'commons-booking-settings-' . $option_key_short;
 		$serialized = get_option ( $option_key ); // all options in this section, serialized
@@ -264,9 +271,7 @@ class CB_Object {
 		if ( $serialized && key_exists( $field_id, $serialized ) ) {
 			return $serialized[$field_id];
 		} 
-
 	}
-
 	/**
 	 * Return an instance of this class.
 	 *
@@ -288,26 +293,25 @@ class CB_Object {
 				}
 			}
 		}
+		
 		return self::$instance;
-    }
-
-	/**
-	 * Adds an error to the object
-	 */
-	function add_error($errors){
-		if(!is_array($errors)){ $errors = array($errors); } //make errors var an array if it isn't already
-		if(!is_array($this->errors)){ $this->errors = array(); } //create empty array if this isn't an array
-		foreach($errors as $key => $error){			
-			if( !in_array($error, $this->errors) ){
-			    if( !is_array($error) ){
-					$this->errors[] = $error;
-			    }else{
-			        $this->errors[] = array($key => $error);
-			    }
-			}
-		}
 	}
-
+	/**
+	 * Error logging.
+	 *
+	 * @since 1.0.0
+	 * 
+	 * @param string $file 
+	 * @param string $error
+	 *
+	 */
+	public function throw_error( $file, $error ){
+				
+		if( WP_DEBUG === true ) {
+			printf ( 'Error: <strong>%s</strong> (%s)<br/> ', $error, $file );
+		}
+		
+	}
 
 }
 add_action( 'plugins_loaded', array( 'CB_Object', 'get_instance' ) );

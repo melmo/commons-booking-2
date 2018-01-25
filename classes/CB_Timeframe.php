@@ -37,6 +37,18 @@ class CB_Timeframe extends CB_Object {
 		}
 	}
 	/**
+	 * Create a new timeframe.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array errors
+	 */
+	private function create() {
+
+	}
+
+
+	/**
 	 * Return an instance of this class.
 	 *
 	 * @since 1.0.0

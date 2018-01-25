@@ -55,7 +55,7 @@ class Cb_Enqueue {
 	 * @see /templates
 	 * 
 	 */
-	public function cb_template_chooser( $content ) {
+	public static function cb_template_chooser( $content ) {
 		// items
 		if ( is_archive( 'cb_item') && in_the_loop() ) {
 			return wpbp_get_template_part( CB_TEXTDOMAIN, 'item', 'list', true );

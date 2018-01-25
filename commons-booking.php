@@ -53,6 +53,7 @@ require_once( CB_PLUGIN_ROOT . 'classes/CB_Calendar.php' );
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once( CB_PLUGIN_ROOT . 'includes/CB_WPCli.php' );
 }
+require_once( CB_PLUGIN_ROOT . 'includes/CB_Strings.php' );
 require_once( CB_PLUGIN_ROOT . 'includes/CB_FakePage.php' );
 
 
