@@ -13,21 +13,32 @@
 ?>
 <?php 
 $obj = new CB_Object;
-$tfs = $obj->get( array ( 'item_id' => get_the_id() ) );
+$tfs = $obj->get_timeframes( array ( 'item_id' => get_the_id() ) );
 ?>
-<?php foreach ( $tfs as $tf ) { ?> 
-    <h4><?php echo $tf->description; ?></h4>
-    <h4><?php echo $tf->timeframe_id; ?></h4>
-    <p><?php echo $tf->date_start; ?> - <?php echo $tf->date_end; ?></p>
-    <?php 
-        var_dump($obj);
+<?php if ( is_array( $tfs )) { ?>
 
-        $cal = new CB_Calendar( $tf->date_start, $tf->date_end ); 
-        // var_dump($cal);
-        // $days = $cal->create_calendar_array( );
-        // var_dump ($cal);
-        foreach ( $cal->date_meta_array as $day ) {
-            echo $day['date'] . " - " . $day['name'] . "<br>";
-         } // endforeach $cal
-    ?> 
-<?php } // endforeach $timeframes ?>
+    <?php foreach ( $tfs as $tf ) { ?> 
+        <div class="cb-timeframe">
+            <h4><?php echo $tf->description; ?></h4>
+            <h4><?php echo $tf->timeframe_id; ?></h4>
+            <p><?php echo $tf->date_start; ?> - <?php echo $tf->date_end; ?></p>
+            <ul class="cb-days">
+                <?php if ( is_array( $tf->calendar )) { ?>
+                    <?php foreach ( $tf->calendar as $day ) { ?>
+                                         <!-- <?php // var_dump ($day); ?> -->
+                        <li>
+                            <?php echo $day['meta']['name']; ?> - <?php echo $day['meta']['date']; ?>
+                            <?php if ( ! empty ( $day['slots'] ) && is_array( $day['slots'] ) ) { ?>
+                                <ul class="cb-slots">
+                                    <?php foreach ( $day['slots'] as $slot ) { ?>
+                                        <li><?php echo $slot['time_start']; ?> - <?php echo $slot['time_end']; ?></li>
+                                    <?php } // endforeach $slots ?>
+                                </ul>
+                            <?php } // if ( is_array( $day['slots'] ) ) { ?>                                        
+                        </li>
+                    <?php } // endforeach $cal ?>
+                <?php } //if ( is_array( $tf->calendar ))  ?>
+            </ul>
+        </div>
+    <?php } // endforeach $tfs ?>
+<?php } //if ( is_array( $tfs )) ?>

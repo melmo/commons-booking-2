@@ -50,17 +50,29 @@ class CB_Object {
 	 */
 	private $custom_query_args = array();
 	/**
+	 * supplied query args 
+	 *
+	 * @var array
+	 */
+	public $timeframes_array = array();
+	/**
 	 * merged query args
 	 *
 	 * @var array
 	 */
     public $query_args;
 	/**
+	 * merged query args
+	 *
+	 * @var array
+	 */
+    public $context = 'timeframe';
+	/**
 	 * weekday names
 	 *
 	 * @var array
 	 */
-    public $weekday_names;
+    public $today;
 	/**
 	 * Instance of this class.
 	 *
@@ -81,8 +93,9 @@ class CB_Object {
 	 * @return array merged query params 
 	 */
 	public function merge_queries( $args ){
-        
-        $default_query_args = array(
+
+		
+		$default_query_args = array(
 			// date & sorting
 			'scope' 	=> 'future',
 			'day_limit' => false, //@TODO: get this from settings
@@ -103,38 +116,40 @@ class CB_Object {
             'item_id' 		=> false,
             'user_id'		=> false,
 			'booking_id'	=> false,
+			'slot_id'		=> false,
+			// include 
+			'include_bookings'	=> true,
+			'include_slots'		=> true,
 			// grouping_sql
 			'group_by'		=> false
-            );
+		);
         
-		//Return default query if nothing passed
-		
-		if( ! empty( $args ) ){
+		//Return default query if nothing passed		
+		if( empty( $args ) ){
 			return $default_query_args;
         } else {      
-			$query_args = array_merge( $default_query_args, $args );
+			$query = array_merge( $default_query_args, $args );
         }
-		return apply_filters('cb_object_merge_queries', $query_args );
+		return apply_filters('cb_object_merge_queries', $query );
 		
 
 	}
 	/**
 	 * Construct SQL query
-	 * @param array $args
-	 * @return string sql query 
 	 */
-	public function construct_query_sql( $args = array() ) {
+	public function construct_sql_conditions( ) {
 
 		global $wpdb;
 
+		$args = $this->query_args;
 		// date & sorting
-		$today = date('Y-m-d');
+		$this->today = date('Y-m-d');
 
 		if ( $args['scope'] == 'future' ) {
-			$this->sql_conditions[] = sprintf('date_end >= CAST("%s" AS DATE)', $today);
+			$this->sql_conditions[] = sprintf('date_end >= CAST("%s" AS DATE)', $this->today);
 			
 		} elseif ( $args['scope'] == 'past') {
-			$this->sql_conditions[] = sprintf('date_end <= CAST("%s" AS DATE)', $today);
+			$this->sql_conditions[] = sprintf('date_end <= CAST("%s" AS DATE)', $this->$today);
 
 		} 
 
@@ -162,27 +177,89 @@ class CB_Object {
 		}
 
 	}
-	public function get( $args = array() ) {
+	/**
+	 * Get timeframes
+	 * @param array $args
+	 * @return array  
+	 */
+	public function get_timeframes( $args = array() ) {
 		
 		global $wpdb;
 		$timeframes_table_name = CB_TIMEFRAMES_TABLE;
 
 		$this->query_args = $this->merge_queries( $args ); 
-		$this->construct_query_sql( $this->query_args );
+		$this->construct_sql_conditions();
 
-		if ( ! empty ( $this->sql_conditions ) ) {
-			
+		if ( ! empty ( $this->sql_conditions ) ) {			
 			$conditions = implode ( $this->sql_conditions, " AND " );
 			$conditions = "WHERE ".$conditions;
 		}
 
-		$results = $wpdb->get_results(
+		$timeframes = $wpdb->get_results(
 			" SELECT * FROM {$wpdb->prefix}{$timeframes_table_name} {$conditions}"  			
 		);
 
-		return $results;
+		if( $timeframes ) { // tf found, now create the calendar(s)
+			
+			// return $results;
+
+			// what happens with calendar days not in the timeframes?  
+			// look at date_end, day_limit
+			// if ( $args == limit_calendar_by_timeframe_date ) {
+				
+			// 	//1. get all dates for 
+			// 	$max = max( array_map('strtotime', $arr));
+
+			// 	$date_end = min ()
+			// }
+
+			// CONTEXT: 
+
+			
+			// @TODO: Start/End dates modular
+			$date_start = $this->today;
+			$date_end = date('Y-m-d', strtotime("+30 days"));
+			
+			$tf_array = array();
+
+				foreach ( $timeframes as $timeframe ) {
+			
+					$calendar = new CB_Calendar( $timeframe->timeframe_id, $timeframe->date_start, $timeframe->date_end ); // create array with days & meta
+					
+					// if ( $include_slots ) {
+					$slots = $calendar->add_slots();
+						// }		
+					$timeframe->calendar = $calendar->calendar;	
+
+					/* Context 	
+					/* if combined calendar view, create a calendar array (grouped by days) map timeframes to it. 
+					/* if single timeframe view, create a timeframe array (grouped by timeframe) and loop through days
+					*/	
+					if ( $this->context == 'timeframe' ) {
+					
+						array_push ( $this->timeframes_array, $timeframe );
+						
+					} elseif ( $this->context == 'calendar' ) {
+						
+						var_dump(  $timeframe->calendar );
+
+						$tf_array = array_unique ( array_merge_recursive ( $tf_array , $timeframe->calendar ), SORT_REGULAR);
+
+					} else {
+
+					}		
+
+			}
+			return $this->timeframes_array;
+
+		} else {
+			return CB_Strings::throw_error( __FILE__,' no timeframes!' );
+		}
 
 	}
+
+
+
 	/**
 	 * Add condition to mysql query   
 	 * 
@@ -201,6 +278,17 @@ class CB_Object {
 		$table = $table_name;
 		$sql_string = $wpdb->prepare( "{$wpdb->prefix}{$table_name}.%s %s %d", $key, $condition, $val);
 		array_push ( $this->sql_conditions,  $sql_string);
+	}
+	/**
+	 * Set context   
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @param string $context  
+	 * 
+	 */
+	public function set_context( $context ) {
+		$this->context = $context;
 	}
 	/**
 	 * Do query   

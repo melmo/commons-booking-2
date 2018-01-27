@@ -11,75 +11,90 @@
 /**
  * Build a calendar
  */
-class CB_Calendar extends CB_Timeframe {
+class CB_Calendar extends CB_Object {
 	/**
 	 * Dates
 	 *
 	 * @var array
 	 */
-	public $date_meta_array = array();
+	public $calendar = array();
+	/**
+	 * Dates
+	 *
+	 * @var array
+	 */
+	public $dates_array = array();
 	/**
 	 * Date start
 	 *
 	 * @var array
 	 */
-	public $date_start;
+	public $timeframe_id;
 	/**
 	 * Date start
 	 *
 	 * @var array
 	 */
-	public $date_end;
+	public $slots_array = array();
 	/**
 	 * Initialize the class
 	 *
 	 * @since 1.0.0
 	 * 
 	 */
-	public function __construct( $date_start, $date_end ) {
+	public function __construct( $timeframe_id, $date_start, $date_end ) {
 		
+		$this->timeframe_id = $timeframe_id;
 		$this->date_start = $date_start;
 		$this->date_end = $date_end;
-
-		$this->weekday_names = array(
-			__('Sunday', 'commons-booking'),
-			__('Monday', 'commons-booking'),
-			__('Tuesday', 'commons-booking'),
-			__('Wednesday', 'commons-booking'),
-			__('Thursday', 'commons-booking'),
-			__('Friday', 'commons-booking'),
-			__('Saturday', 'commons-booking')
-		);
 		
-
 		$this->create_days_array( );
-		var_dump( $this->query_args );
-
+		
+		return $this->calendar;
 
 	}
+
     public function create_days_array( ) {
 		
-		$dates = cb_dateRange( $this->date_start, $this->date_end );
+		$this->dates_array = cb_dateRange( $this->date_start, $this->date_end );
+		$this->slots_array = $this->add_slots();
 		
-		foreach ($dates as $date) {
-			$this->add_date( $date );
+		foreach ($this->dates_array as $date) {
+			$this->add_date_meta( $date );
+			$this->add_date_slots( $date );
 		}
-		return $this->date_meta_array;
 
 	}
-    public function add_date( $date ) {
 
-		$weekday = date('N', strtotime( $date ) );        
+    private function add_date_meta( $date ) {
 
-		$this->date_meta_array[$date] = array ( 
-			'date'		=> $date,
-			'name' 		=> $this->weekday_names[ $weekday - 1 ],
-			'number' 	=> $weekday
-		);
+		$weekday = date('N', strtotime( $date ) );  
 		
+		$weekname_array = CB_Strings::get_string( 'cal', 'weekday_names' );
+
+		$this->calendar[$date]['meta'] = array ( 
+			'date'		=> $date,
+			'name' 		=> $weekname_array[ $weekday - 1 ],
+			'number' 	=> $weekday
+		);	
+	}
+    private function add_timeframe_meta( $date ) {
+
+		$this->calendar[$date]['timeframe_id'] = $this->timeframe_id;
+	}
+    private function add_date_slots( $date ) {
+		if ( ! empty ( $this->slots_array[$date] ) ) {
+			$this->calendar[$date]['slots'] = $this->slots_array[$date];
+		}
+	
 	}
 
-	public function add_slot() {
+
+	public function add_slots() {
+		
+		$slots = new CB_Slots( $this->timeframe_id, $this->dates_array );
+		$slots_array = $slots->get_slots();
+		return $slots_array;
 
 	}
 }

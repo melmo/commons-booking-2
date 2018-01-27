@@ -9,6 +9,11 @@ new Fake_Page(
 
 function testing() {
     
-    return ( CB_Strings::get_string( 'categorys', 'key' ) );
+    // return ( CB_Strings::get_string( 'category', 'key' ) );
 
+$obj = new CB_Object;
+$obj->set_context( 'calendar' ); 
+$tfs = $obj->get_timeframes( array ( 'item_id' => 5 ) );
+
+var_dump($tfs);
 }

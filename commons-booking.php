@@ -50,6 +50,7 @@ require_once( CB_PLUGIN_ROOT . 'public/Commons_Booking.php' );
 require_once( CB_PLUGIN_ROOT . 'classes/CB_Object.php' );
 require_once( CB_PLUGIN_ROOT . 'classes/CB_Timeframe.php' );
 require_once( CB_PLUGIN_ROOT . 'classes/CB_Calendar.php' );
+require_once( CB_PLUGIN_ROOT . 'classes/CB_Slots.php' );
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once( CB_PLUGIN_ROOT . 'includes/CB_WPCli.php' );
 }
