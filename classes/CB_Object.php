@@ -56,6 +56,12 @@ class CB_Object {
 	 */
 	public $timeframes_array = array();
 	/**
+	 * supplied query args 
+	 *
+	 * @var array
+	 */
+	public $calendar_array = array();
+	/**
 	 * merged query args
 	 *
 	 * @var array
@@ -199,6 +205,7 @@ class CB_Object {
 			" SELECT * FROM {$wpdb->prefix}{$timeframes_table_name} {$conditions}"  			
 		);
 
+		
 		if( $timeframes ) { // tf found, now create the calendar(s)
 			
 			// return $results;
@@ -211,16 +218,61 @@ class CB_Object {
 			// 	$max = max( array_map('strtotime', $arr));
 
 			// 	$date_end = min ()
-			// }
-
-			// CONTEXT: 
-
-			
 			// @TODO: Start/End dates modular
 			$date_start = $this->today;
 			$date_end = date('Y-m-d', strtotime("+30 days"));
+
+			// if ! exclude slots
+		
+			// get all the slots & bookings for the selected timeframe within the time limits
+			$slots = $wpdb->get_results(
+				"SELECT wp_cb_slots.slot_id,wp_cb_slots.timeframe_id, wp_cb_slots.date, wp_cb_slots.time_start, wp_cb_slots.time_end,  wp_cb_slots.description, wp_cb_slots.booking_code, wp_cb_bookings.booking_status, wp_cb_bookings.user_id
+					FROM wp_cb_slots
+					LEFT JOIN wp_cb_bookings ON (wp_cb_slots.slot_id = wp_cb_bookings.slot_id)
+					WHERE wp_cb_slots.timeframe_id IN (5,3) 
+					AND wp_cb_slots.date BETWEEN CAST('2018-01-27' AS DATE) AND CAST('2018-01-31' AS DATE) 
+					ORDER BY date", ARRAY_A
+			);
+
+			$reordered = array();
+			foreach ( $slots as $key => $val ) {
+				$reordered[$val['date']]['slots'][$val['slot_id']] = $val;
+			}
+        	//var_dump ( $reordered );
+		
+
+			var_dump($slots);
+
+			// if ! exclude bookings
+
+
+
 			
 			$tf_array = array();
+
+			/* context 
+			* 1. foreach timeframes as timeframe 
+			
+			/**
+			 * CONTEXT
+			 * 
+			 * 1. timeframes
+			 * foreach timeframes as timeframe (base obj = timeframe )
+			 * 	new calendar ( $daterange)
+			 * 		->add date meta 
+			 * 		->add slots ( needs: tf_id)
+			 * 		->add bookings (needs: tf_id)
+			 * 
+			 * 2. calendar
+			 * new calendar (daterange) 
+			 * 	->add date meta
+			 * 	foreach timeframes as timeframe (base obj = calendar)
+			 * 		->add slots ( needs: tf_id)
+			 * 		->add bookings (needs: tf_id)
+			 * 
+			 * 
+			 */
+			if ( $this->context == 'timeframe' ) {
 
 				foreach ( $timeframes as $timeframe ) {
 			
@@ -228,31 +280,42 @@ class CB_Object {
 					
 					// if ( $include_slots ) {
 					$slots = $calendar->add_slots();
-						// }		
-					$timeframe->calendar = $calendar->calendar;	
+					// if ( $include_bookings ) {
+					// add_bookings
+								
+					$timeframe->calendar = $calendar->calendar;	// add calendar array to the timeframe obj
 
-					/* Context 	
-					/* if combined calendar view, create a calendar array (grouped by days) map timeframes to it. 
-					/* if single timeframe view, create a timeframe array (grouped by timeframe) and loop through days
-					*/	
-					if ( $this->context == 'timeframe' ) {
+					array_push ( $this->timeframes_array, $timeframe );
+				
+				} // end foreach ( $timeframes as $timeframe )
+
+				return $this->timeframes_array;
+
+			} elseif ( $this->context == 'calendar' ) {
+				
+				$calendar = new CB_Calendar( FALSE, $date_start, $date_end ); // create array with days & meta
+					// create days
+				foreach ( $calendar->dates_array as $date ) { // loop through dates
 					
-						array_push ( $this->timeframes_array, $timeframe );
+					$calendar->add_date_meta( $date ); // add day name, number, etc. 
+
+					foreach ( $timeframes as $timeframe ) { // loop through timeframes
 						
-					} elseif ( $this->context == 'calendar' ) {
+						$calendar->set_timeframe( $timeframe->timeframe_id );
 						
-						var_dump(  $timeframe->calendar );
+						$calendar->add_slots( $date );
+						$calendar->map_slots_to_date( $date );
+						
+					}
 
-						$tf_array = array_unique ( array_merge_recursive ( $tf_array , $timeframe->calendar ), SORT_REGULAR);
+					
+				}
+				var_dump ($calendar);
 
-					} else {
-
-					}		
 
 			}
-			return $this->timeframes_array;
 
-		} else {
+		} else { // no timeframes found
 			return CB_Strings::throw_error( __FILE__,' no timeframes!' );
 		}
 
