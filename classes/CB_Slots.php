@@ -11,7 +11,7 @@
 /**
  * Retrieve the slots configured for a timeframe/date-range
  */
-class CB_Slots extends CB_Calendar{
+class CB_Slots extends CB_Object{
 	/**
 	 * Dates
 	 *
@@ -35,7 +35,7 @@ class CB_Slots extends CB_Calendar{
 	 *
 	 * @var array
 	 */
-	public $conditions;
+	public $sql_conditions;
 	/**
 	 * Timeframe
 	 *
@@ -54,10 +54,7 @@ class CB_Slots extends CB_Calendar{
 	 * @since 1.0.0
 	 * 
 	 */
-
-
-
-	public function __construct( $timeframe_id = FALSE, $dates_array  ) {
+	public function __construct( ) {
 
         $this->timeframe_id = $timeframe_id;   
         $this->dates_array = $dates_array;       

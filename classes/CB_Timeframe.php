@@ -23,7 +23,25 @@ class CB_Timeframe extends CB_Object {
 	 *
 	 * @var object
 	 */
-	public $timeframe_settings;
+	public $timeframes;
+	/**
+	 * Settings specific to this timeframe.
+	 *
+	 * @var object
+	 */
+	// static $query_args;
+	/**
+	 * Settings specific to this timeframe.
+	 *
+	 * @var object
+	 */
+	public $CB;
+	/**
+	 * Settings specific to this timeframe.
+	 *
+	 * @var object
+	 */
+	public $context = 'timeframes';
 	/**
 	 * Initialize the class
 	 *
@@ -31,46 +49,49 @@ class CB_Timeframe extends CB_Object {
 	 * 
 	 * @return void
 	 */
-	public static function initialize() {
-		if ( !apply_filters( 'commons_booking_cb_timeframe_initialize', true ) ) {
-			return;
-		}
+	public function __construct( $args = array() ) {
+		
+		$CB = new CB_Object; 
+			
+		$this->timeframes = $CB->get_timeframes( $args );
+		$this->query_args = $CB->get_query_args( );	
+
+		$slots = $this->get_slots();
+		var_dump ($slots);
+
 	}
 	/**
-	 * Create a new timeframe.
+	 * Get timeframes.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return array errors
 	 */
-	private function create() {
+	public function get_slots() {
+
+		if ($this->timeframes) {
+
+			global $wpdb;
+						// get all the slots & bookings for the selected timeframe within the time limits
+			$slots = $wpdb->get_results(
+				"SELECT wp_cb_slots.slot_id,wp_cb_slots.timeframe_id, wp_cb_slots.date, wp_cb_slots.time_start, wp_cb_slots.time_end,  wp_cb_slots.description, wp_cb_slots.booking_code, wp_cb_bookings.booking_status, wp_cb_bookings.user_id
+					FROM wp_cb_slots
+					LEFT JOIN wp_cb_bookings ON (wp_cb_slots.slot_id = wp_cb_bookings.slot_id)
+					WHERE wp_cb_slots.timeframe_id IN (5,3) 
+					AND wp_cb_slots.date BETWEEN CAST('2018-01-27' AS DATE) AND CAST('2018-01-31' AS DATE) 
+					ORDER BY date", ARRAY_A
+			);
+
+			$reordered = array();
+			foreach ( $slots as $key => $val ) {
+				$reordered[$val['date']]['slots'][$val['slot_id']] = $val;
+			}
+			return $reordered;
+
+		} else {
+			var_dump("no_slots");
+		}
 
 	}
-
-
-	/**
-	 * Return an instance of this class.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return object A single instance of this class.
-	 */
-	public static function get_instance() {
-
-		// If the single instance hasn't been set, set it now.
-		if ( null == self::$instance ) {
-			try {
-				self::$instance = new self;
-				self::initialize();
-			} catch ( Exception $err ) {
-				do_action( 'commons_booking_admin_failed', $err );
-				if ( WP_DEBUG ) {
-					throw $err->getMessage();
-				}
-			}
-		}
-		return self::$instance;
-    }
     
 }
-add_action( 'plugins_loaded', array( 'CB_Timeframe', 'get_instance' ) );

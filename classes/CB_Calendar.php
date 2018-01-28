@@ -44,13 +44,13 @@ class CB_Calendar extends CB_Object {
 	 */
 	public function __construct( $timeframe_id, $date_start, $date_end ) {
 		
-		$this->timeframe_id = $timeframe_id;
+		$this->timeframe_id = $timeframe_id; //@tODO: retire
 		$this->date_start = $date_start;
 		$this->date_end = $date_end;
 		
 		$this->create_days_array();
 		
-		return $this->calendar;
+		return $this->dates_array;
 
 	}
 
@@ -60,14 +60,14 @@ class CB_Calendar extends CB_Object {
 
     public function create_days_array( ) {
 		
-		$this->dates_array = cb_dateRange( $this->date_start, $this->date_end );
+		$dates_array = cb_dateRange( $this->date_start, $this->date_end );
 		
 		// $this->slots_array = $this->add_slots();
 		
-		// foreach ($this->dates_array as $date) {
-		// 	$this->add_date_meta( $date );
-		// 	$this->map_slots_to_dates( $date );
-		// }
+		foreach ($dates_array as $date) {
+			$this->add_date_meta( $date );
+			// $this->map_slots_to_dates( $date );
+		}
 
 	}
 
@@ -76,7 +76,7 @@ class CB_Calendar extends CB_Object {
 		$weekday = date('N', strtotime( $date ) );  		
 		$weekname_array = CB_Strings::get_string( 'cal', 'weekday_names' );
 
-		$this->calendar[$date]['meta'] = array ( 
+		$this->dates_array[$date]['meta'] = array ( 
 			'date'		=> $date,
 			'name' 		=> $weekname_array[ $weekday - 1 ],
 			'number' 	=> $weekday
@@ -85,19 +85,20 @@ class CB_Calendar extends CB_Object {
 
     // private function add_timeframe_meta( $date ) {
 
-	// 	$this->calendar[$date]['timeframe_id'] = $this->timeframe_id;
+	// 	$this->days_array[$date]['timeframe_id'] = $this->timeframe_id;
 	// }
 
-    public function map_slots_to_date( $date ) {
-		if ( ! empty ( $this->slots_array[$date] ) ) {
-			$this->calendar[$date]['slots'] = $this->slots_array[$date];
-		}
-	}
+
+    // public function map_slots_to_date( $date ) {
+	// 	if ( ! empty ( $this->slots_array[$date] ) ) {
+	// 		$this->days_array[$date]['slots'] = $this->slots_array[$date];
+	// 	}
+	// }
 
 
-	public function add_slots( $date ) {		
-		$slots = new CB_Slots( $this->timeframe_id, $date );
-		$this->slots_array = $slots->get_slots();
-		// return $slots_array;
-	}
+	// public function add_slots( $date ) {		
+	// 	$slots = new CB_Slots( $this->timeframe_id, $date );
+	// 	$this->slots_array = $slots->get_slots();
+	// 	// return $slots_array;
+	// }
 }
