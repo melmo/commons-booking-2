@@ -1,7 +1,7 @@
 <?php
 /**
  * Commons_Booking
- * 
+ *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
@@ -18,14 +18,14 @@ class CB_PostTypes {
 	function __construct() {
 		add_action( 'init', array( $this, 'load_cpts' ) );
 	}
-	
+
 		/**
 	 * Add support for custom CPT on the search box
 	 *
 	 * @param object $query Wp_Query.
 	 *
 	 * @since 1.0.0
-	 * 
+	 *
 	 * @return object
 	 */
 	public function filter_search( $query ) {
@@ -38,18 +38,18 @@ class CB_PostTypes {
 		}
 		return $query;
 	}
-		
+
 	/**
 	 * Load CPT and Taxonomies on WordPress
-	 * 
+	 *
 	 * @return void
 	 */
 	public function load_cpts() {
 		// See: https://github.com/johnbillion/extended-cpts/wiki
-		// Create Custom Post Type CB_Item 
+		// Create Custom Post Type CB_Item
 		$CB_Item = register_extended_post_type( 'cb_item', array(
 			# Add as sub-menu to CB Dashboard
-			'show_in_nav_menus' => TRUE,		
+			'show_in_nav_menus' => TRUE,
 			'show_in_menu' => 'cb_dashboard_page',
 			# Show all posts on the post type archive:
 			'archive' => array(
@@ -79,10 +79,15 @@ class CB_PostTypes {
 			'slug' => 'items',
 			'capability_type' => array( 'demo', 'demoes' ), //@TODO: Roles
 				) );
+		// Create Items category https://github.com/johnbillion/extended-taxos
+		$CB_Item->add_taxonomy( 'item-category', array(
+			'hierarchical' => true,
+			'show_ui' => true,
+		) );
 		// Create Custom Post Type CB_Location
 		$CB_Location = register_extended_post_type( 'cb_location', array(
 			# Add as sub-menu to CB Dashboard
-			'show_in_nav_menus' => TRUE,		
+			'show_in_nav_menus' => TRUE,
 			'show_in_menu' => 'cb_dashboard_page',
 			# Show all posts on the post type archive:
 			'archive' => array(
@@ -95,8 +100,13 @@ class CB_PostTypes {
 			'slug' => 'locations',
 			'capability_type' => array( 'demo', 'demoes' ), //@TODO: Roles
 				) );
+		// Create Items category https://github.com/johnbillion/extended-taxos
+		$CB_Location->add_taxonomy( 'location-category', array(
+			'hierarchical' => true,
+			'show_ui' => true,
+		) );
 		add_filter( 'pre_get_posts', array( $this, 'filter_search' ) );
 	}
-	
+
 }
 new CB_PostTypes();
