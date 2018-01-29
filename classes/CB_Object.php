@@ -80,6 +80,12 @@ class CB_Object {
 	 */
     public $context = 'timeframe';
 	/**
+	 * merged query args
+	 *
+	 * @var array
+	 */
+    public $calendar_filter = FALSE;
+	/**
 	 * weekday names
 	 *
 	 * @var array
@@ -101,6 +107,7 @@ class CB_Object {
 	}	
 	/**
 	 * Return query parameters
+	 * 
 	 * @param array $array
 	 * @return array merged query params 
 	 */
@@ -108,31 +115,37 @@ class CB_Object {
 
 		$default_query_args = array(
 			// date & sorting
-			'scope' 	=> 'future',
-			'day_limit' => false, //@TODO: get this from settings
-			'today'		=> 'today',
-            'order' 	=> 'ASC',
-            'orderby' 	=> 'DATE',
-            'category' 	=> '',
-			'tag' 		=> '',
+			'scope' 		=> 'future',
+			'day_limit' 	=> false, //@TODO: get this from settings
+			'today'			=> 'today',
+            'orderby' 		=> 'DATE',
+            'order' 		=> 'ASC',
 			// limit & pagination
-            'limit' 	=> false,
-			'offset'	=> 0,
-            'page'		=> 1,
-            'page_queryvar'=>null,
-            'pagination'	=>false,
-			// query by id 
-            'timeframe_id' 	=> false,
-            'location_id' 	=> false,
-            'item_id' 		=> false,
-            'user_id'		=> false,
-			'booking_id'	=> false,
-			'slot_id'		=> false,
-			// include 
-			'include_bookings'	=> true,
-			'include_slots'		=> true,
-			// grouping_sql
-			'group_by'		=> false
+            'limit' 		=> false,
+			'offset'		=> 0,
+            'page'			=> 1,
+            'page_queryvar'	=> null,
+            'pagination'	=> false,
+			// cb object
+            'timeframe_id' 	=> false,	// ARRAY	query by timeframe id
+			// wordpress post types 
+            'location_id' 	=> false,	// ARRAY	query by location_id
+			'item_id' 		=> false,	// ARRAY	query by item_id
+			// location 
+			'location_cat' 	=> '',		// ARRAY 	query by location categories
+			'location_tag' 	=> '',		// ARRAY 	query by location categories
+			// item 
+			'item_cat' 		=> '',		// ARRAY 	query by item categories
+			'item_tag' 		=> '',		// ARRAY 	query by item categories
+			// query by user / booking id
+            'user_id'		=> false, 	// INT 		query by id of the user that made the booking
+			'booking_id'	=> false, 	// INT 		query by id of the booking 
+			'slot_id'		=> false,	// INT 		query by id of the slot
+			// filters
+			'has_slots'		=> false, 	// BOOL 	only retrieve days that have slots attached
+			'has_bookings'  => false, 	// BOOL 	only retrieve days with slots that have bookings 
+			'has_open_slots'=> false, 	// BOOL 	only retrieve days with slots that can be booked 
+
 		);
         
 		//Return default query if nothing passed		
@@ -146,6 +159,8 @@ class CB_Object {
 	}
 	/**
 	 * Construct SQL query to retrieve timeframes
+	 * 
+	 * @return array sql conditions 
 	 */
 	public function build_sql_conditions_timeframes( ) {
 
@@ -173,13 +188,6 @@ class CB_Object {
 		if ( $args['item_id'] && is_numeric( $args['item_id'] ) ) {
 			$sql_conditions[] = sprintf(' item_id = %d', $args['item_id'] );
 		}
-		// @TODO -> this should be at slot sql function 
-		if ( $args['user_id'] && is_numeric( $args['user_id'] ) ) {
-			$sql_conditions[] = sprintf(' user_id = %d', $args['user_id'] );
-		}
-		if ( $args['booking_id'] && is_numeric( $args['booking_id'] ) ) {
-			$sql_conditions[] = sprintf(' booking_id = %d', $args['booking_id'] );
-		}
 		//limit @TODO
 		if ( ( $args['limit'] ) && is_numeric( $args['limit'] ) ) {
 			$sql_conditions['limit'] = sprintf (" LIMIT %d ", $args['limit'] );
@@ -189,11 +197,14 @@ class CB_Object {
 	}
 	/**
 	 * Construct SQL query to retrieve slots & bookings
+	 * 
+	 * @return array sql conditions 
 	 */
 	public function build_sql_conditions_slots( $args ) {
 		
 		global $wpdb; 
 
+		$tf_args = $this->query_args; // master query args 
 		$sql_conditions_slots = array(); // array holding the sql conditions
 
 		$slots_table 	= $wpdb->prefix . CB_SLOTS_TABLE;
@@ -201,7 +212,7 @@ class CB_Object {
 
 		// array of table row names the return
 		$sql_fields_slots = array (
-			$slots_table . '.slot_id', 
+			$slots_table . '.slot_id AS slot_id', 
 			$slots_table . '.timeframe_id', 
 			$slots_table . '.date', 
 			$slots_table . '.time_start', 
@@ -212,10 +223,22 @@ class CB_Object {
 			$bookings_table . '.user_id'
 		);
 
+		$sql_conditions_slots['select'] = $sql_fields_slots;
+
 		// filter by timeframe
 		if ( $args['timeframe_id'] && is_array( $args['timeframe_id'] ) ) {
-			$sql_conditions_slots['WHERE'][] =  sprintf(' %s.timeframe_id IN (%d)', $slots_table, implode (',', $args['timeframe_id'] ) );	
+			$timeframe_ids = implode (',', $args['timeframe_id'] );
+			$sql_conditions_slots['WHERE'][] =  sprintf(' %s.timeframe_id IN (%s)', $slots_table, $timeframe_ids );	
 		} 
+
+		// Filter by booking, user, etc. 
+		if ( $tf_args['user_id'] && is_numeric( $tf_args['user_id'] ) ) {
+			$sql_conditions_slots['WHERE'][] = sprintf(' %s.user_id = %d', $bookings_table,  $args['user_id'] );
+		}
+		if ( $tf_args['booking_id'] && is_numeric( $tf_args['booking_id'] ) ) {
+			$sql_conditions_slots['WHERE'][] = sprintf(' %s.booking_id = %d', $bookings_table, $tf_args['booking_id'] );
+		}
+		
 		// filter by date
 		if ( $args['date_start'] && empty( $args['date_end'] ) ) {
 			$sql_conditions_slots['WHERE'][] =  sprintf(' %s.date >= CAST("%s" AS DATE)', $slots_table, $args['date_start'] );	
@@ -223,8 +246,8 @@ class CB_Object {
 			$sql_conditions_slots['WHERE'][] =  sprintf(' %s.date <= CAST("%s" AS DATE)', $slots_table, $args['date_end'] );	
 		} elseif ( $args['date_start'] && $args['date_end'] ) {
 			$sql_conditions_slots['WHERE'][] =  sprintf(' %s.date BETWEEN CAST("%s" AS DATE) AND CAST("%s" AS DATE)', $slots_table, $args['date_start'], $args['date_end'] );	
-
 		}
+
 		return $sql_conditions_slots;
 	}
 	/**
@@ -246,8 +269,6 @@ class CB_Object {
 		$conditions_timeframes = $this->build_sql_conditions_timeframes();		
 		$timeframe_results = $this->do_sql_timeframes( $conditions_timeframes );
 
-		
-
 		if( $timeframe_results ) { // tf found
 
 			$slot_query_args = array(); // array to hold our slot query args
@@ -262,114 +283,42 @@ class CB_Object {
 					$slot_query_args['timeframe_id'] =  (array) $timeframe_result->timeframe_id;					
 					$slot_query_args['date_start'] =  $timeframe_result->date_start;					
 					$slot_query_args['date_end'] =  $timeframe_result->date_end;	
+					
 					// get the slots				
 					$conditions_slots = $this->build_sql_conditions_slots( $slot_query_args );
 					$slot_results = $this->do_sql_slots( $conditions_slots );
-					
-					$filter_has_slots = TRUE; // @TODO add this to query
-					
+										
 					// merge calendar (days array) with slots array		
-					if ( $filter_has_slots ) { // return only days that have slots
-						$all = array_merge_recursive( $timeframe_calendar->dates_array, $slot_results );
-						$timeframe_calendar->calendar  = array_intersect_key( $all, $slot_results );
-					} else { // return all days in timeframe. 
-						$timeframe_calendar->calendar = array_merge_recursive( $timeframe_calendar->dates_array, $slot_results );
-					}		
+					$timeframe_calendar->calendar = $this->map_slots_to_cal_filtered ( $timeframe_calendar->dates_array, $slot_results );
 
 					$timeframe_result->calendar = $timeframe_calendar->calendar; // add calendar to the timeframe results object
+					
 					$this->timeframes_array[] = $timeframe_result;					
 				} 
 
 				return $this->timeframes_array;
 								
-			} elseif ( $this->context == 'calendar' ) { // one calendar, slots mapped to days
-				
-				$calendar = new CB_Calendar();
-
+			} elseif ( $this->context == 'calendar' ) { // one calendar, slots mapped to dates
+					
 				// add additional query args from timeframe
 				$slot_query_args['date_start'] = $this->today;
 				$slot_query_args['date_end'] = date('Y-m-d', strtotime("+30 days"));
-				$slot_query_args['timeframe_id'] = array_column( $timeframes, 'timeframe_id');
+				$slot_query_args['timeframe_id'] = array_column( $timeframe_results, 'timeframe_id');
 				
-				// do sql 
+				// get the slots				
+				$conditions_slots = $this->build_sql_conditions_slots( $slot_query_args );
+				$slot_results = $this->do_sql_slots( $conditions_slots );				
+				
+				$calendar = new CB_Calendar( FALSE, $slot_query_args['date_start'], $slot_query_args['date_end'] );
 
+				$calendar->calendar = $this->map_slots_to_cal_filtered( $calendar->dates_array, $slot_results );
 
+				return $calendar;
 
 			}
 
-
-
-			// if ! exclude slots
-			// $slots = new CB_Slots( );
-			
-			$tf_array = array();
-
-			/* context 
-			* 1. foreach timeframes as timeframe 
-			
-			/**
-			 * CONTEXT
-			 * 
-			 * 1. timeframes
-			 * foreach timeframes as timeframe (base obj = timeframe )
-			 * 	new calendar ( $daterange)
-			 * 		->add date meta 
-			 * 		->add slots ( needs: tf_id)
-			 * 		->add bookings (needs: tf_id)
-			 * 
-			 * 2. calendar
-			 * new calendar (daterange) 
-			 * 	->add date meta
-			 * 	foreach timeframes as timeframe (base obj = calendar)
-			 * 		->add slots ( needs: tf_id)
-			 * 		->add bookings (needs: tf_id)
-			 * 
-			 * 
-			 */
-			// if ( $this->context == 'timeframe' ) {
-
-			// 	foreach ( $timeframes as $timeframe ) {
-			
-			// 		$calendar = new CB_Calendar( $timeframe->timeframe_id, $timeframe->date_start, $timeframe->date_end ); // create array with days & meta
-					
-			// 		// if ( $include_slots ) {
-			// 		$slots = $calendar->add_slots();
-			// 		// if ( $include_bookings ) {
-			// 		// add_bookings
-								
-			// 		$timeframe->calendar = $calendar->calendar;	// add calendar array to the timeframe obj
-
-			// 		array_push ( $this->timeframes_array, $timeframe );
-				
-			// 	} // end foreach ( $timeframes as $timeframe )
-
-			// 	return $this->timeframes_array;
-
-			// } elseif ( $this->context == 'calendar' ) {
-				
-			// 	$calendar = new CB_Calendar( FALSE, $date_start, $date_end ); // create array with days & meta
-			// 		// create days
-			// 	foreach ( $calendar->dates_array as $date ) { // loop through dates
-					
-			// 		$calendar->add_date_meta( $date ); // add day name, number, etc. 
-
-			// 		foreach ( $timeframes as $timeframe ) { // loop through timeframes
-						
-			// 			$calendar->set_timeframe( $timeframe->timeframe_id );
-						
-			// 			$calendar->add_slots( $date );
-			// 			$calendar->map_slots_to_date( $date );
-						
-			// 		}
-
-					
-			// 	}
-				// var_dump ($calendar);
-
-
-			//}
-
 		} else { // no timeframes found
+			
 			return CB_Strings::throw_error( __FILE__,' no timeframes!' );
 		}
 
@@ -399,6 +348,26 @@ class CB_Object {
 		return $timeframes;
 	}
 	/**
+	 * Do an sql search for timeframes matching $query_args, apply filters 
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @return object timeframes
+	 * 
+	 */
+	public function map_slots_to_cal_filtered( $dates_array, $slots_array ) {
+		
+		// merge calendar (days array) with slots array		
+		$calendar = array_merge_recursive( $dates_array, $slots_array );
+
+		$filter_has_slots = $this->query_args['has_slots'];
+		
+		if ( $filter_has_slots ) { // return only days that have slots
+			$calendar  = array_intersect_key( $calendar, $slots_array );
+		} 
+		return $calendar;
+	}
+	/**
 	 * Do an sql search for slots matching $slots_query_args   
 	 * 
 	 * @since 1.0.0
@@ -422,17 +391,17 @@ class CB_Object {
 		} else {
 			$select = '*';
 		}
-
 		// get the slots & bookings for the selected timeframe within the time limits
 		$slots = $wpdb->get_results(
-			"SELECT 
+			" SELECT 
 				{$select}
 				FROM {$slots_table_name}
 				LEFT JOIN {$bookings_table_name} ON ({$slots_table_name}.slot_id = {$bookings_table_name}.slot_id)
-				{$where} 
+				{$where}
 				ORDER BY date", ARRAY_A
 		);
 
+		
 		$slots_reordered = array();
 		foreach ( $slots as $key => $val ) {
 			$slots_reordered[$val['date']]['slots'][$val['slot_id']] = $val;

@@ -11,9 +11,15 @@ function testing() {
     
     // return ( CB_Strings::get_string( 'category', 'key' ) );
 
-$obj = new CB_Object;
-$obj->set_context( 'calendar' ); 
-$tfs = $obj->get_timeframes( array ( 'item_id' => 5 ) );
+$CB = new CB_Object;
+$CB->set_context('calendar');
+$cal = $CB->get_timeframes( array( 'booking_id' => 2, 'has_slots' => FALSE ) );
+var_dump($cal);
 
-var_dump($tfs);
+
+// $tf3 = $CB->get_timeframes( array('timeframe_id' => 5) );
+// var_dump($cal);
+// var_dump($tf2);
+// var_dump($tf3);
+
 }

@@ -16,25 +16,23 @@ $obj = new CB_Object;
 $tfs = $obj->get_timeframes( array ( 'item_id' => get_the_id() ) );
 ?>
 <?php if ( is_array( $tfs )) { ?>
-
     <?php foreach ( $tfs as $tf ) { ?> 
         <div class="cb-timeframe">
             <h4><?php echo $tf->description; ?></h4>
             <h4><?php echo $tf->timeframe_id; ?></h4>
             <p><?php echo $tf->date_start; ?> - <?php echo $tf->date_end; ?></p>
-            <ul class="cb-days">
+            <ul class="cb-dates">
                 <?php if ( is_array( $tf->calendar )) { ?>
-                    <?php foreach ( $tf->calendar as $day ) { ?>
-                                         <!-- <?php // var_dump ($day); ?> -->
+                    <?php foreach ( $tf->calendar as $date ) { ?>
                         <li>
-                            <?php echo $day['meta']['name']; ?> - <?php echo $day['meta']['date']; ?>
-                            <?php if ( ! empty ( $day['slots'] ) && is_array( $day['slots'] ) ) { ?>
+                            <?php echo $date['meta']['name']; ?> - <?php echo $date['meta']['date']; ?>
+                            <?php if ( ! empty ( $date['slots'] ) && is_array( $date['slots'] ) ) { ?>
                                 <ul class="cb-slots">
-                                    <?php foreach ( $day['slots'] as $slot ) { ?>
-                                        <li><?php echo $slot['time_start']; ?> - <?php echo $slot['time_end']; ?></li>
+                                    <?php foreach ( $date['slots'] as $slot ) { ?>
+                                        <li><?php echo $slot['description']; ?>: <?php echo $slot['time_start']; ?> - <?php echo $slot['time_end']; ?></li>
                                     <?php } // endforeach $slots ?>
                                 </ul>
-                            <?php } // if ( is_array( $day['slots'] ) ) { ?>                                        
+                            <?php } // if ( is_array( $date['slots'] ) ) { ?>                                        
                         </li>
                     <?php } // endforeach $cal ?>
                 <?php } //if ( is_array( $tf->calendar ))  ?>
