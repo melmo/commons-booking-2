@@ -192,7 +192,7 @@ class CB_Object {
 		if ( ( $args['limit'] ) && is_numeric( $args['limit'] ) ) {
 			$sql_conditions['limit'] = sprintf (" LIMIT %d ", $args['limit'] );
 		}
-
+		var_dump($sql_conditions);
 		return $sql_conditions;
 	}
 	/**
@@ -209,6 +209,7 @@ class CB_Object {
 
 		$slots_table 	= $wpdb->prefix . CB_SLOTS_TABLE;
 		$bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
+		$timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
 
 		// array of table row names the return
 		$sql_fields_slots = array (
@@ -220,7 +221,9 @@ class CB_Object {
 			$slots_table . '.description',
 			$slots_table . '.booking_code',
 			$bookings_table . '.booking_status',
-			$bookings_table . '.user_id'
+			$bookings_table . '.user_id',
+			$timeframes_table . '.item_id',
+			$timeframes_table . '.location_id',
 		);
 
 		$sql_conditions_slots['select'] = $sql_fields_slots;
@@ -302,7 +305,7 @@ class CB_Object {
 
 				// add additional query args from timeframe
 				$slot_query_args['date_start'] = $this->today;
-				$slot_query_args['date_end'] = date('Y-m-d', strtotime("+10 days"));
+				$slot_query_args['date_end'] = date('Y-m-d', strtotime("+30 days"));
 				$slot_query_args['timeframe_id'] = array_column( $timeframe_results, 'timeframe_id');
 
 				// get the slots
@@ -380,6 +383,7 @@ class CB_Object {
 		global $wpdb;
 		$slots_table_name = $wpdb->prefix . CB_SLOTS_TABLE;
 		$bookings_table_name = $wpdb->prefix . CB_BOOKINGS_TABLE;
+		$timeframes_table_name = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
 
 		if ( ( $args['WHERE'] ) ) {
 			$where = implode ( $args['WHERE'], " AND " );
@@ -397,6 +401,7 @@ class CB_Object {
 				{$select}
 				FROM {$slots_table_name}
 				LEFT JOIN {$bookings_table_name} ON ({$slots_table_name}.slot_id = {$bookings_table_name}.slot_id)
+				LEFT JOIN {$timeframes_table_name} ON ({$slots_table_name}.timeframe_id = {$timeframes_table_name}.timeframe_id)
 				{$where}
 				ORDER BY date", ARRAY_A
 		);
