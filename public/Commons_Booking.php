@@ -24,13 +24,19 @@ class Commons_Booking {
 	 * @var array
 	 */
 	protected $cpts = array( 'CB_Item', 'CB_Location' );
-	
+		/**
+	 * Array of custom taxonimies of the plugin
+	 *
+	 * @var array
+	 */
+	protected $ctaxs = array( 'item-category', 'location-category' );
+
 	/**
 	 * Initialize the plugin by setting localization and loading public scripts
 	 * and styles.
 	 *
 	 * @since 1.0.0
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function initialize() {
@@ -49,7 +55,7 @@ class Commons_Booking {
 	public function get_cpts() {
 		return $this->cpts;
 	}
-	
+
 	/**
 	 * Return an instance of this class.
 	 *
