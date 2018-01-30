@@ -139,8 +139,8 @@ class CB_Object {
 			'today'					=> 'today',		// STRING current date parseable with strtotime().
 			'cal_limit' 		=> false, 		// BOOL or INT return only x days of a timeframe (from $today).
 			// order the timeframe results, slots are ordered by slot_order field
-      'orderby' 			=> 'DATE',		// STRING order the timeframe results, slots are ordered by slot_order field
-      'order' 				=> 'ASC',			// STRING
+      'orderby' 			=> 'date_start',		// STRING order the timeframe results, slots are ordered by slot_order field
+      'order' 				=> 'ASC',						// STRING
 			// limit & pagination @TODO
       'limit' 				=> false,
 			'offset'				=> 0,
@@ -252,6 +252,12 @@ class CB_Object {
 			$wpdb->prefix
 		);
 			$sql_conditions['WHERE'][] = sprintf( ' tt.term_id = %d', $args['location_cat'] );
+		}
+		// order by fields
+		if ( ( $args['orderby'] ) && ( $args['order'] ) ) {
+			if ( in_array( $args['orderby'], array ( 'timeframe_id', 'date_start', 'date_end' ) ) && in_array( $args['order'], array( 'ASC', 'DESC' ) ) ) {
+				$sql_conditions['SQLORDER'] = sprintf (" ORDER BY %s.%s %s", $this->timeframes_table, $args['orderby'], $args['order'] );
+			}
 		}
 		//limit @TODO
 		if ( ( $args['limit'] ) && is_numeric( $args['limit'] ) ) {
@@ -424,8 +430,14 @@ class CB_Object {
 			$select = '*';
 		}
 
+		if ( ! empty ( $args['SQLORDER'] ) ) {
+			$orderby = $args['SQLORDER'];
+		} else {
+			$orderby = '';
+		}
+
 		$timeframes = $wpdb->get_results(
-			" SELECT {$select} FROM {$timeframes_table_name} {$conditions}"
+		" SELECT {$select} FROM {$timeframes_table_name} {$conditions} {$orderby}"
 		);
 
 		return $timeframes;
