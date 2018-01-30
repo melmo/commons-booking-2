@@ -172,9 +172,7 @@ class CB_Object {
 
 		$timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
 
-
 		$sql_conditions = array();
-
 
 				// array of table row names the return
 		$sql_fields_slots = array (
@@ -209,8 +207,21 @@ class CB_Object {
 			$sql_conditions['WHERE'][] = sprintf(' item_id = %d', $args['item_id'] );
 		}
 
-		// select by item category/taxonomy
+		// select by item taxonomy @TODO: seems buggy.
 		if ( $args['item_cat'] && term_exists( $args['item_cat'], 'item-category' ) ) {
+			$sql_conditions['SELECT'][] = 't.term_id, t.name as taxonomy_name';
+			$sql_conditions['JOIN'][] = sprintf('
+			LEFT JOIN %sterm_relationships AS tr ON (item_id = tr.object_id)
+			LEFT JOIN %sterm_taxonomy AS tt ON (tr.term_taxonomy_id = tt.term_taxonomy_id)
+			LEFT JOIN %sterms AS t ON (t.term_id = tt.term_id)',
+			$wpdb->prefix,
+			$wpdb->prefix,
+			$wpdb->prefix
+		);
+			$sql_conditions['WHERE'][] = sprintf( ' tt.term_id = %d', $args['item_cat'] );
+		}
+		// select by location taxonomy
+		if ( $args['location_cat'] && term_exists( $args['location_cat'], 'location-category' ) ) {
 			$sql_conditions['SELECT'][] = 't.term_id, t.name as taxonomy_name';
 			$sql_conditions['JOIN'][] = sprintf('
 			LEFT JOIN %sterm_relationships AS tr ON (location_id = tr.object_id)
@@ -220,7 +231,7 @@ class CB_Object {
 			$wpdb->prefix,
 			$wpdb->prefix
 		);
-			$sql_conditions['WHERE'][] = sprintf( ' tt.term_id = %d', $args['item_cat'] );
+			$sql_conditions['WHERE'][] = sprintf( ' tt.term_id = %d', $args['location_cat'] );
 		}
 		//limit @TODO
 		if ( ( $args['limit'] ) && is_numeric( $args['limit'] ) ) {
