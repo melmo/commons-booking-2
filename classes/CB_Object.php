@@ -259,9 +259,9 @@ class CB_Object {
 				$sql_conditions['SQLORDER'] = sprintf (" ORDER BY %s.%s %s", $this->timeframes_table, $args['orderby'], $args['order'] );
 			}
 		}
-		//limit @TODO
+		//limit
 		if ( ( $args['limit'] ) && is_numeric( $args['limit'] ) ) {
-			$sql_conditions['limit'] = sprintf (" LIMIT %d ", $args['limit'] );
+			$sql_conditions['LIMIT'] = sprintf (" LIMIT %d ", $args['limit'] );
 		}
 		return $sql_conditions;
 	}
@@ -435,9 +435,14 @@ class CB_Object {
 		} else {
 			$orderby = '';
 		}
+		if ( ! empty ( $args['LIMIT'] ) ) {
+			$limit = $args['LIMIT'];
+		} else {
+			$limit = '';
+		}
 
 		$timeframes = $wpdb->get_results(
-		" SELECT {$select} FROM {$timeframes_table_name} {$conditions} {$orderby}"
+		" SELECT {$select} FROM {$timeframes_table_name} {$conditions} {$orderby} {$limit}"
 		);
 
 		return $timeframes;
