@@ -92,6 +92,13 @@ class CB_Object {
 	 */
     public $today;
 	/**
+	 * Prefix & Table names
+	 *	 */
+		public $db_prefix;
+    public $timeframes_table;
+    public $slots_table;
+    public $bookings_table;
+	/**
 	 * Instance of this class.
 	 *
 	 * @var object
@@ -101,6 +108,7 @@ class CB_Object {
 	 * Initialize the class
 	 */
 	public static function initialize() {
+
 		if ( !apply_filters( 'commons_booking_cb_object_initialize', true ) ) {
 			return;
 		}
@@ -111,24 +119,39 @@ class CB_Object {
 	 * @param array $array
 	 * @return array merged query params
 	 */
+	public function set_db_tables() {
+		global $wpdb;
+		$this->db_prefix  			= $wpdb->prefix;
+		$this->timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
+		$this->slots_table 			= $wpdb->prefix . CB_SLOTS_TABLE;
+		$this->bookings_table 	= $wpdb->prefix . CB_BOOKINGS_TABLE;
+		$this->timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
+	}
+	/**
+	 * Return default query parameters merged with user args
+	 *
+	 * @param array $array
+	 * @return array merged query params
+	 */
 	public function merge_queries( $args ){
 
 		$default_query_args = array(
-			// date & sorting
-			'scope' 		=> 'future',
-			'cal_limit' => false, 		//BOOL or INT return only x days of a timeframe (from $today)
-			'today'			=> 'today',		// STRING parseable with strtotime()
-			// ordering
-      'orderby' 	=> 'DATE',
-      'order' 		=> 'ASC',
+			// scope of the timeframe results, slots are queried accordingly
+			'scope' 				=> 'current',	// STRING current, past
+			'today'					=> 'today',		// STRING current date parseable with strtotime().
+			'cal_limit' 		=> false, 		// BOOL or INT return only x days of a timeframe (from $today).
+			// order the timeframe results, slots are ordered by slot_order field
+      'orderby' 			=> 'DATE',		// STRING order the timeframe results, slots are ordered by slot_order field
+      'order' 				=> 'ASC',			// STRING
 			// limit & pagination @TODO
-      'limit' 		=> false,
-			'offset'		=> 0,
-      'page'			=> 1,
+      'limit' 				=> false,
+			'offset'				=> 0,
+      'page'					=> 1,
       'page_queryvar'	=> null,
-      'pagination'	=> false,
+      'pagination'		=> false,
 			// cb object
       'timeframe_id' 	=> false,	// ARRAY	query by timeframe id
+      'owner_id' 			=> false,	// ARRAY	query by the user that created the timeframe
 			// wordpress post types
       'location_id' 	=> false,	// ARRAY	query by location_id
 			'item_id' 			=> false,	// ARRAY	query by item_id
@@ -136,14 +159,14 @@ class CB_Object {
 			'location_cat' 	=> '',		// ARRAY 	query by location categories
 			'location_tag' 	=> '',		// ARRAY 	query by location categories
 			// item
-			'item_cat' 		=> '',		// ARRAY 	query by item categories
-			'item_tag' 		=> '',		// ARRAY 	query by item categories
+			'item_cat' 			=> '',			// ARRAY 	query by item categories
+			'item_tag' 			=> '',			// ARRAY 	query by item categories
 			// query by user / booking id
-      'user_id'		=> false, 	// INT 		query by id of the user that made the booking
-			'booking_id'	=> false, 	// INT 		query by id of the booking
-			'slot_id'		=> false,	// INT 		query by id of the slot
+      'user_id'				=> false, 		// INT 		query by id of the user that made the booking
+			'booking_id'		=> false, 		// INT 		query by id of the booking
+			'slot_id'				=> false,			// INT 		query by id of the slot
 			// filters
-			'has_slots'		=> false, 	// BOOL 	only retrieve days that have slots attached
+			'has_slots'			=> false, 	// BOOL 	only retrieve days that have slots attached
 			'has_bookings'  => false, 	// BOOL 	only retrieve days with slots that are booked
 			'has_open_slots'=> false, 	// BOOL 	only retrieve days with slots that can be booked
 
@@ -167,30 +190,29 @@ class CB_Object {
 
 		global $wpdb;
 
+		$this->set_db_tables();
+
 		$args = $this->query_args;
 		$this->today = date('Y-m-d');
-
-		$timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
 
 		$sql_conditions = array();
 
 				// array of table row names the return
-		$sql_fields_slots = array (
-			$timeframes_table . '.timeframe_id',
-			$timeframes_table . '.location_id',
-			$timeframes_table . '.item_id',
-			$timeframes_table . '.set_id',
-			$timeframes_table . '.date_start',
-			$timeframes_table . '.date_end',
-			$timeframes_table . '.description'
+		$sql_fields_timeframe = array (
+			$this->timeframes_table . '.timeframe_id',
+			$this->timeframes_table . '.location_id',
+			$this->timeframes_table . '.item_id',
+			$this->timeframes_table . '.set_id',
+			$this->timeframes_table . '.date_start',
+			$this->timeframes_table . '.date_end',
+			$this->timeframes_table . '.description'
 		);
 
-			$sql_conditions['SELECT'] = $sql_fields_slots;
+		$sql_conditions['SELECT'] = $sql_fields_timeframe;
 
 		// date & sorting
-		if ( $args['scope'] == 'future' ) {
+		if ( $args['scope'] == 'current') {
 			$sql_conditions['WHERE'][] = sprintf('date_end >= CAST("%s" AS DATE)', $this->today);
-
 		} elseif ( $args['scope'] == 'past') {
 			$sql_conditions['WHERE'][] = sprintf('date_end <= CAST("%s" AS DATE)', $this->$today);
 		}
@@ -407,6 +429,7 @@ class CB_Object {
 		$timeframes = $wpdb->get_results(
 			" SELECT {$select} FROM {$timeframes_table_name} {$conditions}"
 		);
+
 		return $timeframes;
 	}
 	/**

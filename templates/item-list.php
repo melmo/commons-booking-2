@@ -17,6 +17,7 @@ $tfs = $obj->get_timeframes( array ( 'item_id' => get_the_id() ) ); // This temp
 ?>
 <?php if ( is_array( $tfs )) { ?>
     <?php foreach ( $tfs as $tf ) { ?>
+		<?php var_dump($tf); ?>
         <div class="cb-timeframe">
             <h4><?php echo $tf->description; ?></h4>
             <h4><?php echo $tf->timeframe_id; ?></h4>

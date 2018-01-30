@@ -23,7 +23,7 @@ class CB_Calendar extends CB_Object {
 	 *
 	 * @var array
 	 */
-	public $dates_array = array();
+	// public $dates_array = array();
 	/**
 	 * Date start
 	 *
@@ -40,16 +40,16 @@ class CB_Calendar extends CB_Object {
 	 * Initialize the class
 	 *
 	 * @since 1.0.0
-	 * 
+	 *
 	 */
 	public function __construct( $timeframe_id, $date_start, $date_end ) {
-		
+
 		$this->timeframe_id = $timeframe_id; //@tODO: retire
 		$this->date_start = $date_start;
 		$this->date_end = $date_end;
-		
+
 		$this->create_days_array();
-		
+
 		return $this->dates_array;
 
 	}
@@ -59,11 +59,11 @@ class CB_Calendar extends CB_Object {
 	}
 
     public function create_days_array( ) {
-		
+
 		$dates_array = cb_dateRange( $this->date_start, $this->date_end );
-		
+
 		// $this->slots_array = $this->add_slots();
-		
+
 		foreach ($dates_array as $date) {
 			$this->add_date_meta( $date );
 			// $this->map_slots_to_dates( $date );
@@ -73,14 +73,14 @@ class CB_Calendar extends CB_Object {
 
     public function add_date_meta( $date ) {
 
-		$weekday = date('N', strtotime( $date ) );  		
+		$weekday = date('N', strtotime( $date ) );
 		$weekname_array = CB_Strings::get_string( 'cal', 'weekday_names' );
 
-		$this->dates_array[$date]['meta'] = array ( 
+		$this->dates_array[$date]['meta'] = array (
 			'date'		=> $date,
 			'name' 		=> $weekname_array[ $weekday - 1 ],
 			'number' 	=> $weekday
-		);	
+		);
 	}
 
     // private function add_timeframe_meta( $date ) {
@@ -96,7 +96,7 @@ class CB_Calendar extends CB_Object {
 	// }
 
 
-	// public function add_slots( $date ) {		
+	// public function add_slots( $date ) {
 	// 	$slots = new CB_Slots( $this->timeframe_id, $date );
 	// 	$this->slots_array = $slots->get_slots();
 	// 	// return $slots_array;
