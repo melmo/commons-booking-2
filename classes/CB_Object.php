@@ -114,10 +114,8 @@ class CB_Object {
 		}
 	}
 	/**
-	 * Return default query parameters merged with user args
+	 * Set the prefixed database tables
 	 *
-	 * @param array $array
-	 * @return array merged query params
 	 */
 	public function set_db_tables() {
 		global $wpdb;
@@ -488,12 +486,25 @@ class CB_Object {
 				ORDER BY date", ARRAY_A
 		);
 
-
-		$slots_reordered = array();
+		/**
+		 * reformat the slot results to into the following array:
+		 * 'slots' =>
+     *    5 => 														// timeframe id
+		 *       1 => 												// slot_id
+     *          'slot_id' 			=> '1'    // slot properties..
+		 * 					'timeframe_id' =>  '5'
+		 * 					...
+		 * 			 3 =>
+     *          'slot_id' 			=> '3'
+		 * 					'timeframe_id' =>  '5'
+		 * 					...
+		 *    6 =>														// timeframe id
+		 */
+		$slots_reformated = array();
 		foreach ( $slots as $key => $val ) {
-			$slots_reordered[$val['date']]['slots'][$val['slot_id']] = $val;
+			$slots_reformated[$val['date']]['slots'][$val['timeframe_id']][$val['slot_id']] = $val;
 		}
-		return $slots_reordered;
+		return $slots_reformated;
 
 	}
 	/**
