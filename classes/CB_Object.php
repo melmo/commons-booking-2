@@ -372,7 +372,7 @@ class CB_Object {
 
 		} else { // no timeframes found
 
-			return CB_Strings::throw_error( __FILE__,' no timeframes!' );
+			return CB_Strings::throw_error( __FILE__,' no timeframes!' ); //@TODO: This will be shown to a front-end user. No dev "error",  use CB_guistrings (also, todo).
 
 		}
 
@@ -474,7 +474,7 @@ class CB_Object {
 
 	}
 	/**
-	 * Set context
+	 * Set context @TODO
 	 *
 	 * @since 1.0.0
 	 *
