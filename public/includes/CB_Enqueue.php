@@ -1,7 +1,7 @@
 <?php
 /**
  * Commons_Booking
- * 
+ *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
@@ -29,7 +29,7 @@ class Cb_Enqueue {
 	 * Register and enqueue public-facing style sheet.
 	 *
 	 * @since 1.0.0
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function enqueue_styles() {
@@ -39,7 +39,7 @@ class Cb_Enqueue {
 	 * Register and enqueues public-facing JavaScript files.
 	 *
 	 * @since 1.0.0
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
@@ -49,28 +49,28 @@ class Cb_Enqueue {
 	 * Templates: Enable formatting of cb_items and cb_locations.
 	 *
 	 * @since 1.0.0
-	 * 
-	 * @return mixed html 
-	 * 
+	 *
+	 * @return mixed html
+	 *
 	 * @see /templates
-	 * 
+	 *
 	 */
 	public static function cb_template_chooser( $content ) {
 		// items
-		if ( is_archive( 'cb_item') && in_the_loop() ) {
+		if ( is_post_type_archive( 'cb_item' ) && in_the_loop() ) {
 			return wpbp_get_template_part( CB_TEXTDOMAIN, 'item', 'list', true );
-		} elseif ( is_singular( 'cb_item') && in_the_loop() ) {
-			return wpbp_get_template_part( CB_TEXTDOMAIN, 'item', 'single', true );	
+		} elseif ( is_singular( 'cb_item' ) && in_the_loop() ) {
+			return wpbp_get_template_part( CB_TEXTDOMAIN, 'item', 'single', true );
 		// locations
-		} elseif ( is_archive( 'cb_location') && in_the_loop() ) {
+		} elseif ( is_post_type_archive( 'cb_location' ) && in_the_loop() ) {
 			return wpbp_get_template_part( CB_TEXTDOMAIN, 'location', 'list', true );
 		} elseif ( is_singular( 'cb_location') && in_the_loop() ) {
-			return wpbp_get_template_part( CB_TEXTDOMAIN, 'location', 'single', true );	
+			return wpbp_get_template_part( CB_TEXTDOMAIN, 'location', 'single', true );
 		} else {
 			return $content;
 		}
 	}
-		
+
 }
 $cb_enqueue = new Cb_Enqueue();
 $cb_enqueue->initialize();
