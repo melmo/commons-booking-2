@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin_name
- * 
- * @package   Plugin_name
+ * Commons booking extras
+ *
+ * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
  * @license   GPL 2.0+
@@ -11,7 +11,7 @@
 /**
  * This class contain all the snippet or extra that improve the experience on the frontend
  */
-class Cb_Extras {
+class CB_Extras {
 	/**
 	 * Initialize the snippet
 	 */
@@ -20,18 +20,18 @@ class Cb_Extras {
 	}
 		/**
 	 * Add class in the body on the frontend
-	 * 
+	 *
 	 * @param array $classes THe array with all the classes of the page.
 	 *
 	 * @since 1.0.0
-	 * 
+	 *
 	 * @return array
 	 */
 	public static function add_cb_class( $classes ) {
 		$classes[] = CB_TEXTDOMAIN;
 		return $classes;
 	}
-	}
-$cb_extras = new Cb_Extras();
-$cb_extras->initialize();
-do_action( 'commons_booking_cb_extras_instance', $cb_extras );
+}
+$CB_Extras = new CB_Extras();
+$CB_Extras->initialize();
+do_action( 'commons_booking_cb_extras_instance', $CB_Extras );
