@@ -131,9 +131,38 @@ class CB_Object {
 	 * @param array $array
 	 * @return array merged query params
 	 */
-	public function merge_queries( $args ){
+	public function merge_query_args( $args ){
 
-		$default_query_args = array(
+		//Return default query if nothing passed
+		if ( empty( $args ) ) {
+			return $this->default_query_args;
+        } else {
+					$query = array_merge( $this->default_query_args, $args );
+        }
+		return apply_filters('cb_object_merge_query_args', $query );
+
+	}
+	/**
+	 * Set today
+	 *
+	 * @param string $date
+	 */
+	public function set_today( $date ){
+
+		$today = date( 'ymd', strtotime( $date ) );
+
+		if( $today ) {
+			$this->today = $today;
+		}	else {
+			$this->today = date( 'ymd' );
+		}
+	}
+	/**
+	 * Set default query args
+	 */
+	public function set_default_query_args( ){
+
+		$this->default_query_args = array(
 			// scope of the timeframe results, slots are queried accordingly
 			'scope' 				=> 'current',	// STRING current, past
 			'today'					=> 'today',		// STRING current date parseable with strtotime().
@@ -141,12 +170,8 @@ class CB_Object {
 			// order the timeframe results, slots are ordered by slot_order field
       'orderby' 			=> 'date_start',		// STRING order the timeframe results, slots are ordered by slot_order field
       'order' 				=> 'ASC',						// STRING
-			// limit & pagination @TODO
-      'limit' 				=> false,
-			'offset'				=> 0,
-      'page'					=> 1,
-      'page_queryvar'	=> null,
-      'pagination'		=> false,
+			// limit
+      'limit' 				=> false,	// INT 	how many timeframes to return
 			// cb object
       'timeframe_id' 	=> false,	// ARRAY	query by timeframe id
       'owner_id' 			=> false,	// ARRAY	query by the user that created the timeframe
@@ -155,30 +180,36 @@ class CB_Object {
 			'item_id' 			=> false,	// ARRAY	query by item_id
 			// location
 			'location_cat' 	=> '',		// ARRAY 	query by location categories
-			'location_tag' 	=> '',		// ARRAY 	query by location categories
 			// item
 			'item_cat' 			=> '',			// ARRAY 	query by item categories
-			'item_tag' 			=> '',			// ARRAY 	query by item categories
 			// query by user / booking id
       'user_id'				=> false, 		// INT 		query by id of the user that made the booking
 			'booking_id'		=> false, 		// INT 		query by id of the booking
 			'slot_id'				=> false,			// INT 		query by id of the slot
-			// filters
+			// geo
+			'city'					=> false, 		// STRING	only retrieve timeframes in this city @TODO
+			// availability filters
 			'has_slots'			=> false, 	// BOOL 	only retrieve days that have slots attached
-			'has_bookings'  => false, 	// BOOL 	only retrieve days with slots that are booked
-			'has_open_slots'=> false, 	// BOOL 	only retrieve days with slots that can be booked
+			'has_bookings'  => false, 	// BOOL 	only retrieve days with slots that are booked @TODO
+			'has_open_slots'=> false, 	// BOOL 	only retrieve days with slots that can be booked @TODO
 
 		);
+	}
 
-		//Return default query if nothing passed
-		if ( empty( $args ) ) {
-			return $default_query_args;
-        } else {
-					$query = array_merge( $default_query_args, $args );
-        }
-		return apply_filters('cb_object_merge_queries', $query );
+	/**
+	 * Setup
+	 *
+   * Setup db table names
+	 * Set today
+	 */
+	public function setup( ) {
+
+		$this->set_db_tables();
+		$this->set_default_query_args();
 
 	}
+
+
 	/**
 	 * Construct SQL query to retrieve timeframes
 	 *
@@ -188,10 +219,9 @@ class CB_Object {
 
 		global $wpdb;
 
-		$this->set_db_tables();
-
 		$args = $this->query_args;
-		$this->today = date('Y-m-d');
+
+		$this->set_today($args['today']);
 
 		$sql_conditions = array();
 
@@ -340,7 +370,9 @@ class CB_Object {
 	 */
 	public function get_timeframes( $args = array() ) {
 
-		$this->query_args = $this->merge_queries( $args ); // user supplied arguments and defaults
+		$this->setup();
+
+		$this->query_args = $this->merge_query_args( $args ); // user supplied arguments and defaults
 		$conditions_timeframes = $this->build_sql_conditions_timeframes();
 		$timeframe_results = $this->do_sql_timeframes( $conditions_timeframes );
 
