@@ -62,8 +62,6 @@ class CB_Calendar extends CB_Object {
 
 		$dates_array = cb_dateRange( $this->date_start, $this->date_end );
 
-		// $this->slots_array = $this->add_slots();
-
 		foreach ($dates_array as $date) {
 			$this->add_date_meta( $date );
 			// $this->map_slots_to_dates( $date );
@@ -78,7 +76,7 @@ class CB_Calendar extends CB_Object {
 
 		$this->dates_array[$date]['meta'] = array (
 			'date'		=> $date,
-			'name' 		=> $weekname_array[ $weekday - 1 ],
+			'name' 		=> $weekname_array[ $weekday ],
 			'number' 	=> $weekday
 		);
 	}
