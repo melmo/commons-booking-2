@@ -149,12 +149,12 @@ class CB_Object {
 	 */
 	public function set_today( $date ){
 
-		$today = date( 'ymd', strtotime( $date ) );
+		$today = date( 'Y-m-d', strtotime( $date ) );
 
 		if( $today ) {
 			$this->today = $today;
 		}	else {
-			$this->today = date( 'ymd' );
+			$this->today = date( 'Y-m-d' );
 		}
 	}
 	/**
@@ -187,12 +187,11 @@ class CB_Object {
 			'booking_id'		=> false, 		// INT 		query by id of the booking
 			'slot_id'				=> false,			// INT 		query by id of the slot
 			// geo
-			'city'					=> false, 		// STRING	only retrieve timeframes in this city @TODO
+			'city'					=> false, 		// STRING	only retrieve timeframes mapped to a location in city @TODO
 			// availability filters
-			'has_slots'			=> false, 	// BOOL 	only retrieve days that have slots attached
 			'has_bookings'  => false, 	// BOOL 	only retrieve days with slots that are booked @TODO
 			'has_open_slots'=> false, 	// BOOL 	only retrieve days with slots that can be booked @TODO
-
+			'discard_empty' => false		// BOOL		days without slots will not be retrieved
 		);
 	}
 
@@ -353,6 +352,16 @@ class CB_Object {
 			$sql_conditions_slots['WHERE'][] =  sprintf(' %s.date BETWEEN CAST("%s" AS DATE) AND CAST("%s" AS DATE)', $slots_table, $args['date_start'], $args['date_end'] );
 		}
 
+		// Filter: Retrieve only booked slots
+		if ( $tf_args['has_bookings'] ) {
+			$sql_conditions_slots['WHERE'][] = sprintf(' %s.booking_id IS NOT NULL AND %s.booking_status = "booked"', $bookings_table, $bookings_table);
+		}
+		// Filter: Retrieve only available slots
+		if ( $tf_args['has_open_slots'] ) {
+			$sql_conditions_slots['WHERE'][] = sprintf(' %s.booking_id IS NULL OR %s.booking_status != "booked"', $bookings_table, $bookings_table);
+		}
+
+
 		return $sql_conditions_slots;
 	}
 	/**
@@ -385,11 +394,11 @@ class CB_Object {
 				foreach ( $timeframe_results as $timeframe_result ) {
 
 					// Create new calendar object with an array of dates
-					$timeframe_calendar = new CB_Calendar( $timeframe_result->timeframe_id, $timeframe_result->date_start, $timeframe_result->date_end  );
+					$timeframe_calendar = new CB_Calendar( $timeframe_result->timeframe_id, $this->today, $timeframe_result->date_end  );
 
 					// set query args by parent timeframe
 					$slot_query_args['timeframe_id'] =  (array) $timeframe_result->timeframe_id;
-					$slot_query_args['date_start'] =  $timeframe_result->date_start;
+					$slot_query_args['date_start'] =  $this->today;
 					$slot_query_args['date_end'] =  $timeframe_result->date_end;
 
 					// get the slots
@@ -397,7 +406,7 @@ class CB_Object {
 					$slot_results = $this->do_sql_slots( $conditions_slots );
 
 					// merge calendar (days array) with slots array
-					$timeframe_calendar->calendar = $this->map_slots_to_cal_filtered ( $timeframe_calendar->dates_array, $slot_results );
+					$timeframe_calendar->calendar = $this->map_slots_to_cal ( $timeframe_calendar->dates_array, $slot_results );
 
 					$timeframe_result->calendar = $timeframe_calendar->calendar; // add calendar to the timeframe results object
 
@@ -421,7 +430,7 @@ class CB_Object {
 				$calendar = new CB_Calendar( FALSE, $slot_query_args['date_start'], $slot_query_args['date_end'] );
 
 				// merge calendar (days array) with slots array @TODO: Apply filters
-				$calendar->calendar = $this->map_slots_to_cal_filtered( $calendar->dates_array, $slot_results );
+				$calendar->calendar = $this->map_slots_to_cal( $calendar->dates_array, $slot_results );
 
 				// return an calendar object with an array of days and  all matching timeframes mapped to it
 				return $calendar;
@@ -480,25 +489,51 @@ class CB_Object {
 		return $timeframes;
 	}
 	/**
-	 * Do an sql search for timeframes matching $query_args, apply filters
+	 * Map the slots array to the dates array, apply filters
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return object timeframes
+	 * @param  	array $dates_array
+	 * @param  	array $slots_array
+	 * @return	array $calendar merged array
 	 *
 	 */
-	public function map_slots_to_cal_filtered( $dates_array, $slots_array ) {
+	public function map_slots_to_cal( $dates_array, $slots_array ) {
 
 		// merge calendar (days array) with slots array
 		$calendar = array_merge_recursive( $dates_array, $slots_array );
 
-		$filter_has_slots = $this->query_args['has_slots'];
+		$filter_discard_empty = $this->query_args['discard_empty'];
 
-		if ( $filter_has_slots ) { // return only days that have slots
+		if ( $filter_discard_empty ) { // return only days that have slots
 			$calendar  = array_intersect_key( $calendar, $slots_array );
 		}
-		return $calendar;
+		return apply_filters('cb_object_map_slots_to_cal', $calendar );
 	}
+	/**
+	 * Map the slots array to the dates array, apply filters
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  	array $dates_array
+	 * @param  	array $slots_array
+	 * @return	array merged array
+	 *
+	 */
+	public function filter_calendar( $cal_array ) {
+
+		// merge calendar (days array) with slots array
+		$calendar = array_merge_recursive( $dates_array, $slots_array );
+
+		$filter_discard_empty = $this->query_args['discard_empty'];
+
+		if ( $filter_discard_empty ) { // return only days that have slots
+			$calendar  = array_intersect_key( $calendar, $slots_array );
+		}
+		return apply_filters('cb_object_map_slots_to_cal', $calendar );
+	}
+
+
 	/**
 	 * Do an sql search for slots matching $slots_query_args
 	 *
@@ -510,9 +545,9 @@ class CB_Object {
 	public function do_sql_slots( $args ) {
 
 		global $wpdb;
-		$slots_table_name = $wpdb->prefix . CB_SLOTS_TABLE;
-		$bookings_table_name = $wpdb->prefix . CB_BOOKINGS_TABLE;
-		$timeframes_table_name = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
+		$slots_table = $this->slots_table ;
+		$bookings_table = $this->bookings_table;
+		$timeframes_table = $this->timeframes_table;
 
 		if ( ( $args['WHERE'] ) ) {
 			$where = implode ( $args['WHERE'], " AND " );
@@ -528,9 +563,9 @@ class CB_Object {
 		$slots = $wpdb->get_results(
 			" SELECT
 				{$select}
-				FROM {$slots_table_name}
-				LEFT JOIN {$bookings_table_name} ON ({$slots_table_name}.slot_id = {$bookings_table_name}.slot_id)
-				LEFT JOIN {$timeframes_table_name} ON ({$slots_table_name}.timeframe_id = {$timeframes_table_name}.timeframe_id)
+				FROM {$slots_table}
+				LEFT JOIN {$bookings_table} ON ({$slots_table}.slot_id = {$bookings_table}.slot_id)
+				LEFT JOIN {$timeframes_table} ON ({$slots_table}.timeframe_id = {$timeframes_table}.timeframe_id)
 				{$where}
 				ORDER BY date", ARRAY_A
 		);
