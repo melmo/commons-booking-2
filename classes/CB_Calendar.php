@@ -76,7 +76,7 @@ class CB_Calendar extends CB_Object {
 
 		$this->dates_array[$date]['meta'] = array (
 			'date'		=> $date,
-			'name' 		=> $weekname_array[ $weekday ],
+			'name' 		=> $weekname_array[ $weekday -1 ],
 			'number' 	=> $weekday
 		);
 	}
