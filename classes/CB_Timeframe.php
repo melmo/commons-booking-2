@@ -23,7 +23,7 @@ class CB_Timeframe extends CB_Object {
 	 *
 	 * @var object
 	 */
-	public $timeframes;
+	public $tissmeframes;
 	/**
 	 * Settings specific to this timeframe.
 	 *
@@ -37,8 +37,14 @@ class CB_Timeframe extends CB_Object {
 	 *
 	 * @return void
 	 */
-	public function __construct( $timeframe ) {
+	public function __construct( ) {
 
+		$this->timeframes = new CB_Object;
 
 	}
+	public function get ( $args ) {
+		$tf = $this->timeframes->get_timeframes( $args );
+		return $tf;
+	}
+
 }

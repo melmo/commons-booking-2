@@ -13,12 +13,6 @@
  */
 class CB_Object {
 	/**
-	 * Fields
-	 *
-	 * @var array
-	 */
-    var $fields = array();
-	/**
 	 * Errors
 	 *
 	 * @var array
@@ -31,54 +25,35 @@ class CB_Object {
 	 */
     public static $settings = array();
 	/**
-	 * Formatted sql conditions
+	 * Formatted sql conditions for timeframes query
 	 *
 	 * @var array
 	 */
 	private $sql_conditions_timeframes = array();
 	/**
-	 * Formatted sql conditions
+	 * Formatted sql conditions for slots/bookings query
 	 *
 	 * @var array
 	 */
-	private $sql_conditions_slots = array();
+	private $sql_conditions_slots_bookings = array();
 	/**
 	 * default query args
 	 *
 	 * @var array
 	 */
-
-	public $default_query_args = array();
+	private $default_query_args = array();
 	/**
-	 * supplied query args
-	 *
-	 * @var array
-	 */
-	private $custom_query_args = array();
-	/**
-	 * supplied query args
+	 * array holding the timeframe objects
 	 *
 	 * @var array
 	 */
 	public $timeframes_array = array();
 	/**
-	 * supplied query args
-	 *
-	 * @var array
-	 */
-	public $calendar_array = array();
-	/**
-	 * merged query args
+	 * Merged query args.
 	 *
 	 * @var array
 	 */
     public $query_args;
-	/**
-	 * merged query args
-	 *
-	 * @var array
-	 */
-    public $context = 'timeframe';
 	/**
 	 * merged query args
 	 *
@@ -91,6 +66,12 @@ class CB_Object {
 	 * @var array
 	 */
     public $today;
+	/**
+	 * context
+	 *
+	 * @var array
+	 */
+    public $context;
 	/**
 	 * Prefix & Table names
 	 *	 */
@@ -112,6 +93,19 @@ class CB_Object {
 		if ( !apply_filters( 'commons_booking_cb_object_initialize', true ) ) {
 			return;
 		}
+	}
+	/**
+	 * Init base variables
+	 *
+   * Setup db table names
+	 * Set today
+	 */
+	public function do_setup( ) {
+
+		$this->set_db_tables();
+		$this->set_default_query_args();
+		$this->context = 'timeframe';
+
 	}
 	/**
 	 * Set the prefixed database tables
@@ -194,21 +188,6 @@ class CB_Object {
 			'discard_empty' => false		// BOOL		days without slots will not be retrieved
 		);
 	}
-
-	/**
-	 * Setup
-	 *
-   * Setup db table names
-	 * Set today
-	 */
-	public function setup( ) {
-
-		$this->set_db_tables();
-		$this->set_default_query_args();
-
-	}
-
-
 	/**
 	 * Construct SQL query to retrieve timeframes
 	 *
@@ -299,12 +278,12 @@ class CB_Object {
 	 *
 	 * @return array sql conditions
 	 */
-	public function build_sql_conditions_slots( $args ) {
+	public function build_sql_conditions_slots_bookings( $args ) {
 
 		global $wpdb;
 
 		$tf_args = $this->query_args; // master query args
-		$sql_conditions_slots = array(); // array holding the sql conditions
+		$sql_conditions_slots_bookings = array(); // array holding the sql conditions
 
 		$slots_table 	= $wpdb->prefix . CB_SLOTS_TABLE;
 		$bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
@@ -325,52 +304,41 @@ class CB_Object {
 			$timeframes_table . '.location_id',
 		);
 
-		$sql_conditions_slots['SELECT'] = $sql_fields_slots;
+		$sql_conditions_slots_bookings['SELECT'] = $sql_fields_slots;
 
 		// Select by timeframe
 		if ( $args['timeframe_id'] && is_array( $args['timeframe_id'] ) ) {
 			$timeframe_ids = implode (',', $args['timeframe_id'] );
-			$sql_conditions_slots['WHERE'][] =  sprintf(' %s.timeframe_id IN (%s)', $slots_table, $timeframe_ids );
+			$sql_conditions_slots_bookings['WHERE'][] =  sprintf(' %s.timeframe_id IN (%s)', $slots_table, $timeframe_ids );
 		}
 
 		// Select by booking user id
 		if ( $tf_args['user_id'] && is_numeric( $tf_args['user_id'] ) ) {
-			$sql_conditions_slots['WHERE'][] = sprintf(' %s.user_id = %d', $bookings_table,  $args['user_id'] );
+			$sql_conditions_slots_bookings['WHERE'][] = sprintf(' %s.user_id = %d', $bookings_table,  $args['user_id'] );
 		}
-
 		// Select by booking id
 		if ( $tf_args['booking_id'] && is_numeric( $tf_args['booking_id'] ) ) {
-			$sql_conditions_slots['WHERE'][] = sprintf(' %s.booking_id = %d', $bookings_table, $tf_args['booking_id'] );
+			$sql_conditions_slots_bookings['WHERE'][] = sprintf(' %s.booking_id = %d', $bookings_table, $tf_args['booking_id'] );
 		}
-
-		// select by date
+		// Select by date
 		if ( $args['date_start'] && empty( $args['date_end'] ) ) {
-			$sql_conditions_slots['WHERE'][] =  sprintf(' %s.date >= CAST("%s" AS DATE)', $slots_table, $args['date_start'] );
+			$sql_conditions_slots_bookings['WHERE'][] =  sprintf(' %s.date >= CAST("%s" AS DATE)', $slots_table, $args['date_start'] );
 		} elseif ( empty( $args['date_start'] ) && $args['date_end'] ) {
-			$sql_conditions_slots['WHERE'][] =  sprintf(' %s.date <= CAST("%s" AS DATE)', $slots_table, $args['date_end'] );
+			$sql_conditions_slots_bookings['WHERE'][] =  sprintf(' %s.date <= CAST("%s" AS DATE)', $slots_table, $args['date_end'] );
 		} elseif ( $args['date_start'] && $args['date_end'] ) {
-			$sql_conditions_slots['WHERE'][] =  sprintf(' %s.date BETWEEN CAST("%s" AS DATE) AND CAST("%s" AS DATE)', $slots_table, $args['date_start'], $args['date_end'] );
+			$sql_conditions_slots_bookings['WHERE'][] =  sprintf(' %s.date BETWEEN CAST("%s" AS DATE) AND CAST("%s" AS DATE)', $slots_table, $args['date_start'], $args['date_end'] );
 		}
-
 		// Filter: Retrieve only booked slots
 		if ( $tf_args['has_bookings'] ) {
-			$sql_conditions_slots['WHERE'][] = sprintf(' %s.booking_id IS NOT NULL AND %s.booking_status = "booked"', $bookings_table, $bookings_table);
+			$sql_conditions_slots_bookings['WHERE'][] = sprintf(' %s.booking_id IS NOT NULL AND %s.booking_status = "booked"', $bookings_table, $bookings_table);
 		}
 		// Filter: Retrieve only available slots
 		if ( $tf_args['has_open_slots'] ) {
-			$sql_conditions_slots['WHERE'][] = sprintf(' %s.booking_id IS NULL OR %s.booking_status != "booked"', $bookings_table, $bookings_table);
+			$sql_conditions_slots_bookings['WHERE'][] = sprintf(' %s.booking_id IS NULL OR %s.booking_status != "booked"', $bookings_table, $bookings_table);
 		}
 
 
-		return $sql_conditions_slots;
-	}
-	/**
-	 * Get query args
-	 * @param array $args
-	 * @return array
-	 */
-	public function get_query_args(  ) {
-		return $this->query_args;
+		return $sql_conditions_slots_bookings;
 	}
 	/**
 	 * Get timeframes
@@ -379,7 +347,7 @@ class CB_Object {
 	 */
 	public function get_timeframes( $args = array() ) {
 
-		$this->setup();
+		$this->do_setup();
 
 		$this->query_args = $this->merge_query_args( $args ); // user supplied arguments and defaults
 		$conditions_timeframes = $this->build_sql_conditions_timeframes();
@@ -402,7 +370,7 @@ class CB_Object {
 					$slot_query_args['date_end'] =  $timeframe_result->date_end;
 
 					// get the slots
-					$conditions_slots = $this->build_sql_conditions_slots( $slot_query_args );
+					$conditions_slots = $this->build_sql_conditions_slots_bookings( $slot_query_args );
 					$slot_results = $this->do_sql_slots( $conditions_slots );
 
 					// merge calendar (days array) with slots array
@@ -423,7 +391,7 @@ class CB_Object {
 				$slot_query_args['timeframe_id'] = array_column( $timeframe_results, 'timeframe_id');
 
 				// get the slots
-				$conditions_slots = $this->build_sql_conditions_slots( $slot_query_args );
+				$conditions_slots = $this->build_sql_conditions_slots_bookings( $slot_query_args );
 				$slot_results = $this->do_sql_slots( $conditions_slots );
 
 				// Create new calendar object with an array of dates
@@ -441,10 +409,12 @@ class CB_Object {
 
 			return CB_Strings::throw_error( __FILE__,' no timeframes!' ); //@TODO: This will be shown to a front-end user. No dev "error",  use CB_guistrings (also, todo).
 
+
+
 		}
 
-	}
 
+	}
 	/**
 	 * Do an sql search for timeframes matching $query_args
 	 *
@@ -488,53 +458,7 @@ class CB_Object {
 
 		return $timeframes;
 	}
-	/**
-	 * Map the slots array to the dates array, apply filters
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param  	array $dates_array
-	 * @param  	array $slots_array
-	 * @return	array $calendar merged array
-	 *
-	 */
-	public function map_slots_to_cal( $dates_array, $slots_array ) {
-
-		// merge calendar (days array) with slots array
-		$calendar = array_merge_recursive( $dates_array, $slots_array );
-
-		$filter_discard_empty = $this->query_args['discard_empty'];
-
-		if ( $filter_discard_empty ) { // return only days that have slots
-			$calendar  = array_intersect_key( $calendar, $slots_array );
-		}
-		return apply_filters('cb_object_map_slots_to_cal', $calendar );
-	}
-	/**
-	 * Map the slots array to the dates array, apply filters
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param  	array $dates_array
-	 * @param  	array $slots_array
-	 * @return	array merged array
-	 *
-	 */
-	public function filter_calendar( $cal_array ) {
-
-		// merge calendar (days array) with slots array
-		$calendar = array_merge_recursive( $dates_array, $slots_array );
-
-		$filter_discard_empty = $this->query_args['discard_empty'];
-
-		if ( $filter_discard_empty ) { // return only days that have slots
-			$calendar  = array_intersect_key( $calendar, $slots_array );
-		}
-		return apply_filters('cb_object_map_slots_to_cal', $calendar );
-	}
-
-
-	/**
+		/**
 	 * Do an sql search for slots matching $slots_query_args
 	 *
 	 * @since 1.0.0
@@ -592,6 +516,27 @@ class CB_Object {
 
 	}
 	/**
+	 * Map the slots array to the dates array, filter,  apply filters
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  	array $dates_array
+	 * @param  	array $slots_array
+	 * @return	array $calendar merged array
+	 *
+	 */
+	public function map_slots_to_cal( $dates_array, $slots_array ) {
+
+		$calendar = array_merge_recursive( $dates_array, $slots_array ); // merge calendar (days array) with slots array
+
+		$filter_discard_empty = $this->query_args['discard_empty'];
+
+		if ( $filter_discard_empty ) { // discard all days without slots
+			$calendar  = array_intersect_key( $calendar, $slots_array );
+		}
+		return apply_filters('cb_object_map_slots_to_cal', $calendar );
+	}
+	/**
 	 * Set context @TODO
 	 *
 	 * @since 1.0.0
@@ -601,58 +546,6 @@ class CB_Object {
 	 */
 	public function set_context( $context ) {
 		$this->context = $context;
-	}
-	/**
-	 * Do query
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $table_name sql table name
-	 * @param string $key mysql row
-	 * @param string $condition
-	 * @param string $val mysql val
-	 *
-	 */
-	public function do_sql_query( ) {
-
-
-	}
-	/**
-	 * Helper: Return table name prefixed
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $table_name
-	 * @return string
-	 *
-	 */
-	public function get_table_prefixed( $table_name ) {
-		global $wpdb;
-		$table_prefixed = $wpdb->prefix . $table_name;
-		return $table_prefixed;
-	}
-
-	/**
-	 * Returns the id of a particular object in the table it is stored, be it Item (event_id), Location (location_id), Tag, Booking etc.
-     *
-	 * @since 1.0.0
-	 *
-     * @return int
-	 */
-	function get_the_id(){
-	    switch( get_class( $this ) ){
-	        case 'CB_Item':
-	            return $this->item_id;
-	        case 'CB_Location':
-	            return $this->location_id;
-	        case 'CB_Timeframe':
-	            return $this->timeframe_id;
-	        case 'CB_Slot':
-	            return $this->slot_id;
-	        case 'CB_Booking':
-	            return $this->booking_id;
-	    }
-	    return 0;
 	}
 	/**
 	 * Get a setting from the options table
