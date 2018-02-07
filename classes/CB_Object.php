@@ -13,53 +13,65 @@
  */
 class CB_Object {
 	/**
-	 * Errors
+	 * DB or other error messages
 	 *
 	 * @var array
 	 */
-	var $errors = array();
+	public $error_messages = array();
+	/**
+	 * User-facing messages
+	 *
+	 * @var array
+	 */
+	public $user_messages = array();
 	/**
 	 * Settings
 	 *
 	 * @var array
 	 */
-    public static $settings = array();
+  public static $settings = array();
 	/**
 	 * Formatted sql conditions for timeframes query
 	 *
 	 * @var array
 	 */
-	private $sql_conditions_timeframes = array();
+	// private $sql_conditions_timeframes = array();
 	/**
 	 * Formatted sql conditions for slots/bookings query
 	 *
 	 * @var array
 	 */
-	private $sql_conditions_slots_bookings = array();
+	// private $sql_conditions_slots_bookings = array();
 	/**
 	 * default query args
 	 *
 	 * @var array
 	 */
-	private $default_query_args = array();
+	// private $default_query_args = array();
 	/**
-	 * array holding the timeframe objects
+	 * array holding the timeframe objects // context: timeframes
 	 *
 	 * @var array
 	 */
-	public $timeframes_array = array();
+	// public $timeframes_array = array();
+	/**
+	 * array holding the timeframe objects // context: calendar
+	 *
+	 * @var array
+	 */
+	// public $calendar;
 	/**
 	 * Merged query args.
 	 *
 	 * @var array
 	 */
-    public $query_args;
+  public $query_args;
 	/**
 	 * merged query args
 	 *
 	 * @var array
 	 */
-    public $calendar_filter = FALSE;
+    // var $calendar_filter = FALSE;
 	/**
 	 * weekday names
 	 *
@@ -75,10 +87,10 @@ class CB_Object {
 	/**
 	 * Prefix & Table names
 	 *	 */
-		public $db_prefix;
-    public $timeframes_table;
-    public $slots_table;
-    public $bookings_table;
+		// var $db_prefix;
+    // var $timeframes_table;
+    // var $slots_table;
+    // var $bookings_table;
 	/**
 	 * Instance of this class.
 	 *
@@ -102,22 +114,13 @@ class CB_Object {
 	 */
 	public function do_setup( ) {
 
-		$this->set_db_tables();
 		$this->set_default_query_args();
-		$this->context = 'timeframe';
 
-	}
-	/**
-	 * Set the prefixed database tables
-	 *
-	 */
-	public function set_db_tables() {
-		global $wpdb;
-		$this->db_prefix  			= $wpdb->prefix;
-		$this->timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
-		$this->slots_table 			= $wpdb->prefix . CB_SLOTS_TABLE;
-		$this->bookings_table 	= $wpdb->prefix . CB_BOOKINGS_TABLE;
-		$this->timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
+		if ( ! ( $this->context ) ) {
+			$this->set_context('timeframe');
+		}
+
+
 	}
 	/**
 	 * Return default query parameters merged with user args
@@ -205,13 +208,13 @@ class CB_Object {
 
 				// array of table row names the return
 		$sql_fields_timeframe = array (
-			$this->timeframes_table . '.timeframe_id',
-			$this->timeframes_table . '.location_id',
-			$this->timeframes_table . '.item_id',
-			$this->timeframes_table . '.set_id',
-			$this->timeframes_table . '.date_start',
-			$this->timeframes_table . '.date_end',
-			$this->timeframes_table . '.description'
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.timeframe_id',
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.location_id',
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.item_id',
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.set_id',
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.date_start',
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.date_end',
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.description'
 		);
 
 		$sql_conditions['SELECT'] = $sql_fields_timeframe;
@@ -264,7 +267,7 @@ class CB_Object {
 		// order by fields
 		if ( ( $args['orderby'] ) && ( $args['order'] ) ) {
 			if ( in_array( $args['orderby'], array ( 'timeframe_id', 'date_start', 'date_end' ) ) && in_array( $args['order'], array( 'ASC', 'DESC' ) ) ) {
-				$sql_conditions['SQLORDER'] = sprintf (" ORDER BY %s.%s %s", $this->timeframes_table, $args['orderby'], $args['order'] );
+				$sql_conditions['SQLORDER'] = sprintf (" ORDER BY %s.%s %s", $wpdb->prefix . CB_TIMEFRAMES_TABLE, $args['orderby'], $args['order'] );
 			}
 		}
 		//limit
@@ -373,6 +376,9 @@ class CB_Object {
 					$conditions_slots = $this->build_sql_conditions_slots_bookings( $slot_query_args );
 					$slot_results = $this->do_sql_slots( $conditions_slots );
 
+					// set the current objects´ availability count:
+					$timeframe_result->availability = $this->set_timeframe_availability( $slot_results );
+
 					// merge calendar (days array) with slots array
 					$timeframe_calendar->calendar = $this->map_slots_to_cal ( $timeframe_calendar->dates_array, $slot_results );
 
@@ -395,25 +401,23 @@ class CB_Object {
 				$slot_results = $this->do_sql_slots( $conditions_slots );
 
 				// Create new calendar object with an array of dates
-				$calendar = new CB_Calendar( FALSE, $slot_query_args['date_start'], $slot_query_args['date_end'] );
+				$this->calendar = new CB_Calendar( FALSE, $slot_query_args['date_start'], $slot_query_args['date_end'] );
+
+				// set the current objects´ availability count:
+				$this->calendar->availability = $this->set_timeframe_availability( $slot_results );
 
 				// merge calendar (days array) with slots array @TODO: Apply filters
-				$calendar->calendar = $this->map_slots_to_cal( $calendar->dates_array, $slot_results );
+				$this->calendar->calendar = $this->map_slots_to_cal( $this->calendar->dates_array, $slot_results );
 
 				// return an calendar object with an array of days and  all matching timeframes mapped to it
-				return $calendar;
+				return $this->calendar;
 
 			} // end if ( $this->context == 'timeframe' )
 
 		} else { // no timeframes found
 
 			return CB_Strings::throw_error( __FILE__,' no timeframes!' ); //@TODO: This will be shown to a front-end user. No dev "error",  use CB_guistrings (also, todo).
-
-
-
 		}
-
-
 	}
 	/**
 	 * Do an sql search for timeframes matching $query_args
@@ -469,9 +473,9 @@ class CB_Object {
 	public function do_sql_slots( $args ) {
 
 		global $wpdb;
-		$slots_table = $this->slots_table ;
-		$bookings_table = $this->bookings_table;
-		$timeframes_table = $this->timeframes_table;
+		$slots_table = $wpdb->prefix . CB_SLOTS_TABLE ;
+		$bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
+		$timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
 
 		if ( ( $args['WHERE'] ) ) {
 			$where = implode ( $args['WHERE'], " AND " );
@@ -535,6 +539,41 @@ class CB_Object {
 			$calendar  = array_intersect_key( $calendar, $slots_array );
 		}
 		return apply_filters('cb_object_map_slots_to_cal', $calendar );
+	}
+	/**
+	 * Count slots as booked/available
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  array $slots_array
+	 *
+	 */
+	public function set_timeframe_availability( $slots_array ) {
+
+		$slots_count = 0;
+		$slots_available_count = 0;
+		$slots_booked_count = 0;
+
+		foreach ( $slots_array as $day ) { // loop through days
+			foreach ( $day[ 'slots' ] as $slots ) { // loop through slots
+				foreach ( $slots as $slot ) {
+					$slots_count++;
+					if ( $slot[ 'booking_status' ] == NULL ) {
+						$slots_available_count++;
+					} elseif ( $slot[ 'booking_status' ] == 'booked' ) {
+						$slots_booked_count++;
+					}
+				}
+			}
+		}
+
+		$slots_availability = array (
+			'total' => $slots_count,
+			'available' => $slots_available_count,
+			'booked' => $slots_booked_count
+		);
+
+		return $slots_availability;
 	}
 	/**
 	 * Set context @TODO
