@@ -172,7 +172,8 @@ class CB_Object {
       'orderby' 			=> 'date_start',		// STRING order the timeframe results, slots are ordered by slot_order field
       'order' 				=> 'ASC',						// STRING
 			// limit
-      'limit' 				=> false,	// INT 	how many timeframes to return
+			'limit' 				=> false,	// INT 	how many timeframes to return
+			'offset'				=> false, // INT 	how many timeframes to return
 			// cb object
       'timeframe_id' 	=> false,	// ARRAY	query by timeframe id
       'owner_id' 			=> false,	// ARRAY	query by the user that created the timeframe
@@ -277,6 +278,9 @@ class CB_Object {
 		//limit
 		if ( ( $args['limit'] ) && is_numeric( $args['limit'] ) ) {
 			$sql_conditions['LIMIT'] = sprintf (" LIMIT %d ", $args['limit'] );
+		}
+		if ( ( $args['offset'] ) && is_numeric( $args['offset'] ) ) {
+			$sql_conditions['OFFSET'] = sprintf (" OFFSET %d ", $args['offset'] );
 		}
 		return $sql_conditions;
 	}
@@ -473,9 +477,14 @@ class CB_Object {
 		} else {
 			$limit = '';
 		}
+		if ( ! empty ( $args['OFFSET'] ) ) {
+			$offset = $args['OFFSET'];
+		} else {
+			$offset = '';
+		}
 
 		$timeframes = $wpdb->get_results(
-		" SELECT {$select} FROM {$timeframes_table_name} {$conditions} {$orderby} {$limit}"
+		" SELECT {$select} FROM {$timeframes_table_name} {$conditions} {$orderby} {$limit} {$offset}"
 		);
 
 		return $timeframes;
