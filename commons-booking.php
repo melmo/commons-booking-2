@@ -35,7 +35,7 @@ define( 'CB_SLOTS_TABLE', 'cb_slots' );
 
 /**
  * Load the textdomain of the plugin
- * 
+ *
  * @return void
  */
 function cb_load_plugin_textdomain() {
@@ -46,6 +46,7 @@ add_action( 'plugins_loaded', 'cb_load_plugin_textdomain', 1 );
 require_once( CB_PLUGIN_ROOT . 'composer/autoload.php' );
 require_once( CB_PLUGIN_ROOT . 'includes/CB_PostTypes.php' );
 require_once( CB_PLUGIN_ROOT . 'includes/CB_Helpers.php' );
+require_once( CB_PLUGIN_ROOT . 'includes/CB_Gui.php' );
 require_once( CB_PLUGIN_ROOT . 'public/Commons_Booking.php' );
 require_once( CB_PLUGIN_ROOT . 'classes/CB_Object.php' );
 require_once( CB_PLUGIN_ROOT . 'classes/CB_Timeframe.php' );

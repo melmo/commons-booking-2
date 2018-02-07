@@ -12,27 +12,47 @@
  */
 ?>
 <?php
-$obj = new CB_Object;
+$timeframe = new CB_Timeframe;
 
 $args = array (
 	'item_id' => get_the_id(), // This template is called in the loop, so you need to supply the id
-	'has_slots' => FALSE,
-	// 'orderby' => 'date_start',
-	// 'today'   => '+3 day',
-	'order' => 'ASC',
-	'discard_empty' => FALSE
+	'discard_empty' => TRUE,
+	'has_open_slots' => TRUE
 );
 
-$tfs = $obj->get_timeframes( $args );
+$tfs = $timeframe->get( $args );
+
+// var_dump($tfs);
 ?>
 <?php if ( is_array( $tfs )) { ?>
     <?php foreach ( $tfs as $tf ) { ?>
 		<?php //var_dump($tf); ?>
-        <div class="cb-timeframe">
-					<span class="timeframe-description">Descr: <?php echo $tf->description; ?></span><br>
-					<span class="timeframe-time-start">timeframe-time-start: <?php echo $tf->date_start; ?></span><br>
-					<span class="timeframe-time-end">timeframe-time-end: <?php echo $tf->date_end; ?></span><br>
-					<span class="timeframe-id">timeframe-id: <?php echo $tf->timeframe_id; ?></span><br>
+        <div class="cb-timeframe" id="timeframe-<?php echo $tf->description; ?>">
+						<span class="cb-location-info">
+							<?php
+								// location info
+								printf (
+								'<a href="%s">%s</a>: %s - %s',
+								get_permalink( $tf->location_id ),
+								get_the_title( $tf->location_id ),
+								date_i18n( get_option( 'date_format' ), strtotime ( $tf->date_start ) ),
+								date_i18n( get_option( 'date_format' ),  strtotime ( $tf->date_end ) )
+								);
+							?>
+							</span>
+							<span class="cb-slot-availability">
+							<?php
+								// Availability
+								printf (
+								__( '%s slots booked, %s slots available, %s total', 'commons-booking' ),
+								$tf->availability['booked'],
+								$tf->availability['available'],
+								$tf->availability['total']
+								);
+							?>
+							</span>
+								<?php $timeframe->maybe_message ( $tf->message );	?>
+							</span>
             <ul class="cb-dates">
                 <?php if ( is_array( $tf->calendar )) { ?>
                     <?php foreach ( $tf->calendar as $date ) { ?>

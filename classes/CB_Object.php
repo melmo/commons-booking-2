@@ -23,7 +23,7 @@ class CB_Object {
 	 *
 	 * @var array
 	 */
-	public $user_messages = array();
+	public $message = '';
 	/**
 	 * Settings
 	 *
@@ -85,6 +85,12 @@ class CB_Object {
 	 */
     public $context;
 	/**
+	 * gui
+	 *
+	 * @var object
+	 */
+    public $gui;
+	/**
 	 * Prefix & Table names
 	 *	 */
 		// var $db_prefix;
@@ -119,8 +125,6 @@ class CB_Object {
 		if ( ! ( $this->context ) ) {
 			$this->set_context('timeframe');
 		}
-
-
 	}
 	/**
 	 * Return default query parameters merged with user args
@@ -375,16 +379,23 @@ class CB_Object {
 					// get the slots
 					$conditions_slots = $this->build_sql_conditions_slots_bookings( $slot_query_args );
 					$slot_results = $this->do_sql_slots( $conditions_slots );
-
 					// set the current objects´ availability count:
 					$timeframe_result->availability = $this->set_timeframe_availability( $slot_results );
 
-					// merge calendar (days array) with slots array
-					$timeframe_calendar->calendar = $this->map_slots_to_cal ( $timeframe_calendar->dates_array, $slot_results );
+					// set the message
+					$timeframe_result->message = '';
+					if ( empty ( $slot_results ) ) {
+						$timeframe_result->message = __('No slots found', 'commons-booking');
+					}
 
-					$timeframe_result->calendar = $timeframe_calendar->calendar; // add calendar to the timeframe results object
+						// merge calendar (days array) with slots array
+						$timeframe_calendar->calendar = $this->map_slots_to_cal ( $timeframe_calendar->dates_array, $slot_results );
 
-					$this->timeframes_array[] = $timeframe_result;
+						$timeframe_result->calendar = $timeframe_calendar->calendar; // add calendar to the timeframe results object
+
+						$this->timeframes_array[] = $timeframe_result;
+
+
 				}
 				// return an array of timeframes with their respective calendars
 				return $this->timeframes_array;
@@ -405,6 +416,13 @@ class CB_Object {
 
 				// set the current objects´ availability count:
 				$this->calendar->availability = $this->set_timeframe_availability( $slot_results );
+
+				// set the message
+				$this->calendar->message = '';
+				if ( empty ( $slot_results ) ) {
+					$this->calendar->message = __('No slots found', 'commons-booking');
+				}
+
 
 				// merge calendar (days array) with slots array @TODO: Apply filters
 				$this->calendar->calendar = $this->map_slots_to_cal( $this->calendar->dates_array, $slot_results );
@@ -642,7 +660,18 @@ class CB_Object {
 		if( WP_DEBUG === true ) {
 			printf ( 'Error: <strong>%s</strong> (%s)<br/> ', $error, $file );
 		}
-
+	}
+	/**
+	 * User Facing messages.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $message
+	 *
+	 */
+	public function maybe_message( $message ){
+		$gui = CB_Gui::get_instance();
+		echo $gui->maybe_do_message( $message );
 	}
 
 }
