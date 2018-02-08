@@ -40,7 +40,7 @@ class CB_Timeframe extends CB_Object {
 		$this->timeframes = new CB_Object;
 
 	}
-	public function get ( $args ) {
+	public function get ( $args=array() ) {
 		$tf = $this->timeframes->get_timeframes( $args );
 		return $tf;
 	}
