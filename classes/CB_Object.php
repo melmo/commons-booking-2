@@ -427,14 +427,18 @@ class CB_Object {
 					$this->calendar->message = __('No slots found', 'commons-booking');
 				}
 
-
 				// merge calendar (days array) with slots array @TODO: Apply filters
 				$this->calendar->calendar = $this->map_slots_to_cal( $this->calendar->dates_array, $slot_results );
 
 				// return an calendar object with an array of days and  all matching timeframes mapped to it
 				return $this->calendar;
 
-			} // end if ( $this->context == 'timeframe' )
+			} elseif ( $this->context = 'admin_table' ){
+
+				return $timeframe_results;
+
+
+			}// end if ( $this->context == 'timeframe' )
 
 		} else { // no timeframes found
 
