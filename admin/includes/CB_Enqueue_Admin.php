@@ -1,7 +1,7 @@
 <?php
 /**
  * Commons_Booking
- * 
+ *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
@@ -34,7 +34,7 @@ class Cb_Enqueue_Admin {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 	}
-	
+
 		/**
 	 * Register and enqueue admin-specific style sheet.
 	 *
@@ -63,7 +63,7 @@ class Cb_Enqueue_Admin {
 		if ( !isset( $this->admin_view_page ) ) {
 			return;
 		}
-		
+
 		$screen = get_current_screen();
 		if ( $this->admin_view_page === $screen->id ) {
 			wp_enqueue_script( CB_TEXTDOMAIN . '-settings-script', plugins_url( 'admin/assets/js/settings.js', CB_PLUGIN_ABSOLUTE ), array( 'jquery', 'jquery-ui-tabs' ), CB_VERSION );
@@ -74,26 +74,31 @@ class Cb_Enqueue_Admin {
 	 * Register the plugin management menu (items, locations, timeframes, bookings) and settings into the WordPress Dashboard menu.
 	 *
 	 * @since 1.0.0
-	 * 
+	 *
 	 * @return void
 	 */
 	public function add_plugin_manage_menu() {
 		/*
 		 * Add the CB main entry, sub-menu entries for items and locations are created in CB_Posttypes.php.
-		 * 
+		 *
 		 */
 		add_menu_page( __( 'Dashboard', CB_TEXTDOMAIN ), __( 'Commons Booking', CB_TEXTDOMAIN ), 'manage_options', 'cb_dashboard_page', array( $this, 'display_plugin_admin_page' ), 'dashicons-hammer', 6 );
 		// Sub-Menu entries for non-wordpress-cpts -> probably move this to the individual classes
 		add_submenu_page( 'cb_dashboard_page', __( 'Timeframes', CB_TEXTDOMAIN ), __( 'Timeframes', CB_TEXTDOMAIN ), 'manage_options', 'cb_manage_timeframe_page', array( $this, 'display_timeframe_manage_page' ) );
 		add_submenu_page( 'cb_dashboard_page', __( 'Bookings', CB_TEXTDOMAIN ), __( 'Bookings', CB_TEXTDOMAIN ), 'manage_options', 'cb_bookings_page', array( $this, 'display_plugin_admin_page' ) );
+
+		add_submenu_page( 'cb_dashboard_page', __( 'List-Table Example Title', CB_TEXTDOMAIN ), __( 'List-Table', CB_TEXTDOMAIN ), 'manage_options', 'cb_list_table_page', array( $this, 'display_list_table_page' ) );
+
+    // add_menu_page('Example Plugin List Table', 'List Table Example', 'activate_plugins', 'tt_list_test', 'tt_render_list_page');
+
 		// Settings menu
 		$this->admin_view_page = add_submenu_page( 'cb_dashboard_page', __( 'Settings', CB_TEXTDOMAIN ), __( 'Settings', CB_TEXTDOMAIN ), 'manage_options', 'cb_settings_page', array( $this, 'display_plugin_admin_page' ) );
-	}		
+	}
 	/**
 	 * Render the settings page for this plugin.
 	 *
 	 * @since 1.0.0
-	 * 
+	 *
 	 * @return void
 	 */
 	public function display_plugin_admin_page() {
@@ -103,19 +108,32 @@ class Cb_Enqueue_Admin {
 	 * Render the timeframe management page.
 	 *
 	 * @since 1.0.0
-	 * 
+	 *
 	 * @return void
 	 */
 	public function display_timeframe_manage_page() {
 		include_once( CB_PLUGIN_ROOT . 'admin/manage/views/timeframe.php' );
 	}
 	/**
+	 * Render the timeframe management page.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
+	public function display_list_table_page() {
+
+		include_once( CB_PLUGIN_ROOT . 'admin/manage/views/list-table.php' );
+
+
+	}
+	/**
 	 * Add settings action link to the plugins page.
 	 *
 	 * @since 1.0.0
-	 * 
+	 *
 	 * @param array $links Array of links.
-	 * 
+	 *
 	 * @return array
 	 */
 	public function add_action_links( $links ) {
@@ -125,7 +143,7 @@ class Cb_Enqueue_Admin {
 				), $links
 		);
 	}
-	
+
 }
 $cb_enqueue_admin = new Cb_Enqueue_Admin();
 $cb_enqueue_admin->initialize();

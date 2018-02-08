@@ -23,7 +23,7 @@ class Commons_Booking_Admin {
 	 * settings page and menu.
 	 *
 	 * @since 1.0.0
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function initialize() {
@@ -59,6 +59,10 @@ class Commons_Booking_Admin {
 		 * All the extras functions
 		 */
 		require_once( CB_PLUGIN_ROOT . 'admin/includes/CB_Extras_Admin.php' );
+		/*
+		 * Timeframes Table
+		 */
+		require_once( CB_PLUGIN_ROOT . 'admin/manage/CB_Timeframes_Table.php' );
 	}
 	/**
 	 * Return an instance of this class.
