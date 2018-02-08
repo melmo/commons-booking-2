@@ -63,6 +63,14 @@ class Commons_Booking_Admin {
 		 * Timeframes Table
 		 */
 		require_once( CB_PLUGIN_ROOT . 'admin/manage/CB_Timeframes_Table.php' );
+		/*
+		 * Bookings Functions
+		 */
+		require_once( CB_PLUGIN_ROOT . 'admin/manage/includes/CB_Bookings_Admin.php' );
+		/*
+		 * Bookings Table
+		 */
+		require_once( CB_PLUGIN_ROOT . 'admin/manage/includes/CB_Bookings_Table.php' );
 	}
 	/**
 	 * Return an instance of this class.

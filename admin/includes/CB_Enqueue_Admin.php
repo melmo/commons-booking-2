@@ -1,6 +1,6 @@
 <?php
 /**
- * Commons_Booking
+ * Administration Enqueue
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
@@ -9,7 +9,7 @@
  * @link      http://commonsbooking.wielebenwir.de
  */
 /**
- * This class contain the Enqueue stuff for the backend
+ * This class contains the Enqueues for the backend
  */
 class Cb_Enqueue_Admin {
 		/**
@@ -84,10 +84,18 @@ class Cb_Enqueue_Admin {
 		 */
 		add_menu_page( __( 'Dashboard', CB_TEXTDOMAIN ), __( 'Commons Booking', CB_TEXTDOMAIN ), 'manage_options', 'cb_dashboard_page', array( $this, 'display_plugin_admin_page' ), 'dashicons-hammer', 6 );
 		// Sub-Menu entries for non-wordpress-cpts -> probably move this to the individual classes
-		add_submenu_page( 'cb_dashboard_page', __( 'Timeframes', CB_TEXTDOMAIN ), __( 'Timeframes', CB_TEXTDOMAIN ), 'manage_options', 'cb_manage_timeframe_page', array( $this, 'display_timeframe_manage_page' ) );
-		add_submenu_page( 'cb_dashboard_page', __( 'Bookings', CB_TEXTDOMAIN ), __( 'Bookings', CB_TEXTDOMAIN ), 'manage_options', 'cb_bookings_page', array( $this, 'display_plugin_admin_page' ) );
+		add_submenu_page( 'cb_dashboard_page', __( 'Timeframes', CB_TEXTDOMAIN ), __( 'Timeframes', CB_TEXTDOMAIN ), 'manage_options', 'cb_manage_timeframes', array( $this, 'display_timeframe_manage_page' ) );
 
-		add_submenu_page( 'cb_dashboard_page', __( 'List-Table Example Title', CB_TEXTDOMAIN ), __( 'List-Table', CB_TEXTDOMAIN ), 'manage_options', 'cb_list_table_page', array( $this, 'display_list_table_page' ) );
+		/**
+		 * Bookings Admin Pages
+		 */
+		// 1. Bookings List Table
+		add_submenu_page( 'cb_dashboard_page', __('Bookings', 'commons-booking'), __('Bookings', 'commons-booking'), 'manage_options', 'cb_bookings_table', array( $this, 'display_bookings_table_page' ) );
+		// 2. Bookings Add/Edit Screen
+    add_submenu_page( NULL, __('Add new', 'commons-booking'), __('Add new', 'commons-booking'), 'manage_options', 'cb_bookings_edit', array( $this, 'display_bookings_edit_page' ) );
+
+
+		// add_submenu_page( 'cb_dashboard_page', __( 'List-Table Example Title', CB_TEXTDOMAIN ), __( 'List-Table', CB_TEXTDOMAIN ), 'manage_options', 'cb_list_table_page', array( $this, 'display_list_table_page' ) );
 
     // add_menu_page('Example Plugin List Table', 'List Table Example', 'activate_plugins', 'tt_list_test', 'tt_render_list_page');
 
@@ -113,6 +121,26 @@ class Cb_Enqueue_Admin {
 	 */
 	public function display_timeframe_manage_page() {
 		include_once( CB_PLUGIN_ROOT . 'admin/manage/views/timeframe.php' );
+	}
+	/**
+	 * Render the bookings table page.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
+	public function display_bookings_table_page() {
+		include_once( CB_PLUGIN_ROOT . 'admin/manage/views/bookings-table.php' );
+	}
+	/**
+	 * Render the bookings table page.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
+	public function display_bookings_edit_page() {
+		include_once( CB_PLUGIN_ROOT . 'admin/manage/views/bookings-edit.php' );
 	}
 	/**
 	 * Render the timeframe management page.
