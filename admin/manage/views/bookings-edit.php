@@ -40,18 +40,18 @@
         $item = shortcode_atts($default, $_REQUEST);
         // validate data, and if all ok save item to database
         // if id is zero insert otherwise update
-        $item_valid = $Bookings_Admin->edit_form_validate_person($item);
+        $item_valid = $Bookings_Admin->edit_form_validate_booking($item);
         if ($item_valid === true) {
-            if ($item['id'] == 0) {
+            if ($item['booking_id'] == 0) {
                 $result = $wpdb->insert($table_name, $item);
-                $item['id'] = $wpdb->insert_id;
+                $item['booking_id'] = $wpdb->insert_id;
                 if ($result) {
                     $message = __('Item was successfully saved', 'commons-booking');
                 } else {
                     $notice = __('There was an error while saving item', 'commons-booking');
                 }
             } else {
-                $result = $wpdb->update($table_name, $item, array('id' => $item['id']));
+                $result = $wpdb->update($table_name, $item, array('booking_id' => $item['booking_id']));
                 if ($result) {
                     $message = __('Item was successfully updated', 'commons-booking');
                 } else {
@@ -65,8 +65,25 @@
     } else {
         // if this is not post back we load item to edit or give new one to create
         $item = $default;
-        if (isset($_REQUEST['id'])) {
-            $item = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $_REQUEST['id']), ARRAY_A);
+        if (isset($_REQUEST['booking_id'])) {
+
+					global $wpdb;
+
+					$args = array (
+						'booking_id' => $_REQUEST['booking_id']
+					);
+
+					$base_sql = $Bookings_Admin->prepare_booking_sql( $args );
+
+					$bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
+					$timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
+					$slots_table = $wpdb->prefix . CB_SLOTS_TABLE;
+
+					$item = $wpdb->get_results( $base_sql, ARRAY_A );
+
+					var_dump($item);
+
+            // $item = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $_REQUEST['id']), ARRAY_A);
             if (!$item) {
                 $item = $default;
                 $notice = __('Item not found', 'commons-booking');
@@ -80,7 +97,7 @@
     ?>
 <div class="wrap">
     <div class="icon32 icon32-posts-post" id="icon-edit"><br></div>
-    <h2><?php _e('Person', 'commons-booking')?> <a class="add-new-h2" href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=cb_bookings_table' );?>"><?php _e('back to list', 'commons-booking')?></a>
+    <h2><?php _e('Bookings', 'commons-booking')?> <a class="add-new-h2" href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=cb_bookings_table' );?>"><?php _e('back to list', 'commons-booking')?></a>
     </h2>
 
     <?php if (!empty($notice)): ?>

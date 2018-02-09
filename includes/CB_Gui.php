@@ -58,7 +58,6 @@ class CB_Gui {
 	 * @return void
 	 */
 	public static function initialize() {
-        //
 
     }
 	/**

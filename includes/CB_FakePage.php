@@ -16,12 +16,21 @@ $args = array (
 	// 'has_slots' => TRUE,
 	// 'orderby' => 'date_start',
 	// 'order' => 'ASC',
-	'today' => '+2 days'
+
+	// 'today' => '0 days'
 	// 'limit' => 1
 );
 
 $tf = new CB_Timeframe();
-$tf->get( $args );
+$tf->set_context('calendar');
+$tf->get_timeframes( $args );
+
+$setting = CB_Settings::get( 'bookings', 'max-slots');
+// var_dump($setting);
+
+// $option = get_option('commons-booking-settings-pages');
+
+// var_dump($tf);
 
 // var_dump( $tf );
 

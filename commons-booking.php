@@ -32,6 +32,7 @@ define( 'CB_TIMEFRAMES_TABLE', 'cb_timeframes' );
 define( 'CB_BOOKINGS_TABLE', 'cb_bookings' );
 define( 'CB_SETS_TABLE', 'cb_sets' );
 define( 'CB_SLOTS_TABLE', 'cb_slots' );
+define( 'CB_SLOTS_BOOKINGS_REL_TABLE', 'cb_slots_bookings_relation' );
 
 /**
  * Load the textdomain of the plugin

@@ -15,6 +15,7 @@
  */
 class CB_Bookings_Table extends WP_List_Table
 {
+	public $Bookings_Admin;
     /**
      * [REQUIRED] You must declare constructor and give some basic params
      */
@@ -22,12 +23,10 @@ class CB_Bookings_Table extends WP_List_Table
     {
 				global $status, $page;
 
-				$Bookings_Admin = new CB_Bookings_Admin();
+				$this->Bookings_Admin = new CB_Bookings_Admin();
 
-        parent::__construct( $Bookings_Admin->names );
+        parent::__construct( $this->Bookings_Admin->names );
 
-				$this->edit_slug = 'cb_bookings_edit';
-				$this->table_name = CB_BOOKINGS_TABLE;
     }
 
     /**
@@ -43,16 +42,44 @@ class CB_Bookings_Table extends WP_List_Table
     }
 
     /**
-     * [OPTIONAL] this is example, how to render specific column
-     *
-     * method name must be like this: "column_[column_name]"
+     * Format col: date
      *
      * @param $item - row (key, value array)
      * @return HTML
      */
-    function column_age($item)
+    function column_date($item)
     {
-        return '<em>' . $item['age'] . '</em>';
+			return $this->Bookings_Admin->col_format_date( $item['date'] );
+    }
+    /**
+     * Format col: user_id
+     *
+     * @param $item - row (key, value array)
+     * @return HTML
+     */
+    function column_user_id($item)
+    {
+			return $this->Bookings_Admin->col_format_user( $item['user_id'] );
+    }
+    /**
+     * Format col: item_id
+     *
+     * @param $item - row (key, value array)
+     * @return HTML
+     */
+    function column_item_id($item)
+    {
+        return $this->Bookings_Admin->col_format_post( $item['item_id'] );
+    }
+    /**
+     * Format col: location_id
+     *
+     * @param $item - row (key, value array)
+     * @return HTML
+     */
+    function column_location_id( $item )
+    {
+        return $this->Bookings_Admin->col_format_post( $item['location_id'] );
     }
 
     /**
@@ -62,7 +89,7 @@ class CB_Bookings_Table extends WP_List_Table
      * @param $item - row (key, value array)
      * @return HTML
      */
-    function column_name($item)
+    function column_booking_status($item)
     {
         // links going to /admin.php?page=[your_plugin_page][&other_params]
         // notice how we used $_REQUEST['page'], so action will be done on curren page
@@ -70,14 +97,14 @@ class CB_Bookings_Table extends WP_List_Table
         // be something like &person=2
         $actions = array(
             'edit' => sprintf(
-							'<a href="?page=cb_bookings_edit&id=%s">%s</a>',
-							$item['id'],
+							'<a href="?page=cb_bookings_edit&booking_id=%s">%s</a>',
+							$item['booking_id'],
 							__('Edit', 'commons-booking')),
-            'delete' => sprintf('<a href="?page=%s&action=delete&id=%s">%s</a>', $_REQUEST['page'], $item['id'], __('Delete', 'commons-booking')),
+            'delete' => sprintf('<a href="?page=%s&action=delete&booking_id=%s">%s</a>', $_REQUEST['page'], $item['booking_id'], __('Delete', 'commons-booking')),
         );
 
         return sprintf('%s %s',
-            $item['name'],
+            $item['booking_status'],
             $this->row_actions($actions)
         );
     }
@@ -91,8 +118,8 @@ class CB_Bookings_Table extends WP_List_Table
     function column_cb($item)
     {
         return sprintf(
-            '<input type="checkbox" name="id[]" value="%s" />',
-            $item['id']
+            '<input type="checkbox" name="booking_id[]" value="%s" />',
+            $item['booking_id']
         );
     }
 
@@ -107,9 +134,14 @@ class CB_Bookings_Table extends WP_List_Table
     {
         $columns = array(
             'cb' => '<input type="checkbox" />', //Render a checkbox instead of text
-            'name' => __('Name', 'commons-booking'),
-            'email' => __('E-Mail', 'commons-booking'),
-            'age' => __('Age', 'commons-booking'),
+            'booking_id' => __('ID', 'commons-booking'),
+            'date' => __('date', 'commons-booking'),
+            'item_id' => __('Item', 'commons-booking'),
+            'location_id' => __('Location', 'commons-booking'),
+            'time_start' => __('Start time', 'commons-booking'),
+            'time_end' => __('End time', 'commons-booking'),
+            'user_id' => __('User', 'commons-booking'),
+						'booking_status' => __('Status', 'commons-booking'),
         );
         return $columns;
     }
@@ -124,9 +156,11 @@ class CB_Bookings_Table extends WP_List_Table
     function get_sortable_columns()
     {
         $sortable_columns = array(
-            'name' => array('name', true),
-            'email' => array('email', false),
-            'age' => array('age', false),
+            'booking_status' => array('booking_status', true),
+            'date' => array('date', false),
+            'item_id' => array('item_id', false),
+            'location_id' => array('location_id', false),
+            'user_id' => array('user_id', false),
         );
         return $sortable_columns;
     }
@@ -154,17 +188,17 @@ class CB_Bookings_Table extends WP_List_Table
     function process_bulk_action()
     {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'cte'; // do not forget about tables prefix
+        $table_name = $wpdb->prefix . CB_BOOKINGS_TABLE; // do not forget about tables prefix
 
         if ('delete' === $this->current_action()) {
-            $ids = isset($_REQUEST['id']) ? $_REQUEST['id'] : array();
+            $ids = isset($_REQUEST['booking_id']) ? $_REQUEST['booking_id'] : array();
             if (is_array($ids)) $ids = implode(',', $ids);
 
             if (!empty($ids)) {
-                $wpdb->query("DELETE FROM $table_name WHERE id IN($ids)");
+                $wpdb->query("DELETE FROM $table_name WHERE booking_id IN($ids)");
             }
         }
-    }
+		}
 
     /**
      * [REQUIRED] This is the most important method
@@ -174,9 +208,11 @@ class CB_Bookings_Table extends WP_List_Table
     function prepare_items()
     {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'cte'; // do not forget about tables prefix
+        $bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
+        $timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
+        $slots_table = $wpdb->prefix . CB_SLOTS_TABLE;
 
-        $per_page = 5; // constant, how much records will be shown per page
+        $per_page = 10; // constant, how much records will be shown per page
 
         $columns = $this->get_columns();
         $hidden = array();
@@ -189,16 +225,26 @@ class CB_Bookings_Table extends WP_List_Table
         $this->process_bulk_action();
 
         // will be used in pagination settings
-        $total_items = $wpdb->get_var("SELECT COUNT(id) FROM $table_name");
+				$total_items = $this->Bookings_Admin->get_item_count();
 
         // prepare query params, as usual current page, order by and order direction
         $paged = isset($_REQUEST['paged']) ? max(0, intval($_REQUEST['paged']) - 1) : 0;
-        $orderby = (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], array_keys($this->get_sortable_columns()))) ? $_REQUEST['orderby'] : 'name';
-        $order = (isset($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc', 'desc'))) ? $_REQUEST['order'] : 'asc';
+        $orderby = (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], array_keys($this->get_sortable_columns()))) ? $_REQUEST['orderby'] : 'booking_id';
+				$order = (isset($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc', 'desc'))) ? $_REQUEST['order'] : 'asc';
 
-        // [REQUIRED] define $items array
-        // notice that last argument is ARRAY_A, so we will retrieve array
-        $this->items = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name ORDER BY $orderby $order LIMIT %d OFFSET %d", $per_page, $paged), ARRAY_A);
+				// get the base sql query from Bookings_Admin Class
+				// $base_sql = $this->Bookings_Admin->prepare_sql();
+				$args = array (
+					// 'status' => 'booked'
+				);
+				$base_sql = $this->Bookings_Admin->prepare_booking_sql( $args );
+
+
+        // add the pagination an other args
+        $this->items = $wpdb->get_results($wpdb->prepare(
+					"{$base_sql}
+				ORDER BY $orderby $order LIMIT %d OFFSET %d", $per_page, $paged), ARRAY_A);
+
 
         // [REQUIRED] configure pagination
         $this->set_pagination_args(array(

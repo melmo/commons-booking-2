@@ -21,17 +21,19 @@
     $table = new CB_Bookings_Table();
     $table->prepare_items();
 
+		// @TODO: use new WP_Admin_Notice
     $message = '';
     if ('delete' === $table->current_action()) {
-        $message = '<div class="updated below-h2" id="message"><p>' . sprintf(__('Items deleted: %d', 'commons-booking'), count($_REQUEST['id'])) . '</p></div>';
+
+        $message = '<div class="updated below-h2" id="message"><p>' . sprintf(__('Items deleted: %d', 'commons-booking'), count($_REQUEST['booking_id'])) . '</p></div>';
     }
     ?>
 <div class="wrap">
 
     <div class="icon32 icon32-posts-post" id="icon-edit"><br></div>
-    <h2><?php _e('Persons', 'commons-booking')?> <a class="add-new-h2" href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=' . $edit_slug); ?>"><?php _e('Add new', 'commons-booking')?></a>
+    <h2><?php _e('Bookings', 'commons-booking')?> <a class="add-new-h2" href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=' . $edit_slug); ?>"><?php _e('Add new', 'commons-booking')?></a>
     </h2>
-    <?php echo $message; ?>
+    <?php //echo new WP_Admin_Notice('', 'updated'); ?>
 
     <form id="persons-table" method="GET">
         <input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>"/>

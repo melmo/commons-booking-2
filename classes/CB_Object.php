@@ -369,11 +369,12 @@ class CB_Object {
 			$slot_query_args = array(); // array to hold our slot query args
 
 			if ( $this->context == 'timeframe' ) { // loop through timeframes, map slots to each timeframe´s calendar
-
 				foreach ( $timeframe_results as $timeframe_result ) {
 
 					// Create new calendar object with an array of dates
 					$timeframe_calendar = new CB_Calendar( $timeframe_result->timeframe_id, $this->today, $timeframe_result->date_end  );
+
+
 
 					// set query args by parent timeframe
 					$slot_query_args['timeframe_id'] =  (array) $timeframe_result->timeframe_id;
@@ -383,6 +384,9 @@ class CB_Object {
 					// get the slots
 					$conditions_slots = $this->build_sql_conditions_slots_bookings( $slot_query_args );
 					$slot_results = $this->do_sql_slots( $conditions_slots );
+
+
+
 					// set the current objects´ availability count:
 					$timeframe_result->availability = $this->set_timeframe_availability( $slot_results );
 
@@ -396,6 +400,7 @@ class CB_Object {
 						$timeframe_calendar->calendar = $this->map_slots_to_cal ( $timeframe_calendar->dates_array, $slot_results );
 
 						$timeframe_result->calendar = $timeframe_calendar->calendar; // add calendar to the timeframe results object
+
 
 						$this->timeframes_array[] = $timeframe_result;
 
@@ -528,6 +533,8 @@ class CB_Object {
 				{$where}
 				ORDER BY date", ARRAY_A
 		);
+
+		// var_dump( $slots );
 
 		/**
 		 * reformat the slot results to into the following array:
