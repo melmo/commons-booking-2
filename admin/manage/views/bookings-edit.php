@@ -16,8 +16,8 @@
 
 		$Bookings_Admin = new CB_Bookings_Admin();
 
-    global $wpdb;
-		$table_name = $wpdb->prefix . 'cte'; // do not forget about tables prefix
+		global $wpdb;
+		$bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
 
 		$edit_slug = $Bookings_Admin->edit_slug; // set the slug from CB_Admin_Enque
 
@@ -26,24 +26,23 @@
 
     // this is default $item which will be used for new records
     $default = array(
-        'id' => 0,
-        'name' => '',
-        'email' => '',
-        'age' => null,
+        'booking_id' => 0,
+        'booking_status' => ''
     );
 
 		// here we are verifying does this request is post back and have correct nonce @TODO: THis should be moved into CB_Bookings_Admin
 
     if ( isset($_REQUEST['nonce']) && wp_verify_nonce($_REQUEST['nonce'], basename(__FILE__))) {
 
-        // combine our default item with request params
+			// combine our default item with request params
         $item = shortcode_atts($default, $_REQUEST);
         // validate data, and if all ok save item to database
-        // if id is zero insert otherwise update
+				// if id is zero insert otherwise update
+
         $item_valid = $Bookings_Admin->edit_form_validate_booking($item);
         if ($item_valid === true) {
             if ($item['booking_id'] == 0) {
-                $result = $wpdb->insert($table_name, $item);
+                $result = $wpdb->insert($bookings_table, $item);
                 $item['booking_id'] = $wpdb->insert_id;
                 if ($result) {
                     $message = __('Item was successfully saved', 'commons-booking');
@@ -51,8 +50,12 @@
                     $notice = __('There was an error while saving item', 'commons-booking');
                 }
             } else {
-                $result = $wpdb->update($table_name, $item, array('booking_id' => $item['booking_id']));
-                if ($result) {
+								$result = $wpdb->update(
+									$bookings_table,
+									array( 'booking_status' => $item['booking_status'] ),
+									array('booking_id' => $item['booking_id'])
+								);
+                if ( $result) {
                     $message = __('Item was successfully updated', 'commons-booking');
                 } else {
                     $notice = __('There was an error while updating item', 'commons-booking');
@@ -62,10 +65,11 @@
             // if $item_valid not true it contains error message(s)
             $notice = $item_valid;
         }
-    } else {
+    }
         // if this is not post back we load item to edit or give new one to create
         $item = $default;
-        if (isset($_REQUEST['booking_id'])) {
+
+				if (isset($_REQUEST['booking_id'])) {
 
 					global $wpdb;
 
@@ -79,9 +83,8 @@
 					$timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
 					$slots_table = $wpdb->prefix . CB_SLOTS_TABLE;
 
+					// we get an slots array here, with each having the same booking id, user_id, etc. date, item & location id etc is different
 					$item = $wpdb->get_results( $base_sql, ARRAY_A );
-
-					var_dump($item);
 
             // $item = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $_REQUEST['id']), ARRAY_A);
             if (!$item) {
@@ -89,7 +92,7 @@
                 $notice = __('Item not found', 'commons-booking');
             }
         }
-    }
+
 
 		// here we adding our custom meta box
 		$Bookings_Admin->edit_form_do_metabox();
@@ -110,7 +113,7 @@
     <form id="form" method="POST">
         <input type="hidden" name="nonce" value="<?php echo wp_create_nonce(basename(__FILE__))?>"/>
         <?php /* NOTICE: here we storing id to determine will be item added or updated */ ?>
-        <input type="hidden" name="id" value="<?php echo $item['id'] ?>"/>
+        <input type="hidden" name="booking_id" value="<?php echo $item[0]['booking_id'] ?>"/>
 
         <div class="metabox-holder" id="poststuff">
             <div id="post-body">

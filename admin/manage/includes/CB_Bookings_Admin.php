@@ -94,9 +94,6 @@ class CB_Bookings_Admin {
 		} else {
 			$where = '';
 		}
-		// var_dump($where_args);
-
-		var_dump($where);
 
 		$sql =(
 			"
@@ -241,6 +238,15 @@ function bookings_edit_meta_box( $slots ) {
 						<?php echo $this->col_format_post($info['location_id']); ?>
         </td>
     </tr>
+		 <tr class="form-field">
+        <th valign="top" scope="row">
+            <label for="status"><?php _e('Status', 'commons-booking')?></label>
+        </th>
+        <td>
+ 						<input id="booking_status" name="booking_status" type="text" style="width: 95%" value="<?php echo esc_attr($info['booking_status'])?>"
+                   size="50" class="code" placeholder="<?php _e('Status', 'commons-booking')?>" required>
+        </td>
+    </tr>
 		<?php foreach ( $slots as $slot ) { // loop through slots ?>
 		 <tr class="form-field">
         <th valign="top" scope="row">
@@ -267,9 +273,9 @@ function bookings_edit_meta_box( $slots ) {
 function edit_form_validate_booking( $item ){
     $messages = array();
 
-    if (empty($item['name'])) $messages[] = __('Name is required', 'commons-booking');
-    if (!empty($item['email']) && !is_email($item['email'])) $messages[] = __('E-Mail is in wrong format', 'commons-booking');
-    if (!ctype_digit($item['age'])) $messages[] = __('Age in wrong format', 'commons-booking');
+    // if (empty($item['name'])) $messages[] = __('Name is required', 'commons-booking');
+    // if (!empty($item['email']) && !is_email($item['email'])) $messages[] = __('E-Mail is in wrong format', 'commons-booking');
+    // if (!ctype_digit($item['age'])) $messages[] = __('Age in wrong format', 'commons-booking');
     //if(!empty($item['age']) && !absint(intval($item['age'])))  $messages[] = __('Age can not be less than zero');
     //if(!empty($item['age']) && !preg_match('/[0-9]+/', $item['age'])) $messages[] = __('Age must be number');
     //...
