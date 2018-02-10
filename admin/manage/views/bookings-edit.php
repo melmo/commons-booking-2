@@ -1,6 +1,6 @@
 <?php
 /**
- *  Edit Bookings
+ *  Template for editing bookings
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
@@ -16,13 +16,14 @@
 
 		$Bookings_Admin = new CB_Bookings_Admin();
 
+		$defaults = $Bookings_Admin->default_fields;
+		$Bookings_Admin->set_basename( basename(__FILE__) );
+		$Bookings_Admin->handle_request( $_REQUEST ); // handle adding and updating
+
 		global $wpdb;
 		$bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
 
 		$edit_slug = $Bookings_Admin->edit_slug; // set the slug from CB_Admin_Enque
-
-    $message = '';
-    $notice = '';
 
     // this is default $item which will be used for new records
     $default = array(
@@ -30,72 +31,16 @@
         'booking_status' => ''
     );
 
-		// here we are verifying does this request is post back and have correct nonce @TODO: THis should be moved into CB_Bookings_Admin
+    // if this is not post back we load item to edit or give new one to create
+    $item = $Bookings_Admin->get_booking( $_REQUEST );
 
-    if ( isset($_REQUEST['nonce']) && wp_verify_nonce($_REQUEST['nonce'], basename(__FILE__))) {
-
-			// combine our default item with request params
-        $item = shortcode_atts($default, $_REQUEST);
-        // validate data, and if all ok save item to database
-				// if id is zero insert otherwise update
-
-        $item_valid = $Bookings_Admin->edit_form_validate_booking($item);
-        if ($item_valid === true) {
-            if ($item['booking_id'] == 0) {
-                $result = $wpdb->insert($bookings_table, $item);
-                $item['booking_id'] = $wpdb->insert_id;
-                if ($result) {
-                    $message = __('Item was successfully saved', 'commons-booking');
-                } else {
-                    $notice = __('There was an error while saving item', 'commons-booking');
-                }
-            } else {
-								$result = $wpdb->update(
-									$bookings_table,
-									array( 'booking_status' => $item['booking_status'] ),
-									array('booking_id' => $item['booking_id'])
-								);
-                if ( $result) {
-                    $message = __('Item was successfully updated', 'commons-booking');
-                } else {
-                    $notice = __('There was an error while updating item', 'commons-booking');
-                }
-            }
-        } else {
-            // if $item_valid not true it contains error message(s)
-            $notice = $item_valid;
-        }
-    }
-        // if this is not post back we load item to edit or give new one to create
-        $item = $default;
-
-				if (isset($_REQUEST['booking_id'])) {
-
-					global $wpdb;
-
-					$args = array (
-						'booking_id' => $_REQUEST['booking_id']
-					);
-
-					$base_sql = $Bookings_Admin->prepare_booking_sql( $args );
-
-					$bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
-					$timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
-					$slots_table = $wpdb->prefix . CB_SLOTS_TABLE;
-
-					// we get an slots array here, with each having the same booking id, user_id, etc. date, item & location id etc is different
-					$item = $wpdb->get_results( $base_sql, ARRAY_A );
-
-            // $item = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $_REQUEST['id']), ARRAY_A);
-            if (!$item) {
-                $item = $default;
-                $notice = __('Item not found', 'commons-booking');
-            }
-        }
-
-
-		// here we adding our custom meta box
-		$Bookings_Admin->edit_form_do_metabox();
+		if( is_array($item) ) { // make sure that id exists
+			add_meta_box('persons_form_meta_box', __('Booking', 'commons-booking') , 'render_meta_box' , 'person', 'normal', 'default');
+			// here we adding our custom meta box
+		} else {
+			echo ( __('Booking not found', 'commons-booking' ) );
+		}
+		// var_dump($item);
 
     ?>
 <div class="wrap">
@@ -126,3 +71,71 @@
         </div>
     </form>
 </div>
+
+<?php
+// function to render the actual metabox contents
+function render_meta_box( $slots ) {
+
+	$info = $slots[0];
+	$Bookings_Admin = new CB_Bookings_Admin; // we need the class to format out entries.
+
+	?>
+<table cellspacing="2" cellpadding="5" style="width: 100%;" class="form-table">
+    <tbody>
+		 <tr class="form-field">
+        <th valign="top" scope="row">
+            <label for="user"><?php _e('Name', 'commons-booking')?></label>
+        </th>
+        <td>
+						<?php echo $Bookings_Admin->col_format_user($info['user_id']); ?>
+        </td>
+    </tr>
+		<!-- @TODO pull in more user info here -->
+		 <tr class="form-field">
+        <th valign="top" scope="row">
+            <label for="date_time"><?php _e('Booking Date & time', 'commons-booking')?></label>
+        </th>
+        <td>
+						<?php echo $Bookings_Admin->col_format_date_time($info['booking_time']); ?>
+        </td>
+    </tr>
+		 <tr class="form-field">
+        <th valign="top" scope="row">
+            <label for="item"><?php _e('Item', 'commons-booking')?></label>
+        </th>
+        <td>
+						<?php echo $Bookings_Admin->col_format_post($info['item_id']); ?>
+        </td>
+    </tr>
+		 <tr class="form-field">
+        <th valign="top" scope="row">
+            <label for="location"><?php _e('Location', 'commons-booking')?></label>
+        </th>
+        <td>
+						<?php echo $Bookings_Admin->col_format_post($info['location_id']); ?>
+        </td>
+    </tr>
+		 <tr class="form-field">
+        <th valign="top" scope="row">
+            <label for="status"><?php _e('Status', 'commons-booking')?></label>
+        </th>
+        <td>
+ 						<input id="booking_status" name="booking_status" type="text" style="width: 95%" value="<?php echo esc_attr($info['booking_status'])?>"
+                   size="50" class="code" placeholder="<?php _e('Status', 'commons-booking')?>" required>
+        </td>
+    </tr>
+		<?php foreach ( $slots as $slot ) { // loop through slots ?>
+		 <tr class="form-field">
+        <th valign="top" scope="row">
+            <label for="date_time"><?php _e('Date & time', 'commons-booking')?></label>
+        </th>
+        <td>
+						<?php echo $Bookings_Admin->col_format_date($slot['date']); ?>:
+						<?php echo $Bookings_Admin->col_format_date($slot['time_start']); ?> -
+						<?php echo $Bookings_Admin->col_format_date($slot['time_end']); ?>
+        </td>
+    </tr>
+		<?php } ?>
+    </tbody>
+</table>
+<?php } ?>

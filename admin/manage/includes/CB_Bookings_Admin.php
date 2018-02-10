@@ -11,8 +11,9 @@
 /**
  * This class should ideally be used to work with the public-facing side of the WordPress site.
  */
-class CB_Bookings_Admin {
+class CB_Bookings_Admin  {
 
+	public $default_fields = array();
 	// set vars
 	public $list_slug = 'cb_bookings_table';
 	public $edit_slug = 'cb_bookings_edit';
@@ -20,72 +21,76 @@ class CB_Bookings_Admin {
             'singular' => 'booking',
             'plural' => 'bookings',
 	);
+
+	public $basename;
+	public $message;
+	public $booking_id;
 	public $metabox;
+
+	public $bookings_table, $timeframes_table, $slots_table, $slots_bookings_relation_table;
 
 	public function __construct() {
 
-	}
-
-	/**
-	 * Prepare the sql statement
-	 *
-	 * @param $item
-	 */
-	public function prepare_sql( $booking_id=FALSE ) {
-
 		global $wpdb;
-		$bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
-		$timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
-		$slots_table = $wpdb->prefix . CB_SLOTS_TABLE;
-		$slots_bookings_relation_table = $wpdb->prefix . 'wp_cb_slots_bookings_relation';
 
-		// if we have a booking id, we query only one row
-		$where = '';
-		if ( $booking_id ) {
-			$where = sprintf ( ' WHERE booking_id = %d', $booking_id );
+		// set default fields
+		$this->default_fields = array(
+			'booking_id' => 0,
+			'booking_status' => ''
+		);
+
+		// set table names
+		$this->bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
+		$this->timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
+		$this->slots_table = $wpdb->prefix . CB_SLOTS_TABLE;
+		$this->slots_bookings_relation_table = $wpdb->prefix . CB_SLOTS_BOOKINGS_REL_TABLE;
+
+	}
+	/**
+	 * Get Booking
+	 *
+	 * @param $request
+	 */
+	public function get_booking( $request ) {
+
+		if (isset($request['booking_id'])) {
+
+			global $wpdb;
+
+			$args = array (
+				'booking_id' => $request['booking_id']
+			);
+
+			$sql = $this->prepare_booking_sql( $args );
+
+			// we get an slots array here, with each having the same booking id, user_id, etc. date, item & location id etc is different
+			$booking = $wpdb->get_results( $sql, ARRAY_A );
+
+				// $booking = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $_REQUEST['id']), ARRAY_A);
+				if (!$booking) {
+					$booking = $this->default_fields['booking_id'];
+					$this->message = new WP_Admin_Notice( __( 'Saved', CB_TEXTDOMAIN ), 'updated' );
+				}
+				return $booking;
 		}
 
-		$sql =(
-		"SELECT
-		booking_id,
-		{$bookings_table}.slot_id,
-		booking_status,
-		user_id,
-		{$slots_table}.timeframe_id,
-		date,
-		time_start,
-		time_end,
-		booking_code,
-		{$slots_table}.description,
-		item_id,
-		location_id
-		FROM {$bookings_table}
-		LEFT JOIN {$slots_table} ON {$bookings_table}.slot_id = {$slots_table}.slot_id
-		LEFT JOIN {$timeframes_table} ON {$slots_table}.timeframe_id = {$timeframes_table}.timeframe_id {$where}"
-		);
-		return $sql;
-}
+	}
 	/**
-	 * Prepare the bookings sql statement
+	 * Prepare the get bookings SQL statement
 	 *
-	 * @param $item
+	 * @param array $args
 	 */
-	public function prepare_booking_sql( $args=array() ) {
+	public function prepare_booking_sql( $args = array() ) {
 
 		global $wpdb;
-		$bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
-		$timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
-		$slots_table = $wpdb->prefix . CB_SLOTS_TABLE;
-		$slots_bookings_relation_table = $wpdb->prefix . CB_SLOTS_BOOKINGS_REL_TABLE;
-
 
 		// if we have a booking id, we query only one row
 		$where_args = array();
 		if ( ! empty ( $args[ 'booking_id' ] ) ) {
-			$where_args[] = sprintf ( ' %s.booking_id = %d', $bookings_table, $args[ 'booking_id' ] );
+			$where_args[] = sprintf ( ' %s.booking_id = %d', $this->bookings_table, $args[ 'booking_id' ] );
 		}
 		if ( ! empty ( $args[ 'status' ] ) ) {
-			$where_args[] = sprintf ( " %s.booking_status = '%s'", $bookings_table, $args[ 'status' ] );
+			$where_args[] = sprintf ( " %s.booking_status = '%s'", $this->bookings_table, $args[ 'status' ] );
 		}
 
 		// glue where
@@ -98,36 +103,36 @@ class CB_Bookings_Admin {
 		$sql =(
 			"
 			SELECT
-			{$bookings_table}.booking_id,
-			{$bookings_table}.booking_status,
-			{$bookings_table}.user_id,
-			{$bookings_table}.booking_meta,
-			{$bookings_table}.booking_time,
-			{$slots_table}.slot_id,
-			{$slots_table}.date,
-			{$slots_table}.time_start,
-			{$slots_table}.time_end,
-			{$slots_table}.status AS slot_status,
-			{$slots_table}.description AS slot_description,
-			{$slots_table}.order AS slot_order,
-			{$slots_table}.timeframe_id,
-			{$timeframes_table}.timeframe_id,
-			{$timeframes_table}.item_id,
-			{$timeframes_table}.location_id,
-			{$timeframes_table}.owner_id
-			FROM {$bookings_table}
-			LEFT JOIN {$slots_bookings_relation_table} ON {$bookings_table}.booking_id={$slots_bookings_relation_table}.booking_id
-			LEFT JOIN {$slots_table} ON {$slots_bookings_relation_table}.slot_id={$slots_table}.slot_id
-			LEFT JOIN {$timeframes_table} ON {$slots_table}.timeframe_id={$timeframes_table}.timeframe_id
+			{$this->bookings_table}.booking_id,
+			{$this->bookings_table}.booking_status,
+			{$this->bookings_table}.user_id,
+			{$this->bookings_table}.booking_meta,
+			{$this->bookings_table}.booking_time,
+			{$this->slots_table}.slot_id,
+			{$this->slots_table}.date,
+			{$this->slots_table}.time_start,
+			{$this->slots_table}.time_end,
+			{$this->slots_table}.status AS slot_status,
+			{$this->slots_table}.description AS slot_description,
+			{$this->slots_table}.order AS slot_order,
+			{$this->slots_table}.timeframe_id,
+			{$this->timeframes_table}.timeframe_id,
+			{$this->timeframes_table}.item_id,
+			{$this->timeframes_table}.location_id,
+			{$this->timeframes_table}.owner_id
+			FROM {$this->bookings_table}
+			LEFT JOIN {$this->slots_bookings_relation_table} ON {$this->bookings_table}.booking_id={$this->slots_bookings_relation_table}.booking_id
+			LEFT JOIN {$this->slots_table} ON {$this->slots_bookings_relation_table}.slot_id={$this->slots_table}.slot_id
+			LEFT JOIN {$this->timeframes_table} ON {$this->slots_table}.timeframe_id={$this->timeframes_table}.timeframe_id
 			{$where}
 		"
 		);
 		return $sql;
 }
-	/**
+/**
  * Return the number of items in the db
  *
- * @param $item
+ * @return int $total_items
  */
 public function get_item_count( ) {
 
@@ -142,6 +147,107 @@ public function get_item_count( ) {
 
 	return $total_items;
 }
+	/**
+	 * Handle the request
+	 *
+	 * @param $request
+	 */
+	public function handle_request( $request ) {
+
+		if ( isset( $request['nonce'] ) && wp_verify_nonce( $request['nonce'], $this->basename ) ) { // we are trying to save
+			echo ("something to do");
+
+			$item = $this->merge_defaults( $request );
+			$item_valid = $this->validate_form( $item );
+
+			if ($item_valid === true) {
+				if ( $item['booking_id'] == 0 ) {
+
+					$this->add_row( $item );
+
+				} else { // id is present, so update
+
+					$this->update_row( $item );
+				} // endif ($item_valid === true
+
+				$this->message->output(); // diplay message(s)
+			}
+		} else { // we are just displaying the form
+
+			echo("nothing to do");
+		}
+	}
+	/**
+	 * Save row
+	 *
+	 * @param $request
+	 * @return $result
+	 */
+	public function add_row( $item ) {
+
+		global $wpdb;
+
+		$result = $wpdb->insert(
+			$this->bookings_table,
+			$item
+		);
+		$item['booking_id'] = $wpdb->insert_id; // save the id of the newly created entry @TODO
+
+		$this->set_message($result);
+	}
+	/**
+	 * Update row
+	 *
+	 * @param $request
+	 * @return $result
+	 */
+	public function update_row( $item ) {
+
+		global $wpdb;
+
+		$result = $wpdb->update(
+							$this->bookings_table,
+							array( 'booking_status' => $item['booking_status'] ),
+							array('booking_id' => $item['booking_id'])
+						);
+
+		$this->set_message($result);
+	}
+	/**
+	 * set_message
+	 *
+	 * @param $result
+	 */
+	public function set_message( $result ) {
+
+		if ($result) {
+			$this->message = new WP_Admin_Notice( __( 'Saved', CB_TEXTDOMAIN ), 'updated' );
+		} else {
+			$this->message = new WP_Admin_Notice( __( 'Error saving', CB_TEXTDOMAIN ), 'error' );
+		}
+
+	}
+	/**
+	 * set the base file name (necessary to verify nonce)
+	 *
+	 * @param $request
+	 */
+	public function set_basename( $filename ) {
+
+		$this->basename = $filename;
+
+	}
+	/**
+	 * merge default_fields & input vars
+	 *
+	 * @param $request
+	 */
+	public function merge_defaults( $request ) {
+
+		$item = shortcode_atts( $this->default_fields, $request );
+		$this->booking_id = $item['booking_id'];
+		return $item;
+	}
 /**
  * Get user info formatted to use in column
  *
@@ -191,86 +297,13 @@ public function col_format_post( $id ) {
 
 	return $my_post;
 }
-
-	/**
- * This function renders our custom meta box
- * $item is row
- *
- * @param $item
- */
-function bookings_edit_meta_box( $slots ) {
-
-	$info = $slots[0];
-
-	?>
-<table cellspacing="2" cellpadding="5" style="width: 100%;" class="form-table">
-    <tbody>
-		 <tr class="form-field">
-        <th valign="top" scope="row">
-            <label for="user"><?php _e('Name', 'commons-booking')?></label>
-        </th>
-        <td>
-						<?php echo $this->col_format_user($info['user_id']); ?>
-        </td>
-    </tr>
-		<!-- @TODO pull in more user info here -->
-		 <tr class="form-field">
-        <th valign="top" scope="row">
-            <label for="date_time"><?php _e('Booking Date & time', 'commons-booking')?></label>
-        </th>
-        <td>
-						<?php echo $this->col_format_date_time($info['booking_time']); ?>
-        </td>
-    </tr>
-		 <tr class="form-field">
-        <th valign="top" scope="row">
-            <label for="item"><?php _e('Item', 'commons-booking')?></label>
-        </th>
-        <td>
-						<?php echo $this->col_format_post($info['item_id']); ?>
-        </td>
-    </tr>
-		 <tr class="form-field">
-        <th valign="top" scope="row">
-            <label for="location"><?php _e('Location', 'commons-booking')?></label>
-        </th>
-        <td>
-						<?php echo $this->col_format_post($info['location_id']); ?>
-        </td>
-    </tr>
-		 <tr class="form-field">
-        <th valign="top" scope="row">
-            <label for="status"><?php _e('Status', 'commons-booking')?></label>
-        </th>
-        <td>
- 						<input id="booking_status" name="booking_status" type="text" style="width: 95%" value="<?php echo esc_attr($info['booking_status'])?>"
-                   size="50" class="code" placeholder="<?php _e('Status', 'commons-booking')?>" required>
-        </td>
-    </tr>
-		<?php foreach ( $slots as $slot ) { // loop through slots ?>
-		 <tr class="form-field">
-        <th valign="top" scope="row">
-            <label for="date_time"><?php _e('Date & time', 'commons-booking')?></label>
-        </th>
-        <td>
-						<?php echo $this->col_format_date($slot['date']); ?>:
-						<?php echo $this->col_format_date($slot['time_start']); ?> -
-						<?php echo $this->col_format_date($slot['time_end']); ?>
-        </td>
-    </tr>
-		<?php } ?>
-    </tbody>
-</table>'
-<?php
- }
 /**
- * Simple function that validates data and retrieve bool on success
- * and error message(s) on error
+ * Validate @TODO
  *
  * @param $item
  * @return bool|string
  */
-function edit_form_validate_booking( $item ){
+function validate_form( $item ){
     $messages = array();
 
     // if (empty($item['name'])) $messages[] = __('Name is required', 'commons-booking');
@@ -282,11 +315,6 @@ function edit_form_validate_booking( $item ){
 
     if (empty($messages)) return true;
     return implode('<br />', $messages);
-	}
-
-	function edit_form_do_metabox() {
-
-		add_meta_box('persons_form_meta_box', __('Booking', 'commons-booking') , array( $this, 'bookings_edit_meta_box' ) , 'person', 'normal', 'default');
 	}
 }
 ?>
