@@ -2,33 +2,36 @@
 /**
  * Bookings Admin functions
  *
+ * Handles editing, cancelling and detail view of bookings.
+ *  Also provides formatting functions for row items in the table.
+ *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
  */
-/**
- * This class should ideally be used to work with the public-facing side of the WordPress site.
- */
-class CB_Bookings_Admin  {
+class CB_Bookings_Edit  {
 
 	public $default_fields = array();
 	// set vars
-	public $list_slug = 'cb_bookings_table';
-	public $edit_slug = 'cb_bookings_edit';
+	public $list_slug = 'cb_bookings_table'; // slug for table screen
+	public $edit_slug = 'cb_bookings_edit'; // slug for edit screen
 	public $names = array(
-            'singular' => 'booking',
-            'plural' => 'bookings',
+    'singular' => 'booking',
+    'plural' => 'bookings',
 	);
 
 	public $basename;
 	public $message;
 	public $booking_id;
 	public $metabox;
-
+	// DB Tables
 	public $bookings_table, $timeframes_table, $slots_table, $slots_bookings_relation_table;
 
+	/**
+	 * Constructor
+	 */
 	public function __construct() {
 
 		global $wpdb;
@@ -47,38 +50,52 @@ class CB_Bookings_Admin  {
 
 	}
 	/**
-	 * Get Booking
+	 * Get the booking id from the request array
 	 *
-	 * @param $request
+	 * @param array $request
+	 * @return array $booking
 	 */
-	public function get_booking( $request ) {
+	public function get_booking_id_from_request( $request ) {
 
-		if (isset($request['booking_id'])) {
+		return $request['booking_id'];
+
+	}
+	/**
+	 * Get single booking
+	 *
+	 * @param array $request
+	 * @return array $booking
+	 */
+	public function get_booking( $booking_id ) {
+
+		if (isset( $booking_id )) {
 
 			global $wpdb;
 
 			$args = array (
-				'booking_id' => $request['booking_id']
+				'booking_id' => $booking_id
 			);
 
 			$sql = $this->prepare_booking_sql( $args );
 
-			// we get an slots array here, with each having the same booking id, user_id, etc. date, item & location id etc is different
+			// Note: we get an slots array here, with each having the same booking id, user_id, etc. date, item & location id etc is different
 			$booking = $wpdb->get_results( $sql, ARRAY_A );
 
-				// $booking = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $_REQUEST['id']), ARRAY_A);
-				if (!$booking) {
-					$booking = $this->default_fields['booking_id'];
-					$this->message = new WP_Admin_Notice( __( 'Saved', CB_TEXTDOMAIN ), 'updated' );
-				}
-				return $booking;
+			if (! $booking ) {
+				$booking = $this->default_fields['booking_id'];
+				$this->message = new WP_Admin_Notice( __( 'Saved', CB_TEXTDOMAIN ), 'updated' );
+			}
+			return $booking;
 		}
 
 	}
 	/**
 	 * Prepare the get bookings SQL statement
 	 *
+	 * What we will get is an array of slots.
+	 *
 	 * @param array $args
+	 * @return array $slots
 	 */
 	public function prepare_booking_sql( $args = array() ) {
 
@@ -148,7 +165,8 @@ public function get_item_count( ) {
 	return $total_items;
 }
 	/**
-	 * Handle the request
+	 * Handle the editing/creating a new entry request
+	 * @TODO: creating new entries not tested with bookings
 	 *
 	 * @param $request
 	 */
@@ -178,10 +196,10 @@ public function get_item_count( ) {
 		}
 	}
 	/**
-	 * Save row
+	 * Save row in the bookings databse
 	 *
-	 * @param $request
-	 * @return $result
+	 * @param array $item
+	 * @uses set_message
 	 */
 	public function add_row( $item ) {
 
@@ -196,10 +214,10 @@ public function get_item_count( ) {
 		$this->set_message($result);
 	}
 	/**
-	 * Update row
+	 * Update row in the bookings database
 	 *
-	 * @param $request
-	 * @return $result
+	 * @param $item
+	 * @uses set_message
 	 */
 	public function update_row( $item ) {
 
@@ -214,9 +232,9 @@ public function get_item_count( ) {
 		$this->set_message($result);
 	}
 	/**
-	 * set_message
+	 * Create a new admin message.
 	 *
-	 * @param $result
+	 * @param array|bool $result
 	 */
 	public function set_message( $result ) {
 
@@ -228,9 +246,9 @@ public function get_item_count( ) {
 
 	}
 	/**
-	 * set the base file name (necessary to verify nonce)
+	 * Set the base file name (necessary to verify nonce).
 	 *
-	 * @param $request
+	 * @param $filename
 	 */
 	public function set_basename( $filename ) {
 
@@ -238,9 +256,10 @@ public function get_item_count( ) {
 
 	}
 	/**
-	 * merge default_fields & input vars
+	 * Merge default_fields & input vars
 	 *
-	 * @param $request
+	 * @param string $request
+	 * @return array $item
 	 */
 	public function merge_defaults( $request ) {
 
@@ -251,7 +270,8 @@ public function get_item_count( ) {
 /**
  * Get user info formatted to use in column
  *
- * @param $item
+ * @param int $id
+ * @return string $user
  */
 public function col_format_user( $id ) {
 
@@ -266,7 +286,8 @@ public function col_format_user( $id ) {
 /**
  * Get date formatted to use in column
  *
- * @param $item
+ * @param string $date
+ * @return string $date
  */
 public function col_format_date( $date ) {
 
@@ -276,7 +297,8 @@ public function col_format_date( $date ) {
 /**
  * Get date/time formatted to use in column
  *
- * @param $item
+ * @param int $datetime
+ * @return string $datetime
  */
 public function col_format_date_time( $date ) {
 
@@ -284,9 +306,10 @@ public function col_format_date_time( $date ) {
 
 }
 /**
- * Get cb custom post type info formatted to use in column
+ * Get CB custom post type info formatted to use in column
  *
- * @param $item
+ * @param int $id
+ * @return mixed $my_post
  */
 public function col_format_post( $id ) {
 

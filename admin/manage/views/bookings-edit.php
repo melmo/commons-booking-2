@@ -1,6 +1,7 @@
 <?php
 /**
- *  Template for editing bookings
+ * Templates for the bookings edit screen.
+ *
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
@@ -14,7 +15,7 @@
 ?>
 <?php
 
-		$Bookings_Admin = new CB_Bookings_Admin();
+		$Bookings_Admin = new CB_Bookings_Edit();
 
 		$defaults = $Bookings_Admin->default_fields;
 		$Bookings_Admin->set_basename( basename(__FILE__) );
@@ -31,8 +32,9 @@
         'booking_status' => ''
     );
 
-    // if this is not post back we load item to edit or give new one to create
-    $item = $Bookings_Admin->get_booking( $_REQUEST );
+		// if this is not post back we load item to edit or give new one to create
+		$item_id = $Bookings_Admin->get_booking_id_from_request( $_REQUEST );
+    $item = $Bookings_Admin->get_booking( $item_id );
 
 		if( is_array($item) ) { // make sure that id exists
 			add_meta_box('persons_form_meta_box', __('Booking', 'commons-booking') , 'render_meta_box' , 'person', 'normal', 'default');
@@ -77,7 +79,7 @@
 function render_meta_box( $slots ) {
 
 	$info = $slots[0];
-	$Bookings_Admin = new CB_Bookings_Admin; // we need the class to format out entries.
+	$Bookings_Admin = new CB_Bookings_Edit; // we need the class to format out entries.
 
 	?>
 <table cellspacing="2" cellpadding="5" style="width: 100%;" class="form-table">

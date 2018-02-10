@@ -26,7 +26,7 @@ class Cb_Extras_Admin {
 		 *
 		 * First parameter the HTML, the second is the css class
 		 */
-		// new WP_Admin_Notice( __( 'Updated Messages', CB_TEXTDOMAIN ), 'updated' );
+		//new WP_Admin_Notice( __( 'Updated Messages', CB_TEXTDOMAIN ), 'updated' );
 		// new WP_Admin_Notice( __( 'Error Messages', CB_TEXTDOMAIN ), 'error' );
 		/*
 		 * Dismissible notice
