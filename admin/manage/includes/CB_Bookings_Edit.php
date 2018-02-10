@@ -154,12 +154,13 @@ class CB_Bookings_Edit  {
 public function get_item_count( ) {
 
 	global $wpdb;
-	$bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
 
 	// will be used in pagination settings
 	$total_items = $wpdb->get_var("
-	SELECT COUNT(booking_id) FROM
-	{$bookings_table}"
+	SELECT COUNT({$this->slots_table}.slot_id) FROM
+	{$this->bookings_table}
+	LEFT JOIN {$this->slots_bookings_relation_table} ON {$this->bookings_table}.booking_id={$this->slots_bookings_relation_table}.booking_id
+	LEFT JOIN {$this->slots_table} ON {$this->slots_bookings_relation_table}.slot_id={$this->slots_table}.slot_id"
 	);
 
 	return $total_items;
@@ -173,7 +174,6 @@ public function get_item_count( ) {
 	public function handle_request( $request ) {
 
 		if ( isset( $request['nonce'] ) && wp_verify_nonce( $request['nonce'], $this->basename ) ) { // we are trying to save
-			echo ("something to do");
 
 			$item = $this->merge_defaults( $request );
 			$item_valid = $this->validate_form( $item );
