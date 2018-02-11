@@ -44,7 +44,7 @@ class CB_Calendar extends CB_Object {
 	 */
 	public function __construct( $timeframe_id, $date_start, $date_end ) {
 
-		$this->timeframe_id = $timeframe_id; //@tODO: retire
+		$this->timeframe_id = $timeframe_id;
 		$this->date_start = $date_start;
 		$this->date_end = $date_end;
 
