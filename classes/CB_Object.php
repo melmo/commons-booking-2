@@ -304,7 +304,7 @@ class CB_Object {
 
 		// array of table column names to return
 		$sql_fields_slots = array (
-			$slots_table . '.slot_id AS slot_id',
+			$slots_table . '.slot_id',
 			$slots_table . '.timeframe_id',
 			$slots_table . '.date',
 			$slots_table . '.time_start',
@@ -313,9 +313,10 @@ class CB_Object {
 			$slots_table . '.booking_code',
 			$bookings_table . '.booking_status',
 			$bookings_table . '.user_id',
+			$bookings_table . '.booking_time',
+			$bookings_table . '.booking_meta',
 			$timeframes_table . '.item_id',
 			$timeframes_table . '.location_id',
-			$slots_bookings_relation_table . '.slot_id',
 			$slots_bookings_relation_table . '.booking_id',
 		);
 
@@ -384,8 +385,6 @@ class CB_Object {
 					// get the slots
 					$conditions_slots = $this->build_sql_conditions_slots_bookings( $slot_query_args );
 					$slot_results = $this->do_sql_slots( $conditions_slots );
-
-
 
 					// set the current objects´ availability count:
 					$timeframe_result->availability = $this->set_timeframe_availability( $slot_results );
