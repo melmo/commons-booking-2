@@ -1,6 +1,6 @@
 <?php
 /**
- * Templates for the bookings edit screen.
+ * Template for the bookings edit screen.
  *
  *
  * @package   Commons_Booking
@@ -15,16 +15,16 @@
 ?>
 <?php
 
-		$Bookings_Admin = new CB_Bookings_Edit();
+		$Bookings_Edit = new CB_Bookings_Edit();
 
-		$defaults = $Bookings_Admin->default_fields;
-		$Bookings_Admin->set_basename( basename(__FILE__) );
-		$Bookings_Admin->handle_request( $_REQUEST ); // handle adding and updating
+		$defaults = $Bookings_Edit->default_fields;
+		$Bookings_Edit->set_basename( basename(__FILE__) );
+		$Bookings_Edit->handle_request( $_REQUEST ); // handle adding and updating
 
 		global $wpdb;
 		$bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
 
-		$edit_slug = $Bookings_Admin->edit_slug; // set the slug from CB_Admin_Enque
+		$edit_slug = $Bookings_Edit->edit_slug; // set the slug from CB_Admin_Enque
 
     // this is default $item which will be used for new records
     $default = array(
@@ -33,8 +33,8 @@
     );
 
 		// if this is not post back we load item to edit or give new one to create
-		$item_id = $Bookings_Admin->get_booking_id_from_request( $_REQUEST );
-    $item = $Bookings_Admin->get_booking( $item_id );
+		$item_id = $Bookings_Edit->get_booking_id_from_request( $_REQUEST );
+    $item = $Bookings_Edit->get_booking( $item_id );
 
 		if( is_array($item) ) { // make sure that id exists
 			add_meta_box('persons_form_meta_box', __('Booking', 'commons-booking') , 'render_meta_box' , 'person', 'normal', 'default');
@@ -79,7 +79,7 @@
 function render_meta_box( $slots ) {
 
 	$info = $slots[0];
-	$Bookings_Admin = new CB_Bookings_Edit; // we need the class to format out entries.
+	$Bookings_Edit = new CB_Bookings_Edit; // we need the class to format out entries.
 
 	?>
 <table cellspacing="2" cellpadding="5" style="width: 100%;" class="form-table">
@@ -89,7 +89,7 @@ function render_meta_box( $slots ) {
             <label for="user"><?php _e('Name', 'commons-booking')?></label>
         </th>
         <td>
-						<?php echo $Bookings_Admin->col_format_user($info['user_id']); ?>
+						<?php echo $Bookings_Edit->col_format_user($info['user_id']); ?>
         </td>
     </tr>
 		<!-- @TODO pull in more user info here -->
@@ -98,7 +98,7 @@ function render_meta_box( $slots ) {
             <label for="date_time"><?php _e('Booking Date & time', 'commons-booking')?></label>
         </th>
         <td>
-						<?php echo $Bookings_Admin->col_format_date_time($info['booking_time']); ?>
+						<?php echo $Bookings_Edit->col_format_date_time($info['booking_time']); ?>
         </td>
     </tr>
 		 <tr class="form-field">
@@ -106,7 +106,7 @@ function render_meta_box( $slots ) {
             <label for="item"><?php _e('Item', 'commons-booking')?></label>
         </th>
         <td>
-						<?php echo $Bookings_Admin->col_format_post($info['item_id']); ?>
+						<?php echo $Bookings_Edit->col_format_post($info['item_id']); ?>
         </td>
     </tr>
 		 <tr class="form-field">
@@ -114,7 +114,7 @@ function render_meta_box( $slots ) {
             <label for="location"><?php _e('Location', 'commons-booking')?></label>
         </th>
         <td>
-						<?php echo $Bookings_Admin->col_format_post($info['location_id']); ?>
+						<?php echo $Bookings_Edit->col_format_post($info['location_id']); ?>
         </td>
     </tr>
 		 <tr class="form-field">
@@ -132,9 +132,9 @@ function render_meta_box( $slots ) {
             <label for="date_time"><?php _e('Date & time', 'commons-booking')?></label>
         </th>
         <td>
-						<?php echo $Bookings_Admin->col_format_date($slot['date']); ?>:
-						<?php echo $Bookings_Admin->col_format_date($slot['time_start']); ?> -
-						<?php echo $Bookings_Admin->col_format_date($slot['time_end']); ?>
+						<?php echo $Bookings_Edit->col_format_date($slot['date']); ?>:
+						<?php echo $Bookings_Edit->col_format_date($slot['time_start']); ?> -
+						<?php echo $Bookings_Edit->col_format_date($slot['time_end']); ?>
         </td>
     </tr>
 		<?php } ?>
