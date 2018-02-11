@@ -346,7 +346,7 @@ class CB_Object {
 		}
 		// Filter: Retrieve only booked slots
 		if ( $tf_args['has_bookings'] ) {
-			$sql_conditions_slots_bookings['WHERE'][] = sprintf(' %s.booking_id IS NOT NULL AND %s.booking_status = "BOOKED"', $slots_bookings_relation_table, $slots_bookings_relation_table);
+			$sql_conditions_slots_bookings['WHERE'][] = sprintf(' %s.booking_id IS NOT NULL AND %s.booking_status = "BOOKED"', $bookings_table, $bookings_table);
 		}
 		// Filter: Retrieve only available slots
 		if ( $tf_args['has_open_slots'] ) {
