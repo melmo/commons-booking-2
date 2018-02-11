@@ -165,7 +165,7 @@ class CB_Object {
 
 		$this->default_query_args = array(
 			// scope of the timeframe results, slots are queried accordingly
-			'scope' 				=> 'current',	// STRING current, past
+			'scope' 				=> 'current',	// STRING current, past @TODO: this would be convinient for user to have
 			'today'					=> 'today',		// STRING current date parseable with strtotime().
 			'cal_limit' 		=> false, 		// BOOL or INT return only x days of a timeframe (from $today).
 			// order the timeframe results, slots are ordered by slot_order field
@@ -191,10 +191,9 @@ class CB_Object {
 			// geo
 			'city'					=> false, 		// STRING	only retrieve timeframes mapped to a location in city @TODO
 			// availability filters
-			'has_bookings'  => false, 	// BOOL 	only retrieve days with slots that are booked @TODO
-			'has_open_slots'=> false, 	// BOOL 	only retrieve days with slots that can be booked @TODO
-			'discard_empty' => false,		// BOOL		days without slots will not be retrieved
-			'include_booking' => TRUE		// BOOL		include booking information
+			'has_bookings'  => false, 	// BOOL 	retrieve days with slots that are booked
+			'has_open_slots'=> false, 	// BOOL 	retrieve days with slots that can be booked
+			'discard_empty' => false,		// BOOL		days without matching slots will not be retrieved - use in combination with has_bookings or has_bookings
 		);
 	}
 	/**
@@ -294,7 +293,8 @@ class CB_Object {
 
 		global $wpdb;
 
-		$tf_args = $this->query_args; // master query args
+		$query_args = $this->query_args; // master query args, set by user
+		$timeframe_args = $args; // args by function call / loop
 		$sql_conditions_slots_bookings = array(); // array holding the sql conditions
 
 		$timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
@@ -322,34 +322,34 @@ class CB_Object {
 
 		$sql_conditions_slots_bookings['SELECT'] = $sql_fields_slots;
 
-		// Select by timeframe
-		if ( $args['timeframe_id'] && is_array( $args['timeframe_id'] ) ) {
-			$timeframe_ids = implode (',', $args['timeframe_id'] );
+		// Select by timeframe -> this is created by previous function
+		if ( $timeframe_args['timeframe_id'] && is_array( $timeframe_args['timeframe_id'] ) ) {
+			$timeframe_ids = implode (',', $timeframe_args['timeframe_id'] );
 			$sql_conditions_slots_bookings['WHERE'][] =  sprintf(' %s.timeframe_id IN (%s)', $slots_table, $timeframe_ids );
 		}
 
 		// Select by booking user id
-		if ( $tf_args['user_id'] && is_numeric( $tf_args['user_id'] ) ) {
-			$sql_conditions_slots_bookings['WHERE'][] = sprintf(' %s.user_id = %d', $bookings_table,  $args['user_id'] );
+		if ( $query_args['user_id'] && is_integer ($query_args['user_id']) ) {
+			$sql_conditions_slots_bookings['WHERE'][] = sprintf(' %s.user_id = %d', $bookings_table,  $query_args['user_id'] );
 		}
 		// Select by booking id
-		if ( $tf_args['booking_id'] && is_numeric( $tf_args['booking_id'] ) ) {
-			$sql_conditions_slots_bookings['WHERE'][] = sprintf(' %s.booking_id = %d', $bookings_table, $tf_args['booking_id'] );
+		if ( $query_args['booking_id'] && is_integer ( $query_args['booking_id'] ) ) {
+			$sql_conditions_slots_bookings['WHERE'][] = sprintf(' %s.booking_id = %d', $bookings_table, $query_args['booking_id'] );
 		}
 		// Select by date
-		if ( $args['date_start'] && empty( $args['date_end'] ) ) {
-			$sql_conditions_slots_bookings['WHERE'][] =  sprintf(' %s.date >= CAST("%s" AS DATE)', $slots_table, $args['date_start'] );
-		} elseif ( empty( $args['date_start'] ) && $args['date_end'] ) {
-			$sql_conditions_slots_bookings['WHERE'][] =  sprintf(' %s.date <= CAST("%s" AS DATE)', $slots_table, $args['date_end'] );
-		} elseif ( $args['date_start'] && $args['date_end'] ) {
-			$sql_conditions_slots_bookings['WHERE'][] =  sprintf(' %s.date BETWEEN CAST("%s" AS DATE) AND CAST("%s" AS DATE)', $slots_table, $args['date_start'], $args['date_end'] );
+		if ( $timeframe_args['date_start'] && empty( $timeframe_args['date_end'] ) ) {
+			$sql_conditions_slots_bookings['WHERE'][] =  sprintf(' %s.date >= CAST("%s" AS DATE)', $slots_table, $timeframe_args['date_start'] );
+		} elseif ( empty( $timeframe_args['date_start'] ) && $timeframe_args['date_end'] ) {
+			$sql_conditions_slots_bookings['WHERE'][] =  sprintf(' %s.date <= CAST("%s" AS DATE)', $slots_table, $timeframe_args['date_end'] );
+		} elseif ( $timeframe_args['date_start'] && $timeframe_args['date_end'] ) {
+			$sql_conditions_slots_bookings['WHERE'][] =  sprintf(' %s.date BETWEEN CAST("%s" AS DATE) AND CAST("%s" AS DATE)', $slots_table, $timeframe_args['date_start'], $timeframe_args['date_end'] );
 		}
 		// Filter: Retrieve only booked slots
-		if ( $tf_args['has_bookings'] ) {
+		if ( $query_args['has_bookings'] ) {
 			$sql_conditions_slots_bookings['WHERE'][] = sprintf(' %s.booking_id IS NOT NULL AND %s.booking_status = "BOOKED"', $bookings_table, $bookings_table);
 		}
 		// Filter: Retrieve only available slots
-		if ( $tf_args['has_open_slots'] ) {
+		if ( $query_args['has_open_slots'] ) {
 			$sql_conditions_slots_bookings['WHERE'][] = sprintf(' %s.booking_id IS NULL OR %s.booking_status != "BOOKED"', $bookings_table, $bookings_table);
 		}
 		return $sql_conditions_slots_bookings;
@@ -385,54 +385,54 @@ class CB_Object {
 					// get the slots
 					$conditions_slots = $this->build_sql_conditions_slots_bookings( $slot_query_args );
 					$slot_results = $this->do_sql_slots( $conditions_slots );
+					$slot_results_formatted = $this->array_format_slots ( $slot_results, TRUE );
 
 					// set the current objects´ availability count:
-					$timeframe_result->availability = $this->set_timeframe_availability( $slot_results );
+					$timeframe_result->availability = $this->set_timeframe_availability( $slot_results_formatted );
 
 					// set the message
 					$timeframe_result->message = '';
-					if ( empty ( $slot_results ) ) {
+					if ( empty ( $slot_results_formatted ) ) {
 						$timeframe_result->message = __('No slots found', 'commons-booking');
 					}
-
 						// merge calendar (days array) with slots array
-						$timeframe_calendar->calendar = $this->map_slots_to_cal ( $timeframe_calendar->dates_array, $slot_results );
+						$timeframe_calendar->calendar = $this->map_slots_to_cal ( $timeframe_calendar->dates_array, $slot_results_formatted );
 
 						$timeframe_result->calendar = $timeframe_calendar->calendar; // add calendar to the timeframe results object
 
-
-						$this->timeframes_array[] = $timeframe_result;
-
-
+						$this->timeframes_array[] = $timeframe_result; // push into timeframes array
 				}
-				// return an array of timeframes with their respective calendars
-				return $this->timeframes_array;
+
+				return $this->timeframes_array; // return an array of timeframes with their respective calendars
 
 			} elseif ( $this->context == 'calendar' ) { // one calendar, slots mapped to dates
 
 				// add additional query args from timeframe
-				$slot_query_args['date_start'] = $this->today;
-				$slot_query_args['date_end'] = date('Y-m-d', strtotime("+30 days")); //@TODO TODAY
 				$slot_query_args['timeframe_id'] = array_column( $timeframe_results, 'timeframe_id');
+				$slot_query_args['date_start'] = $this->today; //@TODO make variable
+				$slot_query_args['date_end'] = date('Y-m-d', strtotime("+30 days")); //@TODO from settings
 
 				// get the slots
 				$conditions_slots = $this->build_sql_conditions_slots_bookings( $slot_query_args );
 				$slot_results = $this->do_sql_slots( $conditions_slots );
 
+				// format the array
+				$slot_results_formatted = $this->array_format_slots ( $slot_results, TRUE );
+
 				// Create new calendar object with an array of dates
 				$this->calendar = new CB_Calendar( FALSE, $slot_query_args['date_start'], $slot_query_args['date_end'] );
 
 				// set the current objects´ availability count:
-				$this->calendar->availability = $this->set_timeframe_availability( $slot_results );
+				$this->calendar->availability = $this->set_timeframe_availability( $slot_results_formatted );
 
 				// set the message
 				$this->calendar->message = '';
-				if ( empty ( $slot_results ) ) {
+				if ( empty ( $slot_results_formatted ) ) {
 					$this->calendar->message = __('No slots found', 'commons-booking');
 				}
 
 				// merge calendar (days array) with slots array @TODO: Apply filters
-				$this->calendar->calendar = $this->map_slots_to_cal( $this->calendar->dates_array, $slot_results );
+				$this->calendar->calendar = $this->map_slots_to_cal( $this->calendar->dates_array, $slot_results_formatted );
 
 				// return an calendar object with an array of days and  all matching timeframes mapped to it
 				return $this->calendar;
@@ -536,8 +536,10 @@ class CB_Object {
 				ORDER BY date", ARRAY_A
 		);
 
-		/**
-		 * reformat the slot results to into the following array:
+		return $slots;
+	}
+	/**
+	 * reformat the slot results to into the following array:
 		 * 'slots' =>
 		 *    5 => 														// timeframe id
 		 *       1 => 												// slot_id
@@ -549,15 +551,29 @@ class CB_Object {
 		 * 					'timeframe_id' =>  '5'
 		 * 					...
 		 *    6 =>														// timeframe id
-		 */
-		$slots_reformated = array();
-		foreach ( $slots as $key => $val ) {
-			$slots_reformated[$val['date']]['slots'][$val['timeframe_id']][$val['slot_id']] = $val;
-		}
-		// var_dump($slots_reformatted);
-		return $slots_reformated;
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  	array $slots
+	 * @param  	bool  $grouped_by_timeframe
+	 * @return	array $slots_reformated
+	 *
+	 */
+	public function array_format_slots( $slots, $grouped_by_timeframe = TRUE ) {
 
+		$reformatted = array();
+
+		foreach ( $slots as $key => $val ) {
+			if ( $grouped_by_timeframe ) { // group the slots array by timeframe id
+			$reformatted[$val['date']]['slots'][$val['timeframe_id']][$val['slot_id']] = $val;
+			} else { // do not group the slots by timeframe
+			$reformatted[$val['date']]['slots'][$val['slot_id']] = $val;
+			}
+		}
+		return $reformatted;
 	}
+
+
 	/**
 	 * Map the slots array to the dates array, filter,  apply filters
 	 *
@@ -594,8 +610,8 @@ class CB_Object {
 		$slots_booked_count = 0;
 
 		foreach ( $slots_array as $day ) { // loop through days
-			foreach ( $day[ 'slots' ] as $slots ) { // loop through slots
-				foreach ( $slots as $slot ) {
+			foreach ( $day[ 'slots' ] as $slots ) { // loop through timeframes
+				foreach ( $slots as $slot ) { // loop through slots
 					$slots_count++;
 					if ( $slot[ 'booking_status' ] == NULL ) {
 						$slots_available_count++;
