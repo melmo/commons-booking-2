@@ -193,7 +193,8 @@ class CB_Object {
 			// availability filters
 			'has_bookings'  => false, 	// BOOL 	only retrieve days with slots that are booked @TODO
 			'has_open_slots'=> false, 	// BOOL 	only retrieve days with slots that can be booked @TODO
-			'discard_empty' => false		// BOOL		days without slots will not be retrieved
+			'discard_empty' => false,		// BOOL		days without slots will not be retrieved
+			'include_booking' => TRUE		// BOOL		include booking information
 		);
 	}
 	/**
@@ -296,9 +297,10 @@ class CB_Object {
 		$tf_args = $this->query_args; // master query args
 		$sql_conditions_slots_bookings = array(); // array holding the sql conditions
 
+		$timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
 		$slots_table 	= $wpdb->prefix . CB_SLOTS_TABLE;
 		$bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
-		$timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
+		$slots_bookings_relation_table = $wpdb->prefix . CB_SLOTS_BOOKINGS_REL_TABLE;
 
 		// array of table column names to return
 		$sql_fields_slots = array (
@@ -313,6 +315,8 @@ class CB_Object {
 			$bookings_table . '.user_id',
 			$timeframes_table . '.item_id',
 			$timeframes_table . '.location_id',
+			$slots_bookings_relation_table . '.slot_id',
+			$slots_bookings_relation_table . '.booking_id',
 		);
 
 		$sql_conditions_slots_bookings['SELECT'] = $sql_fields_slots;
@@ -341,14 +345,12 @@ class CB_Object {
 		}
 		// Filter: Retrieve only booked slots
 		if ( $tf_args['has_bookings'] ) {
-			$sql_conditions_slots_bookings['WHERE'][] = sprintf(' %s.booking_id IS NOT NULL AND %s.booking_status = "booked"', $bookings_table, $bookings_table);
+			$sql_conditions_slots_bookings['WHERE'][] = sprintf(' %s.booking_id IS NOT NULL AND %s.booking_status = "BOOKED"', $slots_bookings_relation_table, $slots_bookings_relation_table);
 		}
 		// Filter: Retrieve only available slots
 		if ( $tf_args['has_open_slots'] ) {
-			$sql_conditions_slots_bookings['WHERE'][] = sprintf(' %s.booking_id IS NULL OR %s.booking_status != "booked"', $bookings_table, $bookings_table);
+			$sql_conditions_slots_bookings['WHERE'][] = sprintf(' %s.booking_id IS NULL OR %s.booking_status != "BOOKED"', $bookings_table, $bookings_table);
 		}
-
-
 		return $sql_conditions_slots_bookings;
 	}
 	/**
@@ -373,8 +375,6 @@ class CB_Object {
 
 					// Create new calendar object with an array of dates
 					$timeframe_calendar = new CB_Calendar( $timeframe_result->timeframe_id, $this->today, $timeframe_result->date_end  );
-
-
 
 					// set query args by parent timeframe
 					$slot_query_args['timeframe_id'] =  (array) $timeframe_result->timeframe_id;
@@ -512,6 +512,8 @@ class CB_Object {
 		$slots_table = $wpdb->prefix . CB_SLOTS_TABLE ;
 		$bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
 		$timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
+		$slots_bookings_relation_table = $wpdb->prefix . CB_SLOTS_BOOKINGS_REL_TABLE;
+
 
 		if ( ( $args['WHERE'] ) ) {
 			$where = implode ( $args['WHERE'], " AND " );
@@ -528,24 +530,23 @@ class CB_Object {
 			" SELECT
 				{$select}
 				FROM {$slots_table}
-				LEFT JOIN {$bookings_table} ON ({$slots_table}.slot_id = {$bookings_table}.slot_id)
+				LEFT JOIN {$slots_bookings_relation_table} ON ({$slots_table}.slot_id={$slots_bookings_relation_table}.slot_id)
+				LEFT JOIN {$bookings_table} ON ({$slots_bookings_relation_table}.booking_id = {$bookings_table}.booking_id)
 				LEFT JOIN {$timeframes_table} ON ({$slots_table}.timeframe_id = {$timeframes_table}.timeframe_id)
 				{$where}
 				ORDER BY date", ARRAY_A
 		);
 
-		// var_dump( $slots );
-
 		/**
 		 * reformat the slot results to into the following array:
 		 * 'slots' =>
-     *    5 => 														// timeframe id
+		 *    5 => 														// timeframe id
 		 *       1 => 												// slot_id
-     *          'slot_id' 			=> '1'    // slot properties..
+		 *          'slot_id' 			=> '1'    // slot properties..
 		 * 					'timeframe_id' =>  '5'
 		 * 					...
 		 * 			 3 =>
-     *          'slot_id' 			=> '3'
+		 *          'slot_id' 			=> '3'
 		 * 					'timeframe_id' =>  '5'
 		 * 					...
 		 *    6 =>														// timeframe id
@@ -554,6 +555,7 @@ class CB_Object {
 		foreach ( $slots as $key => $val ) {
 			$slots_reformated[$val['date']]['slots'][$val['timeframe_id']][$val['slot_id']] = $val;
 		}
+		// var_dump($slots_reformatted);
 		return $slots_reformated;
 
 	}
@@ -598,7 +600,7 @@ class CB_Object {
 					$slots_count++;
 					if ( $slot[ 'booking_status' ] == NULL ) {
 						$slots_available_count++;
-					} elseif ( $slot[ 'booking_status' ] == 'booked' ) {
+					} elseif ( $slot[ 'booking_status' ] == 'BOOKED' ) {
 						$slots_booked_count++;
 					}
 				}
