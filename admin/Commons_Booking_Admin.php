@@ -56,21 +56,25 @@ class Commons_Booking_Admin {
 		 */
 		require_once( CB_PLUGIN_ROOT . 'admin/includes/CB_Pointers.php' );
 		/*
-		 * All the extras functions
-		 */
+		* All the extras functions
+		*/
 		require_once( CB_PLUGIN_ROOT . 'admin/includes/CB_Extras_Admin.php' );
+		/*
+		* Bookings Functions
+		*/
+		require_once( CB_PLUGIN_ROOT . 'admin/manage/includes/CB_Bookings_Edit.php' );
+		/*
+		* Bookings Table
+		*/
+		require_once( CB_PLUGIN_ROOT . 'admin/manage/includes/CB_Bookings_Table.php' );
 		/*
 		 * Timeframes Table
 		 */
-		require_once( CB_PLUGIN_ROOT . 'admin/manage/CB_Timeframes_Table.php' );
+		require_once( CB_PLUGIN_ROOT . 'admin/manage/includes/CB_Timeframes_Edit.php' );
 		/*
-		 * Bookings Functions
+		 * Timeframes Table
 		 */
-		require_once( CB_PLUGIN_ROOT . 'admin/manage/includes/CB_Bookings_Edit.php' );
-		/*
-		 * Bookings Table
-		 */
-		require_once( CB_PLUGIN_ROOT . 'admin/manage/includes/CB_Bookings_Table.php' );
+		require_once( CB_PLUGIN_ROOT . 'admin/manage/includes/CB_Timeframes_Table.php' );
 	}
 	/**
 	 * Return an instance of this class.

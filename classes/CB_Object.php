@@ -221,7 +221,8 @@ class CB_Object {
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.set_id',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.date_start',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.date_end',
-			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.description'
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.description',
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.owner_id'
 		);
 
 		$sql_conditions['SELECT'] = $sql_fields_timeframe;
@@ -295,7 +296,7 @@ class CB_Object {
 	 *
 	 * @return array
 	 */
-	function get_timeframes_sortable_columns()
+	public function get_timeframes_sortable_columns()
 	{
 			$sortable_columns = array(
 					'timeframe_id' => array('timeframe_id', true),
@@ -311,7 +312,7 @@ class CB_Object {
 	 *
 	 * @return int count of timeframs matching current query
 	 */
-	function get_timeframes_count() {
+	function get_timeframes_row_count() {
 
 		$conditions_timeframes = $this->build_sql_conditions_timeframes();
 		$timeframe_results = $this->do_sql_timeframes( $conditions_timeframes );
@@ -397,6 +398,7 @@ class CB_Object {
 		$this->do_setup();
 
 		$this->query_args = $this->merge_query_args( $args ); // user supplied arguments and defaults
+
 		$conditions_timeframes = $this->build_sql_conditions_timeframes();
 		$timeframe_results = $this->do_sql_timeframes( $conditions_timeframes );
 
