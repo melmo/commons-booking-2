@@ -36,7 +36,7 @@ class CB_Bookings_Edit  {
 
 		global $wpdb;
 
-		// set default fields
+		// set default fields @TODO: Set user
 		$this->default_fields = array(
 			'booking_id' => 0,
 			'booking_status' => ''

@@ -15,9 +15,37 @@
  */
 class CB_Timeframes_Table extends WP_List_Table
 {
+		/**
+	 * Table Admin functions
+	 *
+	 * @var array
+	 */
 	public $Timeframes_Edit;
+	/**
+	 * Array holding the rows
+	 *
+	 * @var array
+	 */
 	public $timeframes_array;
-	public $query_args;
+	/**
+	 * Row count
+	 *
+	 * @var int
+	 */
+	public $total_rows;
+	/**
+	 * Default query args
+	 *
+	 * @var array
+	 */
+	public $query_args = array (
+				'per_page' => 99,
+				'paged' => TRUE,
+				'offset' => 0,
+				'scope' => '',
+				'orderby' => 'date_start',
+				'order' => 'ASC'
+			);
     /**
      * [REQUIRED] You must declare constructor and give some basic params
      */
@@ -25,18 +53,20 @@ class CB_Timeframes_Table extends WP_List_Table
     {
 				global $status, $page;
 
-				$this->Timeframes_Edit = new CB_Timeframes_Edit();
+				$this->Timeframes_Edit = new CB_Timeframes_Edit(); // Table Editing & Admin functions
+				$this->init_timeframes_object(); // init
+				parent::__construct( $this->Timeframes_Edit->names );
+		}
+    /**
+     * Initialise a new object for the retrieval of timeframes, set the context
+     */
+		public function init_timeframes_object() {
 				$this->timeframes_array = new CB_Object();
 				$this->timeframes_array->set_context( 'admin-table' );
-
-				parent::__construct( $this->Timeframes_Edit->names );
-
-
-
-    }
+		}
 
     /**
-     * [REQUIRED] this is a default column renderer
+     * default column renderer
      *
      * @param $item - row (key, value array)
      * @param $column_name - string (key)
@@ -118,10 +148,7 @@ class CB_Timeframes_Table extends WP_List_Table
      * @return HTML
      */
     function column_timeframe_id( $item ) {
-        // links going to /admin.php?page=[your_plugin_page][&other_params]
-        // notice how we used $_REQUEST['page'], so action will be done on curren page
-        // also notice how we use $this->_args['singular'] so in this example it will
-        // be something like &person=2
+
         $actions = array(
             'edit' => sprintf(
 							'<a href="?page=cb_timeframes_edit&timeframe_id=%s">%s</a>',
@@ -135,7 +162,6 @@ class CB_Timeframes_Table extends WP_List_Table
             $this->row_actions($actions)
         );
     }
-
     /**
      * [REQUIRED] this is how checkbox column renders
      *
@@ -234,37 +260,28 @@ class CB_Timeframes_Table extends WP_List_Table
      */
     function prepare_items(){
 
-			// create new Timeframes Object
-        $columns = $this->get_columns();
-        $hidden = array();
-        $sortable = $this->timeframes_array->get_timeframes_sortable_columns();
+			$columns = $this->get_columns();
+			$hidden = array();
+			$sortable = $this->timeframes_array->get_timeframes_sortable_columns();
 
-        // here we configure table headers, defined in our methods
-        $this->_column_headers = array($columns, $hidden, $sortable);
+			// here we configure table headers, defined in our methods
+			$this->_column_headers = array($columns, $hidden, $sortable);
 
-        // [OPTIONAL] process bulk action if any
-        $this->process_bulk_action();
+			// [OPTIONAL] process bulk action if any
+			$this->process_bulk_action();
 
-        // will be used in pagination settings
-				$total_items = $this->timeframes_array->get_timeframes_row_count();
+			// will be used in pagination settings
+			$this->total_rows = $this->timeframes_array->get_timeframes_row_count();
 
-				$args = array (
-					'per_page' => 99,
-					'paged' => TRUE,
-					'offset' => 0,
-					'orderby' => 'date_start',
-					'order' => 'ASC'
-				);
+			$timeframes_object = $this->timeframes_array->get_timeframes( $this->query_args );
 
-				$timeframes_object = $this->timeframes_array->get_timeframes( $args );
+			$this->items = json_decode( json_encode( $timeframes_object ), true); // convert object  to array
 
-				$this->items = json_decode(json_encode($timeframes_object), true); // convert to array
-
-        // [REQUIRED] configure pagination
-        $this->set_pagination_args(array(
-            'total_items' => $total_items, // total items defined above
-            'per_page' => $args['per_page'], // per page constant defined at top of method
-            'total_pages' => ceil($total_items / $args['per_page']) // calculate pages count
-        ));
+			// [REQUIRED] configure pagination
+			$this->set_pagination_args(array(
+					'total_items' => $this->total_rows, // total items defined above
+					'per_page' => $this->query_args['per_page'], // per page constant defined at top of method
+					'total_pages' => ceil( $this->total_rows / $this->query_args['per_page']) // calculate pages count
+			));
     }
 }

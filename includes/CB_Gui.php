@@ -112,8 +112,82 @@ class CB_Gui {
 		);
 			return $message;
 		}
+	}
+/**
+* Renders a dropdown menu for items and locations
+*
+* @param string $post_type_name
+* @param string $field_name
+* @param string $selected id of the pre-selected item
+*
+* @uses cb_get_post_types_list
+* @return mixed html dropdown
+*/
+function cb_edit_table_post_select_html( $post_type_name, $field_name, $selected ) {
 
-  }
+	$html = '';
+	$post_types_array = cb_get_post_types_list( $post_type_name );
+
+	if ( isset ( $post_types_array ) && is_array ( $post_types_array ) ) {
+
+		$html .= '<select name="' . $field_name .'" size="1" class="cb_'. $field_name .'">';
+
+		if ( ! $selected ) {
+			$new = "selected disabled"; } else { $new = ""; } // if new entry, set pre-selected
+
+			foreach ( $post_types_array as $key => $value ) { // loop through posts array
+
+				if ( $key == $selected ) {
+					$s = ' selected'; } else { $s = '';
+				}
+				$html .= '<option value="' . $key . '"' . $s .' >' . $value . '</option>';
+			} // endforeach
+
+			$html .= '</select>';
+		} else {
+			$html .= sprintf( __('<span class="cb-notice">No items of type %s found. Please create at least one.</span>', 'commons-booking' ), $post_type_name);
+		}
+
+		return $html;
+}
+/**
+* Renders a dropdown menu users
+*
+* @param string $post_type_name
+* @param string $field_name
+* @param string $selected id of the pre-selected item
+*
+* @uses cb_get_post_types_list
+* @return mixed html dropdown
+*/
+function cb_edit_table_owner_select_html( $roles = array(), $selected ) {
+
+	$html = '';
+	$users_array = cb_get_users_list( );
+
+	if ( isset ( $users_array ) && is_array ( $users_array ) ) {
+
+		$html .= '<select name="owner_id" size="1" class="cb_owner_select">';
+
+		if ( ! $selected ) {
+			$new = "selected disabled"; } else { $new = ""; } // if new entry, set pre-selected
+
+			foreach ( $users_array as $key => $value ) { // loop through posts array
+
+				if ( $key == $selected ) {
+					$s = ' selected'; } else { $s = '';
+				}
+				$html .= '<option value="' . $key . '"' . $s .' >' . $value . '</option>';
+			} // endforeach
+
+			$html .= '</select>';
+		} else {
+			$html .= sprintf( __('<span class="cb-notice">No users found. Please create at least one.</span>', 'commons-booking' ));
+		}
+
+		return $html;
+}
+
 
 }
 add_action( 'plugins_loaded', array( 'CB_Strings', 'get_instance' ) );

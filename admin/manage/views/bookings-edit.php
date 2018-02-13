@@ -37,7 +37,7 @@
     $item = $Bookings_Edit->get_booking( $item_id );
 
 		if( is_array($item) ) { // make sure that id exists
-			add_meta_box('persons_form_meta_box', __('Booking', 'commons-booking') , 'render_meta_box' , 'person', 'normal', 'default');
+			add_meta_box('bookings_form_meta_box', __('Booking', 'commons-booking') , 'render_meta_box' , 'booking', 'normal', 'default');
 			// here we adding our custom meta box
 		} else {
 			echo ( __('Booking not found', 'commons-booking' ) );
@@ -66,7 +66,7 @@
             <div id="post-body">
                 <div id="post-body-content">
                     <?php /* And here we call our custom meta box */ ?>
-                    <?php do_meta_boxes('person', 'normal', $item); ?>
+                    <?php do_meta_boxes('booking', 'normal', $item); ?>
                     <input type="submit" value="<?php _e('Save', 'commons-booking')?>" id="submit" class="button-primary" name="submit">
                 </div>
             </div>

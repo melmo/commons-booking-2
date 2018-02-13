@@ -21,10 +21,19 @@ class CB_Timeframes_Edit  {
     'singular' => 'timeframe',
     'plural' => 'timeframes',
 	);
+	/**
+	 * Default query args
+	 *
+	 * @var array
+	 */
+	public $query_args = array (
+		'timeframe_id' => 0
+	);
 
+	public $timeframes_array;
 	public $basename;
 	public $message;
-	public $booking_id;
+	public $timeframe_id;
 	public $metabox;
 	// DB Tables
 	public $bookings_table, $timeframes_table, $slots_table, $slots_bookings_relation_table;
@@ -38,15 +47,24 @@ class CB_Timeframes_Edit  {
 
 		// set default fields
 		$this->default_fields = array(
-			'timeframe_id' => 0
+			'timeframe_id' => 0,
+			'item_id' => '',
+			'location_id' => '',
+			'date_start' => '',
+			'date_end' => '',
+			'description' => '',
+			'owner_id' => '',
 		);
+		$this->init_timeframes_object();
 
-		// set table names
-		$this->bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
 		$this->timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
-		$this->slots_table = $wpdb->prefix . CB_SLOTS_TABLE;
-		$this->slots_bookings_relation_table = $wpdb->prefix . CB_SLOTS_BOOKINGS_REL_TABLE;
 
+	}
+		/* Initialise a new object for the retrieval of timeframes, set the context
+		*/
+	public function init_timeframes_object() {
+			$this->timeframes_array = new CB_Object();
+			$this->timeframes_array->set_context( 'admin-table' );
 	}
 	/**
 	 * Get the timeframes id from the request array
@@ -65,83 +83,27 @@ class CB_Timeframes_Edit  {
 	 * @param array $request
 	 * @return array $timeframe
 	 */
-	public function get_timeframe( $timeframe_id ) {
+	public function get_single_timeframe( $id ) {
 
-		if (isset( $timeframe_id )) {
-
-			global $wpdb;
+		if (isset( $id )) { // we have a timeframe id
 
 			$args = array (
-				'timeframe_id' => $timeframe_id
-			);
+				'timeframe_id' => $id,
+				'scope' => '', // ignore dates
+		 );
 
-			$sql = $this->prepare_timeframe_sql( $args );
+			$timeframe = $this->timeframes_array->get_timeframes( $args );
 
-			// Note: we get an slots array here, with each having the same timeframe id, user_id, etc. date, item & location id etc is different
-			$timeframe = $wpdb->get_results( $sql, ARRAY_A );
-
-			if (! $timeframe ) {
+			if (! $timeframe ) { // @ TODO: unklar
 				$timeframe = $this->default_fields['timeframe_id'];
 				$this->message = new WP_Admin_Notice( __( 'Saved', CB_TEXTDOMAIN ), 'updated' );
 			}
-			return $timeframe;
+
+			$array = cb_obj_to_array( $timeframe );
+			return $array[0];
 		}
 
 	}
-	/**
-	 * Prepare the get timeframes SQL statement
-	 *
-	 * What we will get is an array of slots.
-	 *
-	 * @param array $args
-	 * @return array $slots
-	 */
-	public function prepare_timeframe_sql( $args = array() ) {
-
-		global $wpdb;
-
-		// if we have a timeframe id, we query only one row
-		$where_args = array();
-		if ( ! empty ( $args[ 'timeframe_id' ] ) ) {
-			$where_args[] = sprintf ( ' %s.timeframe_id = %d', $this->timeframes_table, $args[ 'timeframe_id' ] );
-		}
-
-		// glue where
-		if ( ! empty ( $where_args ) ) {
-			$where = 'WHERE '. implode ( $where_args, ' AND ' );
-		} else {
-			$where = '';
-		}
-
-		$sql_result =(
-			"
-			SELECT
-			{$this->bookings_table}.booking_id,
-			{$this->bookings_table}.booking_status,
-			{$this->bookings_table}.user_id,
-			{$this->bookings_table}.booking_meta,
-			{$this->bookings_table}.booking_time,
-			{$this->slots_table}.slot_id,
-			{$this->slots_table}.date,
-			{$this->slots_table}.time_start,
-			{$this->slots_table}.time_end,
-			{$this->slots_table}.status AS slot_status,
-			{$this->slots_table}.description AS slot_description,
-			{$this->slots_table}.order AS slot_order,
-			{$this->slots_table}.timeframe_id,
-			{$this->timeframes_table}.timeframe_id,
-			{$this->timeframes_table}.item_id,
-			{$this->timeframes_table}.location_id,
-			{$this->timeframes_table}.owner_id
-			FROM {$this->bookings_table}
-			LEFT JOIN {$this->slots_bookings_relation_table} ON {$this->bookings_table}.booking_id={$this->slots_bookings_relation_table}.booking_id
-			LEFT JOIN {$this->slots_table} ON {$this->slots_bookings_relation_table}.slot_id={$this->slots_table}.slot_id
-			LEFT JOIN {$this->timeframes_table} ON {$this->slots_table}.timeframe_id={$this->timeframes_table}.timeframe_id
-			{$where}
-		"
-		);
-		return $sql_result;
-}
 /**
  * Return the number of items in the db
  *
@@ -169,13 +131,19 @@ public function get_item_count( ) {
 	 */
 	public function handle_request( $request ) {
 
+
+		if ( isset( $request['create']) && $request['create'] == 1) {
+		}
+
 		if ( isset( $request['nonce'] ) && wp_verify_nonce( $request['nonce'], $this->basename ) ) { // we are trying to save
 
 			$item = $this->merge_defaults( $request );
 			$item_valid = $this->validate_form( $item );
 
+			// var_dump($item['timeframe_id']);
+
 			if ($item_valid === true) {
-				if ( $item['booking_id'] == 0 ) {
+				if ( $item['timeframe_id'] == 0 ) {
 
 					$this->add_row( $item );
 
@@ -188,8 +156,24 @@ public function get_item_count( ) {
 			}
 		} else { // we are just displaying the form
 
+			if ( isset( $request['timeframe_id'] ) ) {
+
+				$id = $this->get_timeframe_id_from_request( $request );
+				$this->set_timeframe_id( $id  );
+
+			}
 			echo("nothing to do");
 		}
+	}
+	/**
+	 * Set the timeframe id
+	 *
+	 * @param int $id
+	 */
+	public function set_timeframe_id( $id ) {
+
+		$this->timeframe_id = $id;
+
 	}
 	/**
 	 * Save row in the bookings databse
@@ -202,10 +186,25 @@ public function get_item_count( ) {
 		global $wpdb;
 
 		$result = $wpdb->insert(
-			$this->bookings_table,
-			$item
-		);
-		$item['booking_id'] = $wpdb->insert_id; // save the id of the newly created entry @TODO
+			$this->timeframes_table,
+				array(
+					'item_id' => $item['item_id'],
+					'location_id' => $item['location_id'],
+					'date_start' => $item['date_start'],
+					'date_end' => $item['date_end'],
+					'description' => $item['description'],
+					'owner_id' => $item['owner_id']
+				),
+					array(
+						'%d',	// item_id
+						'%d',	// location_id
+						'%s',	// date_start
+						'%s',	// date_end
+						'%s',	// description
+						'%d'	// value2
+					)
+			);
+		$item['timeframe_id'] = $wpdb->insert_id; // save the id of the newly created entry @TODO
 
 		$this->set_message($result);
 	}
@@ -220,10 +219,26 @@ public function get_item_count( ) {
 		global $wpdb;
 
 		$result = $wpdb->update(
-							$this->bookings_table,
-							array( 'booking_status' => $item['booking_status'] ),
-							array('booking_id' => $item['booking_id'])
-						);
+			$this->timeframes_table,
+				array(
+					'item_id' => $item['item_id'],
+					'location_id' => $item['location_id'],
+					'date_start' => $item['date_start'],
+					'date_end' => $item['date_end'],
+					'description' => $item['description'],
+					'owner_id' => $item['owner_id']
+				),
+				array( 'timeframe_id' => $item['timeframe_id']),
+					array(
+						'%d',	// item_id
+						'%d',	// location_id
+						'%s',	// date_start
+						'%s',	// date_end
+						'%s',	// description
+						'%d'	// value2
+					),
+				array( '%d' )
+			);
 
 		$this->set_message($result);
 	}
@@ -260,7 +275,8 @@ public function get_item_count( ) {
 	public function merge_defaults( $request ) {
 
 		$item = shortcode_atts( $this->default_fields, $request );
-		$this->booking_id = $item['booking_id'];
+		$this->timeframe_id = $item['timeframe_id'];
+
 		return $item;
 	}
 /**
@@ -307,14 +323,17 @@ public function col_format_date_time( $date ) {
  * @param int $id
  * @return mixed $my_post
  */
-public function col_format_post( $id ) {
+public function col_format_post( $id, $title = '' ) {
 
-	$my_post_link = get_the_permalink( $id );
 	$my_post_name = get_the_title( $id );
 
-	$my_post = sprintf ( '<a href="%s">%s</a>', $my_post_link, $my_post_name );
+	if ( ! empty ( $title ) ) {
+		$my_post_link = edit_post_link ( $title, '', '', $id );
+	} else {
+		$my_post_link = edit_post_link ( $my_post_name, '', '', $id );
 
-	return $my_post;
+	}
+	return $my_post_link;
 }
 /**
  * Validate @TODO
