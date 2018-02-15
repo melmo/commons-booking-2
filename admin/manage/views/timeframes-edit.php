@@ -127,6 +127,17 @@ function render_timeframe_meta_box( $item ) {
         </td>
     </tr>
 		 <tr class="form-field-group-header">
+        <td colspan="4"><?php _e('Codes', 'commons-booking'); ?></td>
+		</tr>
+		 <tr class="form-field">
+        <td valign="top" colspan="2">
+						<input id="create_codes_bool" name="create_codes_bool" type="checkbox" value="<?php // echo ($item['create_codes_bool'])?>" class="checkbox">
+            <label for="create_codes_bool"><?php _e('Create codes', 'commons-booking')?> (Edit codes pool)</label>
+        </td>
+        <td valign="top" colspan="2">
+        </td>
+    </tr>
+		 <tr class="form-field-group-header">
         <td colspan="4"><?php _e('Meta', 'commons-booking'); ?></td>
 		</tr>
 		 <tr class="form-field">
