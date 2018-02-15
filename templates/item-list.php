@@ -17,9 +17,13 @@ $timeframe = new CB_Timeframe;
 $args = array (
 	'item_id' => get_the_id(), // This template is called in the loop, so you need to supply the id
 	'discard_empty' => TRUE,
-	'has_open_slots' => TRUE,
-	'limit' => FALSE,
-	'offset' => FALSE
+	// 'has_open_slots' => TRUE,
+	// 'has_bookings' => TRUE,
+	// 'user_id' => 3,
+	'paged' => TRUE,
+	'per_page' => 2,
+	'order_by' => 'date_end',
+	'order' => 'DESC'
 );
 
 $tfs = $timeframe->get( $args );
@@ -59,8 +63,8 @@ $tfs = $timeframe->get( $args );
                     <?php foreach ( $tf->calendar as $date ) { ?>
                         <li>
                             <?php echo $date['meta']['name']; ?> - <?php echo $date['meta']['date']; ?>
-                            <?php if ( ! empty ( $date['slots'] ) && is_array( $date['slots'] ) ) {
-															var_dump($date['slots']); ?>
+                            <?php if ( ! empty ( $date['slots'][$tf->timeframe_id] ) && is_array( $date['slots'][$tf->timeframe_id] ) ) {
+															// var_dump($date['slots']); ?>
                                 <ul class="cb-slots">
                                     <?php foreach ( $date['slots'][$tf->timeframe_id] as $slot ) { ?>
                                         <li class="cb-slot">

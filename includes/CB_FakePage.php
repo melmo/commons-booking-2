@@ -13,7 +13,10 @@ function testing() {
 
 $args = array (
 	// 'item_id' => get_the_id(), // This template is called in the loop, so you need to supply the id
-	// 'has_slots' => TRUE,
+	// 'has_bookings' => TRUE,
+	// 'discard_empty' => TRUE,
+	// 'user_id' => 2,
+
 	// 'orderby' => 'date_start',
 	// 'order' => 'ASC',
 
@@ -22,7 +25,7 @@ $args = array (
 );
 
 $tf = new CB_Timeframe();
-$tf->set_context('calendar');
+$tf->set_context('admin_table');
 $tf->get_timeframes( $args );
 
 $setting = CB_Settings::get( 'bookings', 'max-slots');
