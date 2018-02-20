@@ -1,0 +1,88 @@
+/*
+ * Booking bar displayed on calendar pages
+ * @package   Commons_Booking
+ * @author    Florian Egermann <florian@wielebenwir.de>
+ * @license   GPL-2.0+
+ * @since     0.7
+ * @link      http://www.wielebenwir.de
+ * @copyright 2015 wielebenwir
+ */
+
+#cb-bookingbar {
+  z-index: 99;
+  position: fixed;
+  height: auto;
+  left: 0px;
+  right: 0px;
+  bottom: 10px; 
+  @include transition(all .3s ease);
+  
+
+  .cb-inner {
+    @extend .cb-floating-shadow;
+
+  }
+  .cb-userinfo {
+    display: block;
+    margin-bottom: 10px;
+  }
+    div.left-col {
+      width: 70%;
+      float: left;
+    }
+    div.right-col {
+      width: 30%;
+      float: right;
+    }
+    div#cb-bookingbar-msg, ul#bookingbar-dates {
+      margin: 0;
+      padding: 0;
+    }
+
+    ul#bookingbar-dates {
+      list-style: none;
+      li {
+        margin: 0;
+        padding: 0;
+        display: inline-block;
+        margin-right: $padding;
+        .cb-item-dot{
+          display: none;
+        }
+        .cb-j, .cb-M {
+          font-weight: bold;
+          color: $black;          
+        }
+      }
+  }
+  #cb-submit {
+    text-align: right;
+    a.cb-button {
+      width: auto;
+      display: inline-block;
+    }
+    
+  }
+}
+
+#cb-bookingbar-error {
+  @extend .cb-message;
+  margin-bottom: $padding / 2;
+  background: red;
+  list-style: none;
+  li {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+#cb-booking-process-popup {
+  display: none;
+  @extend .cb-floating-shadow;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom:0;
+  right: 0;
+  margin: 10px;
+}

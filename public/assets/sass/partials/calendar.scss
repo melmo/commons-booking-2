@@ -1,0 +1,309 @@
+/*
+ * Calendar
+ * @package   Commons_Booking
+ * @author    Florian Egermann <florian@wielebenwir.de>
+ * @license   GPL-2.0+
+ * @since     0.7
+ * @link      http://www.wielebenwir.de
+ * @copyright 2015 wielebenwir
+ */
+
+
+.item-circle { // the circle 
+  background-color: gray;
+  border-color: gray;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.cb-timeframe {
+
+  @extend .cb-box;
+
+  .cb-location {
+    display: block;
+    overflow: hidden; 
+    .cb-date, .cb-address, .cb-contact {
+
+    }
+    .cb-location-name {
+      @extend .cb-big;
+    }
+  }
+}
+
+span.cb-item-dot { // dot representing the items
+  @extend .item-circle;
+}
+
+// tooltips
+.tooltipster-box {
+  li a {
+    display: block;
+    white-space:nowrap;
+    @extend .cb-button;
+    margin-bottom: 5px;
+    span.cb-item-dot {
+      margin-right: 3px;
+    }
+  }
+}
+
+// hide closed and booked days on calendar-all
+.calendar-all {
+  .not-bookable, .closed {
+    display: none !important;
+    &.tooltip-item {
+      display: none !important;
+    }
+  }
+}
+
+  /* Calendar */
+  ul.cb-calendar {
+
+    list-style: none; 
+    clear: both;
+    overflow: hidden;
+    margin: 1em 0 1em 0; 
+    padding: 0;
+    background: $light-grey;
+    // background: $light-grey;
+
+    &:first-child {
+      @include border-radiuses($radius, $radius, $radius, $radius );
+    }
+
+    li, li ul, li ul li {
+      margin: 0;
+      padding: 0;
+    }
+
+    li.cb-weekday-row {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: block;
+      width: 100%;
+      clear:both;
+      overflow: hidden;
+          ul {
+            li {
+            list-style: none;
+            width: $cellwidth;
+            float: left;  
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;  
+            text-align: center;
+          }
+        }
+      }
+
+     
+    li.cb-calendar-day-rows { 
+      ul { // container for the date(s)
+        li.cb-calendar-day { // 1 date
+          background: white;
+          border-right: 1px solid $light-grey;
+          border-top: 1px solid $light-grey;
+       
+          margin: 0;
+          padding: 0;
+          -webkit-box-sizing: border-box;
+          -moz-box-sizing: border-box;
+          box-sizing: border-box;
+          width: $cellwidth;
+          height: $cellheight;
+          position: relative;
+          overflow: hidden;
+          float: left;
+          text-align: center;
+
+          .cb-j {
+            @extend .cb-big;
+            display: block;
+            margin:0;
+            padding: 0;
+            line-height: 1em;
+            &.not-bookable  {
+              color: $inactive-color;
+            }
+          }
+
+          .cb-M {
+            @extend .cb-small;
+            color: $grey;    
+          }
+
+
+          ul.cb-calendar-day-items { // container for the calendar day items ( dots )
+
+
+            li.cb-calendar-day-item { // 1 item, for calendar-full only (showing only 1 item;
+              
+              position: absolute;
+              height: auto;
+              width: auto;
+              top:0;
+              height: 100%;
+              width: 100%;
+              display: block;
+              z-index: 98;
+
+              @include transition(all .3s ease);
+              
+              &.j-selected-only, &.j-selected-first, &.j-selected-last, &.j-between {
+                .cb-j, .cb-M {
+                  color: white;
+                }
+              }
+
+              &.j-selected-only {
+                background: $blue;                
+                @include border-radiuses($radius, $radius, $radius, $radius );
+                
+                
+              }
+              &.j-selected-first {
+                  @include border-radiuses(0, 0, $radius, $radius );
+                  background: $blue;
+                }
+                &.j-selected-last {
+                  @include border-radiuses($radius, $radius, 0, 0 );
+                  background: $blue;
+              }
+              
+              &.j-between {
+                cursor: not-allowed;
+                background: $blue;
+              }
+
+              span.cb-item-dot {
+              }
+
+
+              &.closed {
+                color: $grey;
+                span.cb-item-dot {
+                  background-color: $grey !important;        
+                  border: 1px solid transparent !important;                      
+                }
+              }
+
+              &.bookable { // selectable dates
+                cursor: pointer;
+                color: $action-color;
+                span.cb-item-dot {
+                  border-color: transparent !important;                              
+                }
+              }
+              &.not-bookable {
+                span.cb-item-dot {
+                  display: none;
+                  background-color: #FFFFFF;
+                }
+              }
+            }
+          }
+      }
+    }
+
+    }
+
+    input {
+      display:none;
+    }
+    li.cb-calendar-day, li.cb-weekday-row ul li {
+
+      @include transition(background .3s ease);
+      
+
+
+      &.bookable { // selectable dates
+        cursor: pointer;
+        color: $action-color;
+
+        .cb-cal-inner {
+        }
+
+        .cb-cal-inner:hover {
+          background: $highlight-color-dark;
+          color: $bg-color;
+        }
+      }
+      &.selected {
+        background: $highlight-color;
+        color: mix($bg-color, $highlight-color, 60%);
+      }    
+      &:hover {
+        // @include border-radius($radius);
+      }  
+      &.selected-first {
+        @include selection-start-round($radius);
+        .cb-cal-inner {       
+          color: $bg-color;
+          background: $highlight-color-dark;
+        }
+      }      
+      &.selected-last {
+        @include selection-end-round($radius);
+        .cb-cal-inner {
+          color: $bg-color;
+          background: $highlight-color-dark;
+        }
+      }
+
+      &.booked {
+        cursor: not-allowed;
+        color: $error-color-dark;
+        .cb-cal-inner {
+          // background: $grey;
+          // color: $error-color-dark;
+          background: $error-color-dark;
+          color: $bg-color;
+        }
+      }
+      &.closed {
+        cursor: not-allowed;
+        color: darken( $inactive-color, 20%);
+        .cb-cal-inner {
+          background: $bg-inner-color;
+        }
+          &.overbooking {
+            @extend .selected;
+
+        }
+      }
+    }
+
+    li.cb-calendar-day:first-of-type { // add left margin to the k entry to move day to correct cell
+      &.day1 {margin-left: 0; }
+      &.day2 {margin-left: $cellwidth; }
+      &.day3 {margin-left: $cellwidth * 2; }
+      &.day4 {margin-left: $cellwidth * 3; }
+      &.day5 {margin-left: $cellwidth * 4; }
+      &.day6 {margin-left: $cellwidth * 5; }
+      &.day7 {margin-left: $cellwidth * 6; }
+    }
+
+  }
+
+  .tooltipster-base {
+    .tooltipster-box {
+      .tooltipster-content{
+        font-size: 12px !important;
+        li {
+          line-height: auto;
+          margin: 0;
+          padding: 0;
+          display: block;
+          height: auto;
+          clear: both;
+          list-style: none;
+        }
+      }
+    }
+  }
