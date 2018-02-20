@@ -28,9 +28,10 @@
 
 		// if this is not post back we load item to edit or give new one to create
 		$item_id = $Timeframes_Edit->get_timeframe_id_from_request( $_REQUEST );
-    $item = $Timeframes_Edit->get_single_timeframe( $item_id );
+		$item = $Timeframes_Edit->get_single_timeframe( $item_id );
 
-		add_meta_box('timeframe_form_meta_box', __('Timeframe settings', 'commons-booking') , 'render_timeframe_meta_box' , 'timeframe', 'normal', 'default');
+
+
 		if( is_array($item) ) { // make sure that id exists
 			// here we adding our custom meta box
 		} else {
@@ -41,9 +42,9 @@
     ?>
 <div class="wrap">
     <div class="icon32 icon32-posts-post" id="icon-edit"><br></div>
-    <h2><?php _e('Timeframe', 'commons-booking')?> <a class="add-new-h2" href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=cb_timeframes_table' );?>"><?php _e('back to list', 'commons-booking')?></a>
-    </h2>
-
+    <h1 class="wp-heading-inline"><?php _e('Timeframe', 'commons-booking')?> <a class="add-new-h2" href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=cb_timeframes_table' );?>"><?php _e('back to list', 'commons-booking')?></a>
+    </h1>
+		<h2><?php echo $Timeframes_Edit->do_title(); ?></h2>
     <form id="form" method="POST">
         <input type="hidden" name="nonce" value="<?php echo wp_create_nonce(basename(__FILE__))?>"/>
         <?php /* NOTICE: here we storing id to determine will be item added or updated */ ?>
@@ -54,7 +55,8 @@
                 <div id="post-body-content">
                     <?php /* And here we call our custom meta box */ ?>
                     <?php do_meta_boxes('timeframe', 'normal', $item); ?>
-                    <input type="submit" value="<?php _e('Save', 'commons-booking')?>" id="submit" class="button-primary" name="submit">
+										<?php $Timeframes_Edit->do_form_footer(); ?>
+
                 </div>
             </div>
         </div>
@@ -62,10 +64,8 @@
 </div>
 
 <?php
-// function to render the actual metabox contents
-function render_timeframe_meta_box( $item ) {
-
-	$Timeframes_Edit = new CB_Timeframes_Edit; // we need the class to format out entries.
+// function to render the timeframe settings meta box
+function render_timeframe_settings_meta_box( $item ) {
 
 	?>
 <table cellspacing="2" cellpadding="5" style="width: 100%;" class="form-table">
@@ -113,31 +113,6 @@ function render_timeframe_meta_box( $item ) {
         </td>
     </tr>
 		 <tr class="form-field-group-header">
-        <td colspan="4"><?php _e('Exclude days', 'commons-booking'); ?></td>
-		</tr>
-		 <tr class="form-field">
-        <td valign="top" colspan="2">
-						<input id="exclude_location_closed" name="exclude_location_closed" type="checkbox" value="<?php // echo ($item['exclude_location_closed'])?>" class="checkbox">
-            <label for="exclude_location_closed"><?php _e('Exclude closed days of the location', 'commons-booking')?> (Edit <?php echo $Timeframes_Edit->col_format_post($item['location_id']); ?>)</label>
-						<?php //@TODO: REfresh location name & id via javascript/ajax if location_id select changes ?>
-        </td>
-        <td valign="top" colspan="2">
-						<input id="exclude_holiday_closed" name="exclude_holiday_closed" type="checkbox" value="<?php // echo ($item['exclude_holiday_closed'])?>" class="checkbox">
-            <label for="exclude_holiday_closed"><?php _e('Exclude holidays', 'commons-booking')?> (Edit holiday setting)</label>
-        </td>
-    </tr>
-		 <tr class="form-field-group-header">
-        <td colspan="4"><?php _e('Codes', 'commons-booking'); ?></td>
-		</tr>
-		 <tr class="form-field">
-        <td valign="top" colspan="2">
-						<input id="create_codes_bool" name="create_codes_bool" type="checkbox" value="<?php // echo ($item['create_codes_bool'])?>" class="checkbox">
-            <label for="create_codes_bool"><?php _e('Create codes', 'commons-booking')?> (Edit codes pool)</label>
-        </td>
-        <td valign="top" colspan="2">
-        </td>
-    </tr>
-		 <tr class="form-field-group-header">
         <td colspan="4"><?php _e('Meta', 'commons-booking'); ?></td>
 		</tr>
 		 <tr class="form-field">
@@ -156,4 +131,58 @@ function render_timeframe_meta_box( $item ) {
     </tr>
     </tbody>
 </table>
-<?php } ?>
+<?php }
+// function to render the timeframe generate slots meta box
+function render_timeframe_generate_slots_meta_box( $item ) {
+?>
+
+<table cellspacing="2" cellpadding="5" style="width: 100%;" class="form-table">
+    <tbody>
+		 <tr class="form-field cb-form-info">
+        <td valign="top" colspan="4">
+					<?php
+					//@TODO: only if id != 0
+					printf( __( 'Slots: %d total, %d booked, %d available ', 'commons-booking'),
+					$item['availability']['total'],
+					$item['availability']['booked'],
+					$item['availability']['available']
+					); ?>
+        </td>
+    </tr>
+		 <tr class="form-field-group-header">
+        <td colspan="4"><?php _e('Exclude days', 'commons-booking'); ?></td>
+		</tr>
+		 <tr class="form-field">
+        <td valign="top" colspan="2">
+						<input id="exclude_location_closed" name="exclude_location_closed" type="checkbox" value="<?php // echo ($item['exclude_location_closed'])?>" class="checkbox">
+            <label for="exclude_location_closed"><?php _e('Exclude closed days of the location', 'commons-booking')?> (Edit <?php echo CB_Gui::col_format_post( $item['location_id'] ); ?>)</label>
+						<?php //@TODO: REfresh location name & id via javascript/ajax if location_id select changes ?>
+        </td>
+        <td valign="top" colspan="2">
+						<input id="exclude_holiday_closed" name="exclude_holiday_closed" type="checkbox" value="<?php // echo ($item['exclude_holiday_closed'])?>" class="checkbox">
+            <label for="exclude_holiday_closed"><?php _e('Exclude holidays', 'commons-booking')?> (Edit holiday setting)</label>
+        </td>
+    </tr>
+		 <tr class="form-field-group-header">
+        <td colspan="4"><?php _e('Codes', 'commons-booking'); ?></td>
+		</tr>
+		 <tr class="form-field">
+        <td valign="top" colspan="2">
+						<input id="create_codes_bool" name="create_codes_bool" type="checkbox" value="<?php // echo ($item['create_codes_bool'])?>" class="checkbox">
+            <label for="create_codes_bool"><?php _e('Create codes', 'commons-booking')?> (Edit codes pool)</label>
+        </td>
+        <td valign="top" colspan="2">
+        </td>
+    </tr>
+	</table>
+
+<?php
+
+}
+// function to render the timeframe generate slots meta box
+function render_timeframe_view_meta_box( $item ) {
+
+
+}
+
+?>

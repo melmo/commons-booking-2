@@ -9,108 +9,147 @@
  * @link      http://commonsbooking.wielebenwir.de
  */
 /**
- * Retrieve the slots configured for a timeframe/date-range
+ * Mostly admin-related functions to generate and query slots. For retrieving slots at the front-end, see CB_Object.
  */
-class CB_Slots extends CB_Object{
+class CB_Slots {
 	/**
-	 * Dates
+	 * Slots array
 	 *
-	 * @var array
+	 * @var object
 	 */
 	public $slots = array();
 	/**
-	 * Date start
+	 * Slots templates
+	 *
+	 * @var object
+	 */
+	public $slots_templates = array();
+	/**
+	 * Slot template group
 	 *
 	 * @var array
 	 */
-	public $date_start;
+	public $template_group = array();
 	/**
-	 * Date start
+	 * Timeframe id
 	 *
-	 * @var array
-	 */
-	public $date_end;
-	/**
-	 * Condititions
-	 *
-	 * @var array
-	 */
-	public $sql_conditions;
-	/**
-	 * Timeframe
-	 *
-	 * @var array
+	 * @var object
 	 */
 	public $timeframe_id;
 	/**
-	 * Dates array
+	 * Timeframe id
 	 *
-	 * @var array
+	 * @var object
 	 */
-	public $dates_array;
+	public $date_array = array();
 	/**
-	 * Initialize the class
-	 *
-	 * @since 1.0.0
-	 * 
+	 * Constructor
 	 */
 	public function __construct( ) {
 
-        $this->timeframe_id = $timeframe_id;   
-        $this->dates_array = $dates_array;       
+		$this->slot_templates = new CB_Slot_Templates();
 
-    }
+		global $wpdb;
 
-
-    public function construct_sql_conditions () {
-        
-        if ( $this->timeframe_id && is_numeric( $this->timeframe_id ) ) {
-            $this->sql_conditions[] = sprintf('timeframe_id = %d', $this->timeframe_id );
-        }
-        if ( is_array( $this->dates_array ) ) { 
-
-            foreach ( $this->dates_array as $key => $val ) { // not the most elegant solution
-               $this->dates_array[$key] = 'CAST("' . $val . '" as DATE)';
-            }
-            $dates = implode (',', $this->dates_array );
-            $this->sql_conditions[] = sprintf('date IN(%s)', $dates);
-        }
-    
-    }
-
-
-    public function get_slots() {
-
-        $this->construct_sql_conditions();
-
-        if ( ! empty ( $this->sql_conditions ) ) {			
-			$conditions = implode ( $this->sql_conditions, " AND " );
-			$conditions = "WHERE ".$conditions;
-		}
-        
-        global $wpdb;
-        $slots_table_name = CB_SLOTS_TABLE;
-        
-        $slots_array = $wpdb->get_results(
-			"SELECT * FROM {$wpdb->prefix}{$slots_table_name} {$conditions}", ARRAY_A			
-        );
-
-        $reordered = $this->reorder_slot_array ( $slots_array );
-        return $reordered;
-    }
-
-    /**
-	 * Re-index the slots array around the date, set array index as slot_id
-	 *
-	 * @since 1.0.0
-	 * 
+		$this->timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
+		$this->slots_table 	= $wpdb->prefix . CB_SLOTS_TABLE;
+		$this->bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
+		$this->slots_bookings_relation_table = $wpdb->prefix . CB_SLOTS_BOOKINGS_REL_TABLE;
+	}
+	/**
+	 * Retrieve slots
 	 */
-    private function reorder_slot_array( $array ) {
-        
-        $reordered = array();
-        foreach ( $array as $key => $val ) {
-            $reordered[$val['date']][$val['slot_id']] = $val;
-        }
-        return $reordered;
-    }   
+	public function get_slots( $timeframe_id ) {
+
+		global $wpdb;
+
+		$this->timeframe_id = $timeframe_id;
+		$sql = $this->prepare_slots_sql();
+
+		$results = $wpdb->get_results( $sql );
+
+		return $results;
+
+	}
+	/**
+	 * Set the timeframe id
+	 *
+	 * @param int $id
+	 */
+	public function set_timeframe_id( $id ) {
+		$this->timeframe_id = $id;
+	}
+	/**
+	 * Construct SQL query for slots of one timeframe @TODO
+	 *
+	 * @return string $sql
+	 *
+	 */
+	public function prepare_slots_sql() {
+
+		$sql =(
+		"SELECT
+			{$this->slots_table}.slot_id,
+			{$this->slots_table}.timeframe_id,
+			{$this->slots_table}.date,
+			{$this->slots_table}.booking_code,
+			{$this->bookings_table}.booking_status,
+			{$this->slots_bookings_relation_table}.booking_id
+			FROM {$this->slots_table}
+			LEFT JOIN {$this->slots_bookings_relation_table}
+			ON ({$this->slots_table}.slot_id={$this->slots_bookings_relation_table}.slot_id)
+			LEFT JOIN {$this->bookings_table}
+			ON ({$this->slots_bookings_relation_table}.booking_id = {$this->bookings_table}.booking_id)
+			WHERE {$this->slots_table}.timeframe_id = {$this->timeframe_id}
+			-- AND {$this->bookings_table}.booking_status != 'BOOKED'
+			ORDER BY date
+			");
+
+		return $sql;
+	}
+	/**
+	 * Generate slots by slot_templates
+	 *
+	 * @param int $template_group_id
+	 * @param array $dates_array
+	 */
+	public function generate_slots( $template_group_id, $dates_array ) {
+
+
+
+		// foreach ( $dates_array as $date ) {
+
+		// }
+
+	}
+	/**
+	 * Get a specific slot_template group
+	 *
+	 * @param int $template_group_id
+	 */
+	public function get_slot_template_group( $template_group_id='' ) {
+
+		$this->template_group = $this->slot_templates->get_slot_templates( $template_group_id  );
+		// var_dump($this->template_group );
+		// foreach ( $dates_array as $date ) {
+
+		// }
+
+	}
+
+	/**
+	 * Construct SQL query to generate slots @TODO
+	 *
+	 * @return string $sql
+	 *
+	 */
+	public function prepare_slots_generate_sql() {
+
+		$sql =(
+		"INSERT INTO table_name (column1, column2, column3,...)
+		VALUES (value1, value2, value3,...)
+			");
+
+		return $sql;
+	}
 }

@@ -33,6 +33,7 @@ define( 'CB_BOOKINGS_TABLE', 'cb_bookings' );
 define( 'CB_SETS_TABLE', 'cb_sets' );
 define( 'CB_SLOTS_TABLE', 'cb_slots' );
 define( 'CB_SLOTS_BOOKINGS_REL_TABLE', 'cb_slots_bookings_relation' );
+define( 'CB_SLOT_TEMPLATES_TABLE', 'cb_slot_templates' );
 
 /**
  * Load the textdomain of the plugin
@@ -54,6 +55,7 @@ require_once( CB_PLUGIN_ROOT . 'classes/CB_Object.php' );
 require_once( CB_PLUGIN_ROOT . 'classes/CB_Timeframe.php' );
 require_once( CB_PLUGIN_ROOT . 'classes/CB_Calendar.php' );
 require_once( CB_PLUGIN_ROOT . 'classes/CB_Slots.php' );
+require_once( CB_PLUGIN_ROOT . 'classes/CB_Slot_Templates.php' );
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once( CB_PLUGIN_ROOT . 'includes/CB_WPCli.php' );
 }

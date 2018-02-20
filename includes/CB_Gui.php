@@ -89,7 +89,31 @@ class CB_Gui {
             )
 		);
 
-  }
+	}
+	/**
+	 * Format WP posts as clickable links with title
+	 *
+	 * @since 1.0.0
+ *
+ * @param int $id
+ * @param string $title
+ * @return mixed $html
+ */
+public static function col_format_post( $id, $title = '' ) {
+
+	if ( empty ( $title ) ) {
+		$title = get_the_title( $id );
+	}
+
+	$html = sprintf ( '<a href="%s">%s</a>',
+		get_edit_post_link( $id ),
+		$title
+	);
+
+	return $html;
+}
+
+
 	/**
 	 * Display a front-facing message
 	 *
