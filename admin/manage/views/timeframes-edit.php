@@ -17,18 +17,21 @@
 
 		$Timeframes_Edit = new CB_Timeframes_Edit();
 
-		$defaults = $Timeframes_Edit->default_fields;
 		$Timeframes_Edit->set_basename( basename(__FILE__) );
-		$Timeframes_Edit->handle_request( $_REQUEST ); // handle adding and updating
+		$timeframe_id = $Timeframes_Edit->handle_request( $_REQUEST ); // handle adding and updating
 
 		$edit_slug = $Timeframes_Edit->edit_slug; // set the slug from CB_Admin_Enque
+		$item = $Timeframes_Edit->settings_args;
+		var_dump ($item);
 
-    // this is default $item which will be used for new records
-		$default = $Timeframes_Edit->default_fields;
+		if ( $item['timeframe_id'] ) {
+			$item = $Timeframes_Edit->get_single_timeframe( $item['timeframe_id'] );
+		}
 
+		//var_dump ($item);
 		// if this is not post back we load item to edit or give new one to create
-		$item_id = $Timeframes_Edit->get_timeframe_id_from_request( $_REQUEST );
-		$item = $Timeframes_Edit->get_single_timeframe( $item_id );
+		//$item_id = $Timeframes_Edit->get_timeframe_id_from_request( $_REQUEST );
+		//$item = $Timeframes_Edit->get_single_timeframe( $item_id );
 
 
 
@@ -41,6 +44,7 @@
 
     ?>
 <div class="wrap">
+	<?php // meta box holder ?>
     <div class="icon32 icon32-posts-post" id="icon-edit"><br></div>
     <h1 class="wp-heading-inline"><?php _e('Timeframe', 'commons-booking')?> <a class="add-new-h2" href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=cb_timeframes_table' );?>"><?php _e('back to list', 'commons-booking')?></a>
     </h1>
@@ -48,7 +52,7 @@
     <form id="form" method="POST">
         <input type="hidden" name="nonce" value="<?php echo wp_create_nonce(basename(__FILE__))?>"/>
         <?php /* NOTICE: here we storing id to determine will be item added or updated */ ?>
-        <input type="hidden" name="timeframe_id" value="<?php echo $item['timeframe_id'] ?>"/>
+        <input type="hidden" name="timeframe_id" value="<?php echo $item['timeframe_id']; ?>"/>
 
         <div class="metabox-holder" id="poststuff">
             <div id="post-body">
@@ -164,6 +168,19 @@ function render_timeframe_generate_slots_meta_box( $item ) {
         </td>
     </tr>
 		 <tr class="form-field-group-header">
+        <td colspan="4"><?php _e('Multiple bookings per day', 'commons-booking'); ?></td>
+		</tr>
+		 <tr class="form-field">
+        <td valign="top">
+          <label for="slot_template_select"><?php _e('Slot set', 'commons-booking')?></label>
+				</td>
+				<td valign="top">
+					<input id="slot_template_select" name="slot_template_select" type="text" value="0">
+        </td>
+				<td></td>
+				<td></td>
+    </tr>
+		 <tr class="form-field-group-header">
         <td colspan="4"><?php _e('Codes', 'commons-booking'); ?></td>
 		</tr>
 		 <tr class="form-field">
@@ -175,13 +192,18 @@ function render_timeframe_generate_slots_meta_box( $item ) {
         </td>
     </tr>
 	</table>
+	<?php
+		// add previously submitted info to form - probably not necessary. @TODO
+		foreach (	$item as $item_key => $item_var ) {
+		printf ( '<input name="%s" value="%s" type="hidden">', $item_key, $item_var );
+	} ?>
 
 <?php
 
 }
 // function to render the timeframe generate slots meta box
 function render_timeframe_view_meta_box( $item ) {
-
+	echo ("timeframe view");
 
 }
 

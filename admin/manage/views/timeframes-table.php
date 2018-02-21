@@ -25,7 +25,7 @@
     $message = '';
     if ('delete' === $table->current_action()) {
 
-        $message = '<div class="updated below-h2" id="message"><p>' . sprintf(__('Items deleted: %d', 'commons-booking'), count($_REQUEST['booking_id'])) . '</p></div>';
+        $message = '<div class="updated below-h2" id="message"><p>' . sprintf(__('Items deleted: %d', 'commons-booking'), count($_REQUEST['timeframe_id'])) . '</p></div>';
     }
     ?>
 <div class="wrap">
