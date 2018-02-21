@@ -240,17 +240,17 @@ class CB_Timeframes_Table extends WP_List_Table
      */
     function process_bulk_action()
     {
-        // global $wpdb;
-        // $table_name = $wpdb->prefix . CB_Timeframes_TABLE; // do not forget about tables prefix
+        global $wpdb;
+        $table_name = $wpdb->prefix . CB_TIMEFRAMES_TABLE; // do not forget about tables prefix
 
-        // if ('delete' === $this->current_action()) {
-        //     $ids = isset($_REQUEST['timeframe_id']) ? $_REQUEST['timeframe_id'] : array();
-        //     if (is_array($ids)) $ids = implode(',', $ids);
+        if ('delete' === $this->current_action()) {
+            $ids = isset($_REQUEST['timeframe_id']) ? $_REQUEST['timeframe_id'] : array();
+            if (is_array($ids)) $ids = implode(',', $ids);
 
-        //     if (!empty($ids)) {
-        //         $wpdb->query("DELETE FROM $table_name WHERE timeframe_id IN($ids)");
-        //     }
-        // }
+            if (!empty($ids)) {
+                $wpdb->query("DELETE FROM $table_name WHERE timeframe_id IN($ids)");
+            }
+        }
 		}
 
     /**
