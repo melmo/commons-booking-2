@@ -12,44 +12,80 @@
  * @link      http://commonsbooking.wielebenwir.de
  */
 class CB_Timeframes_Edit  {
-
-	public $slots;
-	public $screen = 'timeframe_settings';
+	/**
+	 * Slots object
+	 *
+	 * @var object
+	 */
+	public $slots_object;
+	/**
+	 * Slots array
+	 *
+	 * @var object
+	 */
+	public $slots_array;
+	/**
+	 * Current screen ('timeframe_settings', 'generate_slots', 'view')
+	 *
+	 * @var string
+	 */
+	public $screen;
+	/**
+	 * Form action
+	 *
+	 * @var string
+	 */
+	public $cb_form_action = '';
 	public $form_footer;
 	public $redirect;
 	public $settings_args_defaults = array();
 	public $settings_args = array();
-	// set vars
+	/**
+	 * WP Admin slug, list
+	 *
+	 * @var string
+	 */
 	public $list_slug = 'cb_timeframes_table'; // slug for table screen
+	/**
+	 * WP Admin slug, edit
+	 *
+	 * @var string
+	 */
 	public $edit_slug = 'cb_timeframes_edit'; // slug for edit screen
+	/**
+	 * WP Admin slug, edit
+	 *
+	 * @var array
+	 */
 	public $names = array(
     'singular' => 'timeframe',
     'plural' => 'timeframes',
 	);
 	/**
-	 * Default query args
+	 * Possible screens
 	 *
 	 * @var array
 	 */
-	// public $query_args = array (
-	// 	'timeframe_id' => ''
-	// );
+	public $screens_array = array (
+		'timeframe_settings',
+		'generate_slots',
+		'view'
+	);
+	/**
+	 * Return from db
+	 *
+	 * @var bool|int
+	 */
+	public $sql_result = FALSE;
 
 	public $timeframes_array;
 	public $basename;
 	public $message;
 
 	public $timeframe_id;
-	public $location_id;
-	public $item_id;
-	public $date_start;
-	public $date_end;
-	public $description;
-	public $owner;
-
+	public $timeframe;
 	public $timeframe_slots = array();
 
-	public $metabox;
 	// DB Tables
 	public $bookings_table, $timeframes_table, $slots_table, $slots_bookings_relation_table;
 
@@ -69,19 +105,17 @@ class CB_Timeframes_Edit  {
 			'date_end' => '',
 			'description' => '',
 			'owner_id' => '',
-			'slot_template_select' => '',
-			'redirect' => ''
+			'slot_template_select' => 0,
+			'cb_form_action' => '',
+			'modified' => ''
 		);
-		$this->init_timeframes_object();
 		$this->timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
 
-		$this->slots = new CB_Slots(); //@TODO timeframe_id
-
-		$this->screen = 'timeframe_settings';
+		$this->screen = 'view'; // start screen
 
 	}
-		/* Initialise a new object for the retrieval of timeframes, set the context
-		*/
+	/* Initialise a new object for the retrieval of timeframes, set the context
+	*/
 	public function init_timeframes_object() {
 			$this->timeframes_array = new CB_Object();
 			$this->timeframes_array->set_context( 'admin-table' );
@@ -92,12 +126,12 @@ class CB_Timeframes_Edit  {
 	 * @param array $request
 	 * @return array $timeframes
 	 */
-	public function get_timeframe_id_from_request( $request ) {
+	public function get_timeframe_id( $request ) {
 
-		if ( $request['timeframe_id'] ) {
+		if ( isset ( $request['timeframe_id'] ) ) {
 			return $request['timeframe_id'];
 		} else {
-			return $this->settings_args_defaults['timeframe_id'];
+			return $this->timeframe_id;
 		}
 
 	}
@@ -109,44 +143,38 @@ class CB_Timeframes_Edit  {
 	 */
 	public function get_single_timeframe( $id ) {
 
+		$this->init_timeframes_object();
+
 		if (isset( $id )) { // we have a timeframe id
 
 			$args = array (
 				'timeframe_id' => $id,
 				'scope' => '', // ignore dates
 		 );
-
 			$timeframe = $this->timeframes_array->get_timeframes( $args );
-		 	// var_dump($timeframe);
-
-			if (! $timeframe ) { // @ TODO: unklar
-				// $timeframe = $this->settings_args_defaults['timeframe_id'];
-				$this->message = new WP_Admin_Notice( __( 'Saved', CB_TEXTDOMAIN ), 'updated' );
-			}
 
 			$array = cb_obj_to_array( $timeframe );
 			return $array[0];
 		}
-
 	}
 /**
- * Return the number of items in the db
+ * Return the number of timeframes in the db
  *
- * @return int $total_items
+ * @return int $total_timeframes
  */
 public function get_item_count( ) {
 
 	global $wpdb;
 
 	// will be used in pagination settings
-	$total_items = $wpdb->get_var("
+	$total_timeframes = $wpdb->get_var("
 	SELECT COUNT({$this->slots_table}.slot_id) FROM
 	{$this->bookings_table}
 	LEFT JOIN {$this->slots_bookings_relation_table} ON {$this->bookings_table}.booking_id={$this->slots_bookings_relation_table}.booking_id
 	LEFT JOIN {$this->slots_table} ON {$this->slots_bookings_relation_table}.slot_id={$this->slots_table}.slot_id"
 	);
 
-	return $total_items;
+	return $total_timeframes;
 }
 	/**
 	 * Handle the request
@@ -159,110 +187,55 @@ public function get_item_count( ) {
 
 		$this->setup_vars( $request );
 
-		// check if we are saving and nonce is valid
-		$nonce = isset( $request['nonce'] ) && wp_verify_nonce( $request['nonce'], $this->basename ) ? TRUE : FALSE;
+		if ( isset( $request['nonce'] ) && wp_verify_nonce( $request['nonce'], $this->basename ) ) { // we are submitting the form
+			$item = $this->merge_defaults( $request );
 
-		// if ( empty ( $request['timeframe_id'] ) ) { // no timeframe id -> settings screen
-		// 	$this->screen = 'timeframe_settings';
+			if ( isset($request['cb_form_action'] ) && $request['cb_form_action'] == 'save_timeframe' ) { // we saving the settings
 
-		// } elseif ( $request['timeframe_id'] ) { // timeframe_id
-
-		// 	if ( $this->redirect == 'generate_slots' ) {
-		// 		$this->screen = 'generate_slots';
-		// 	}
-
-		// 	if ( $nonce ) { // we have a nonce
-
-
-
-
-
-		// 	} else { // just display
-
-		// 	} // end if nonce
-
-		// }
-
-
-
-		// $is_edit_timeframe_settings = ! ( isset ( $this->timeframe_id ) ) && ( empty ( $this->timeframe_slots  ) ) ? TRUE : FALSE;
-
-		if ( ! empty ( $request['redirect'] ) ) {
-			$this->screen = $request['redirect'];
-			}
-
-
-		// $is_edit_slots_generate = isset ( $this->timeframe_id ) && ( $generate_slots == 1 ) ? TRUE : FALSE;
-
-		$is_timeframe_view = isset ( $timeframe_id ) && ( is_array ( $this->timeframe_slots  ) ) ? TRUE : FALSE;
-
-
-		$this->item = $this->merge_defaults( $request );
-
-		// if ( isset( $request['nonce'] ) && wp_verify_nonce( $request['nonce'], $this->basename ) ) { // we are submitting the form
-
-			if ( $this->screen == 'timeframe_settings' ) { // we are at settings
-
-				$this->item_valid = $this->validate_form( $item );
+				$this->item_valid = $this->validate_timeframe_settings_form( $item );
 
 				if ( $this->item_valid === true) { // validation passed
 
 					if ( $this->timeframe_id == '' ) { // no id, so add new
-						$this->add_row( $item );
+						$sql_timeframe_result = $this->add_row( $item );
 					} else { // id is present, so update
-						$this->update_row( $item );
+						$sql_timeframe_result = $this->update_row( $item );
 					} // endif ($item_valid === true
 
-					$this->screen = 'generate_slots'; // set next screen to generate slots
 					$this->message->output(); // diplay message(s)
+					$this->maybe_set_next_screen( $sql_timeframe_result, 'generate_slots' );
+					var_dump ($sql_timeframe_result);
 				}
-			} elseif ( $this->screen == 'generate_slots' ) { // we are at slots generate
+			} elseif ( isset($request['cb_form_action'] ) && $request['cb_form_action'] == 'generate_slots' ) { // we are creating the slots
 
-				$item = $this->get_single_timeframe( $request['timeframe_id'] ); // get the timeframe info from db
+				$timeframe = $this->get_single_timeframe( $this->timeframe_id );
 
-				$templates = $this->slots->get_slot_template_group(); // get the templates array
+				$this->slots_object->set_date_range ($timeframe['date_start'], $timeframe['date_end'] );
 
-				if ( ! empty ( $this->item['slot_template_select'] ) && is_numeric ( $this->item['slot_template_select'] ) ) {
+				$this->slots_object->set_slot_template_group( $item['slot_template_select'] );
+				$templates = $this->slots_object->get_slot_template_group(); // get the templates array
 
-					$dates_array = cb_dateRange( $item['date_start'], $item['date_end'] );
-					foreach ( $dates_array as $dates ) {
+				$this->slots_object->get_slots();
+				$existing_dates = $this->slots_object->get_slot_dates_array();
 
-					}
+				$this->slots_object->add_to_date_filter ( $existing_dates );
 
-				}
+				$sql_slots_result = $this->slots_object->generate_slots( );
 
-				$slot_template = $templates [ $this->item[ 'slot_template_select' ] ];
+				$this->set_message( $sql_slots_result, __('Slots generated.'));
 
-
-
-				var_dump( $slot_template );
-
-
-
-					// $this->screen = 'timeframe_view'; // set next screen to timeframe_view
-
-
+				$this->message->output(); // diplay message(s)
+				// $this->set_screen('gernerate_slots');
+				$this->maybe_set_next_screen( $sql_slots_result, 'view' );
 			} // end if
+		}
 
+		// $this->timeframe_id = $this->get_timeframe_id ( $request );
+		$this->timeframe = $this->get_single_timeframe( $this->timeframe_id );
 
-
-		// } else {
-		// 	echo ("no nonce");
-		// }
-		// choose the meta box
+		// setup the meta box
 		$this->setup_screens( );
-
 		return $this->timeframe_id;
-
-	}
-	/**
-	 * Set the timeframe id
-	 *
-	 * @param int $id
-	 */
-	public function set_timeframe_id( $id ) {
-
-		$this->timeframe_id = $id;
 
 	}
 	/**
@@ -272,69 +245,76 @@ public function get_item_count( ) {
 	 */
 	public function setup_vars( $request ) {
 
-		var_dump($request);
-
 		$this->settings_args = $this->merge_defaults( $request, $this->settings_args_defaults );
 
-		if ( isset( $request['timeframe_id'] ) && ! empty ( $request['timeframe_id'] ) ) {
+		if ( isset ( $this->timeframe_id ) && $this->timeframe_id != ''  ) { //  timeframe_id set
+			$this->slots_object = new CB_Slots( $this->timeframe_id );
+			$this->slots_array = $this->slots_object->get_slots(); //get previously created slots
+		}
 
-			$id = $request['timeframe_id'];
-			$this->set_timeframe_id( $id  );
-			$tf = $this->get_single_timeframe( $id );
+		if ( isset( $request['edit'] ) && $request['edit'] == 1 ) {
+			$this->screen = 'timeframe_settings';
+		} elseif ( isset( $request['generate_slots']) && $request['generate_slots'] == 1 ) {
+			$this->screen = 'generate_slots';
+		}
 
-			// $this->settings_args = array (
-			// 	'timeframe_id' => $tf['timeframe_id'],
-			// 	'item_id' => $tf['item_id'],
-			// 	'location_id' => $tf['location_id'],
-			// 	'date_start' => $tf['date_start'],
-			// 	'date_end' => $tf['date_end'],
-			// 	'description' => $tf['description'],
-			// 	'owner_id' => $tf['owner_id'],
-			// );
+	}
+	/**
+	 * Set the next screen, if sql-result is positive
+	 *
+	 * @param int $result
+	 * @param string $target
+	 */
+	public function maybe_set_next_screen( $result, $target ) {
 
-			$this->redirect = $request['redirect'];
-
-			// get slots
-			$this->timeframe_slots = $this->slots->get_slots( $this->timeframe_id );
-		} else {
-			$this->settings_args = $this->settings_args_defaults;
+		if ( $result ) { // operation successful, so set next screen
+			$this->screen = $target;
 		}
 	}
 	/**
+	 * Set the next screen
+	 */
+	public function set_screen( $screen ) {
+
+			$this->screen = $screen;
+	}
+	/**
 	 * Set up the meta boxes
-	 *
 	 */
 	public function setup_screens( ) {
+
+		$this->form_fields_hidden = "";
 
 		switch ( $this->screen ) {
 
 			case 'timeframe_settings':
 				// Metabox: Timeframe settings (Screen 1)
 				add_meta_box('timeframe_form_meta_box', __('Timeframe settings', 'commons-booking') , 'render_timeframe_settings_meta_box' , 'timeframe', 'normal', 'default');
-				$this->form_footer = sprintf ('
-					<input type="hidden" name="redirect" value="generate_slots">
-					<input type="submit" value="%s" id="submit" class="button-primary" name="submit">',
+
+				$form_fields_redirect_action = '<input type="hidden" name="cb_form_action" value="save_timeframe">';
+				$form_fields_hidden = sprintf ('<input type="hidden" name="modified" value="%s">',
+				date("Y-m-d H:i:s") );
+				$form_buttons = sprintf ('
+					<button type="submit" value="submit" id="submit" class="button-primary" name="submit">%s</button>',
 				__('Save and continue >>', 'commons-booking' ) );
+
+				$this->form_footer = $form_fields_redirect_action . $form_fields_hidden . $form_buttons;
 				break;
 
 			case 'generate_slots':
 				// Metabox: Timeframe generate slots (Screen 2)
 				add_meta_box('timeframe_form_meta_box',  __('Generate Slots & Codes', 'commons-booking') , 'render_timeframe_generate_slots_meta_box' , 'timeframe', 'normal', 'default');
-				$this->form_footer = sprintf ('<input type="submit" value="%s" id="submit" class="button-primary" name="submit">',
+				$this->form_footer = sprintf ('
+				<input type="hidden" name="cb_form_action" value="generate_slots">
+				<input type="submit" value="%s" id="submit" class="button-primary" name="submit">',
 				__('Generate slots >>', 'commons-booking' ) );
 				break;
 
 			case 'view':
 				// Metabox: Timeframe detail (Screen 3)
-				add_meta_box('timeframe_form_meta_box', $this->do_title() . __('Timeframe settings', 'commons-booking') , 'render_timeframe_view_meta_box' , 'timeframe', 'normal', 'default');
+				add_meta_box('timeframe_form_meta_box', __('Timeframe information', 'commons-booking') , 'render_timeframe_view_meta_box' , 'timeframe', 'normal', 'default');
 				break;
 		}
-
-		// Metabox: Timeframe generate slots (Screen 2)
-		// add_meta_box('timeframe_form_meta_box', __('Timeframe settings', 'commons-booking') , 'render_timeframe_generate_slots_meta_box' , 'timeframe', 'normal', 'default');
-
-		// Metabox: Timeframe detail (Screen 3)
-		// add_meta_box('timeframe_form_meta_box', __('Timeframe settings', 'commons-booking') , 'render_timeframe_view_meta_box' , 'timeframe', 'normal', 'default');
 
 	}
 
@@ -355,23 +335,23 @@ public function get_item_count( ) {
 
 		if ( $this->timeframe_id ) {
 
-			$item = 	CB_Gui::col_format_post( $this->settings_args['item_id'] );
-			$location = 	CB_Gui::col_format_post( $this->settings_args['location_id'] );
+			$item = 	CB_Gui::col_format_post( $this->timeframe['item_id'] );
+			$location = 	CB_Gui::col_format_post( $this->timeframe['location_id'] );
+			$date_start = CB_Gui::col_format_date ( $this->timeframe['date_start'] );
+			$date_end = CB_Gui::col_format_date ( $this->timeframe['date_end'] );
 
 			$title = sprintf (
 				__('Timeframe (%d): %s at %s, %s - %s', 'commons-booking' ),
 				$this->timeframe_id,
 				$item,
 				$location,
-				$this->date_start,
-				$this->date_end
+				$date_start,
+				$date_end
 			);
 		} else {
 			$title = __('Create new', 'commons-booking');
 		}
 		return $title;
-
-
 
 	}
 	/**
@@ -392,7 +372,8 @@ public function get_item_count( ) {
 					'date_start' => $item['date_start'],
 					'date_end' => $item['date_end'],
 					'description' => $item['description'],
-					'owner_id' => $item['owner_id']
+					'owner_id' => $item['owner_id'],
+					'modified' => $item['modified']
 				),
 					array(
 						'%d',	// item_id
@@ -400,7 +381,9 @@ public function get_item_count( ) {
 						'%s',	// date_start
 						'%s',	// date_end
 						'%s',	// description
-						'%d'	// value2
+						'%d',	// owner_id
+						'%s' // modified
+
 					)
 			);
 		$this->timeframe_id = $wpdb->insert_id;
@@ -408,7 +391,8 @@ public function get_item_count( ) {
 
 		// save the id of the newly created entry @TODO
 
-		$this->set_message($result);
+		$this->set_message( $result, __('Timeframe created.') );
+		return ($result);
 	}
 	/**
 	 * Update row in the bookings database
@@ -417,6 +401,8 @@ public function get_item_count( ) {
 	 * @uses set_message
 	 */
 	public function update_row( $item ) {
+
+				var_dump("row updated");
 
 		global $wpdb;
 
@@ -442,19 +428,25 @@ public function get_item_count( ) {
 				array( '%d' )
 			);
 
-		$this->set_message($result);
+		$this->set_message( $result, __('Timeframe updated.'));
+		return ($result);
 	}
 	/**
 	 * Create a new admin message.
-	 *
 	 * @param array|bool $result
+	 * @param string $info
 	 */
-	public function set_message( $result ) {
+	public function set_message( $result, $info ) {
+
+		$string = '';
+		if ( ! empty ( $info ) ) {
+			$string = ' ' . $info ;
+		}
 
 		if ($result) {
-			$this->message = new WP_Admin_Notice( __( 'Timeframe saved.', CB_TEXTDOMAIN ), 'updated' );
+			$this->message = new WP_Admin_Notice( __( 'Success!', 'commons-booking' ) . $string, 'updated' );
 		} else {
-			$this->message = new WP_Admin_Notice( __( 'Error saving', CB_TEXTDOMAIN ), 'error' );
+			$this->message = new WP_Admin_Notice( __( 'Error while trying: ', 'commons-booking') . $string, 'error' );
 		}
 
 	}
@@ -543,18 +535,19 @@ public function col_format_post( $id, $title = '' ) {
  * @param $item
  * @return bool|string
  */
-function validate_form( $item ){
-    $messages = array();
+function validate_timeframe_settings_form( $item ){
 
-    // if (empty($item['name'])) $messages[] = __('Name is required', 'commons-booking');
-    // if (!empty($item['email']) && !is_email($item['email'])) $messages[] = __('E-Mail is in wrong format', 'commons-booking');
-    // if (!ctype_digit($item['age'])) $messages[] = __('Age in wrong format', 'commons-booking');
-    //if(!empty($item['age']) && !absint(intval($item['age'])))  $messages[] = __('Age can not be less than zero');
-    //if(!empty($item['age']) && !preg_match('/[0-9]+/', $item['age'])) $messages[] = __('Age must be number');
-    //...
+		$message = '';
 
-    if (empty($messages)) return true;
-    return implode('<br />', $messages);
+		if (empty($item['date_start'])) $message .= __('Start date is required. ', 'commons-booking');
+		if (empty($item['date_end'])) $message .= __('End date is required. ', 'commons-booking');
+
+    if ( ($message === '') ) return true;
+
+		$this->set_message( FALSE , $message );
+		$this->message->output(); // diplay message(s)
+
+    return FALSE;
 	}
 }
 ?>

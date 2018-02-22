@@ -31,7 +31,7 @@
 <div class="wrap">
 
     <div class="icon32 icon32-posts-post" id="icon-edit"><br></div>
-    <h2><?php _e('Timeframes', 'commons-booking')?> <a class="add-new-h2" href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=' . $edit_slug); ?>"><?php _e('Add new', 'commons-booking')?></a>
+    <h2><?php _e('Timeframes', 'commons-booking')?> <a class="add-new-h2" href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=' . $edit_slug . '&edit=1'); ?>"><?php _e('Add new', 'commons-booking')?></a>
     </h2>
     <?php //echo new WP_Admin_Notice('', 'updated'); ?>
 

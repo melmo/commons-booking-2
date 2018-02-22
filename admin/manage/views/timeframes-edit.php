@@ -22,7 +22,6 @@
 
 		$edit_slug = $Timeframes_Edit->edit_slug; // set the slug from CB_Admin_Enque
 		$item = $Timeframes_Edit->settings_args;
-		var_dump ($item);
 
 		if ( $item['timeframe_id'] ) {
 			$item = $Timeframes_Edit->get_single_timeframe( $item['timeframe_id'] );
@@ -74,15 +73,9 @@ function render_timeframe_settings_meta_box( $item ) {
 	?>
 <table cellspacing="2" cellpadding="5" style="width: 100%;" class="form-table">
     <tbody>
-		 <tr class="form-field cb-form-info">
+		 <tr class="form-field cb-form-info-availability">
         <td valign="top" colspan="4">
-					<?php
-					//@TODO: only if id != 0
-					printf( __( 'Slots: %d total, %d booked, %d available ', 'commons-booking'),
-					$item['availability']['total'],
-					$item['availability']['booked'],
-					$item['availability']['available']
-					); ?>
+					<?php echo CB_Gui::col_format_availability( $item ); ?>
         </td>
     </tr>
 		 <tr class="form-field">
@@ -142,16 +135,11 @@ function render_timeframe_generate_slots_meta_box( $item ) {
 
 <table cellspacing="2" cellpadding="5" style="width: 100%;" class="form-table">
     <tbody>
-		 <tr class="form-field cb-form-info">
+		 <tr class="form-field cb-form-info-availability">
         <td valign="top" colspan="4">
-					<?php
-					//@TODO: only if id != 0
-					printf( __( 'Slots: %d total, %d booked, %d available ', 'commons-booking'),
-					$item['availability']['total'],
-					$item['availability']['booked'],
-					$item['availability']['available']
-					); ?>
+					<?php echo CB_Gui::col_format_availability( $item ); ?>
         </td>
+    </tr>
     </tr>
 		 <tr class="form-field-group-header">
         <td colspan="4"><?php _e('Exclude days', 'commons-booking'); ?></td>
@@ -191,20 +179,90 @@ function render_timeframe_generate_slots_meta_box( $item ) {
         <td valign="top" colspan="2">
         </td>
     </tr>
+	<?php if ( isset( $item['availability'] ) &&  $item['availability']['total'] > 0 )  { // slots already have been created ?>
+		 <tr class="form-field cb-form-notice">
+        <td valign="top" colspan="4" class="warning">
+					<?php printf ( __('%d Slot(s) have already been created for this timeframe.', 'commons-booking'),
+				$item['availability']['total'] ); ?>
+        </td>
+		</tr>
+		<tr class="form-field cb-form-danger">
+		      <td valign="top" colspan="2">
+						<input id="delete_redundant_slots" name="delete_redundant_slots" type="checkbox" value="<?php // echo ($item['delete_redundant_slots'])?>" class="checkbox">
+            <label for="delete_redundant_slots"><?php _e('Delete slots not in timeframe', 'commons-booking')?></label>
+        </td>
+        <td valign="top" colspan="2">
+						<input id="regenerate_all_slots" name="regenerate_all_slots" type="checkbox" value="<?php // echo ($item['regenerate_all_slots'])?>" class="checkbox">
+            <label for="regenerate_all_slots"><?php _e('Regenerate all slots (delete existing)', 'commons-booking')?></label>
+        </td>
+		</tr>
+		<?php } // end if slots present ?>
 	</table>
-	<?php
-		// add previously submitted info to form - probably not necessary. @TODO
-		foreach (	$item as $item_key => $item_var ) {
-		printf ( '<input name="%s" value="%s" type="hidden">', $item_key, $item_var );
-	} ?>
 
 <?php
 
 }
 // function to render the timeframe generate slots meta box
 function render_timeframe_view_meta_box( $item ) {
-	echo ("timeframe view");
 
+	?>
+	<table cellspacing="2" cellpadding="5" style="width: 100%;" class="form-table">
+    <tbody>
+			<tr class="form-field cb-form-info-availability">
+        <td valign="top" colspan="4">
+					<?php echo CB_Gui::col_format_availability( $item ); ?>
+        </td>
+    </tr>
+		<tr>
+        <td valign="top">
+            <label for="item_id"><?php _e('Item', 'commons-booking')?></label>
+        </td>
+				<td>
+				<?php echo CB_Gui::col_format_post( $item['item_id'] ); ?>
+				</td>
+        <td>
+            <label for="location_id"><?php _e('Location', 'commons-booking')?></label>
+        </td>
+        <td>
+						<?php echo CB_Gui::col_format_post( $item['location_id'] ); ?>
+        </td>
+    </tr>
+		 <tr class="form-field">
+        <td valign="top">
+            <label for="date_start"><?php _e('Start Date', 'commons-booking')?></label>
+        </td>
+        <td>
+						<?php echo CB_Gui::col_format_date( $item['date_start'] ); ?>
+        </td>
+        <td valign="top">
+            <label for="date_end"><?php _e('End Date', 'commons-booking')?></label>
+        </td>
+        <td>
+						<?php echo CB_Gui::col_format_date( $item['date_end'] ); ?>
+        </td>
+    </tr>
+		 <tr class="form-field">
+        <td valign="top">
+            <label for="description"><?php _e('Description', 'commons-booking')?></label>
+        </td>
+        <td>
+ 					<?php echo esc_attr($item['description']); ?>
+        </td>
+        <td valign="top">
+            <label for="owner_id"><?php _e('Owner', 'commons-booking')?></label>
+        </td>
+        <td>
+				<?php echo CB_Gui::col_format_user( $item['owner_id'] ); ?>
+        </td>
+    </tr>
+		 <tr class="form-field">
+        <td valign="top" colspan="4">
+					<a class="add-new-h2" href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=cb_timeframes_edit&edit=1&timeframe_id=' . $item['timeframe_id'] );?>"><?php _e('Edit timeframe', 'commons-booking')?></a>
+        </td>
+    	</tr>
+    </tbody>
+</table>
+<?php
 }
 
 ?>

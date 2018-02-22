@@ -112,6 +112,18 @@ public static function col_format_post( $id, $title = '' ) {
 
 	return $html;
 }
+	/**
+	 * Format WP posts as clickable links with title
+	 *
+	 * @since 1.0.0
+ *
+ * @param string $date
+ * @return mixed $html
+ */
+public static function col_format_date( $date ) {
+
+	return date ('d.m.y', strtotime($date) );
+}
 
 
 	/**
@@ -147,7 +159,7 @@ public static function col_format_post( $id, $title = '' ) {
 * @uses cb_get_post_types_list
 * @return mixed html dropdown
 */
-function cb_edit_table_post_select_html( $post_type_name, $field_name, $selected ) {
+public static function cb_edit_table_post_select_html( $post_type_name, $field_name, $selected ) {
 
 	$html = '';
 	$post_types_array = cb_get_post_types_list( $post_type_name );
@@ -184,7 +196,7 @@ function cb_edit_table_post_select_html( $post_type_name, $field_name, $selected
 * @uses cb_get_post_types_list
 * @return mixed html dropdown
 */
-function cb_edit_table_owner_select_html( $roles = array(), $selected ) {
+public static function cb_edit_table_owner_select_html( $roles = array(), $selected ) {
 
 	$html = '';
 	$users_array = cb_get_users_list( );
@@ -210,6 +222,43 @@ function cb_edit_table_owner_select_html( $roles = array(), $selected ) {
 		}
 
 		return $html;
+}
+/**
+ * Get user info formatted to use in column
+ *
+ * @param int $id
+ * @return string $user
+ */
+public static function col_format_user( $id ) {
+
+	$user_last = get_user_meta( $id, 'last_name',TRUE );
+	$user_first = get_user_meta( $id, 'first_name',TRUE );
+	$user_edit_link = get_edit_user_link( $id);
+
+	$user = sprintf ( '<a href="%s">%s %s</a>', $user_edit_link, $user_first, $user_last );
+
+	return $user;
+}
+/**
+ * Get slot availability formatted to use in column
+ *
+ * @param array $item
+ * @return mixed $html
+ */
+public static function col_format_availability( $item ) {
+
+	$html = '';
+
+	if ( isset ( $item['availability'] ) ) {
+		$html = sprintf( __( 'Slots: %d total, %d booked, %d available ', 'commons-booking'),
+					$item['availability']['total'],
+					$item['availability']['booked'],
+					$item['availability']['available']
+					);
+		}	else {
+			$html = __('No slots configured', 'commons-booking');
+		}
+	return $html;
 }
 
 

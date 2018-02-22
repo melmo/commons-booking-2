@@ -13,11 +13,11 @@
  */
 class CB_Slots {
 	/**
-	 * Slots array
+	 * Already generated slots
 	 *
 	 * @var object
 	 */
-	public $slots = array();
+	public $slots_array = array();
 	/**
 	 * Slots templates
 	 *
@@ -37,15 +37,21 @@ class CB_Slots {
 	 */
 	public $timeframe_id;
 	/**
-	 * Timeframe id
+	 * Array of dates
 	 *
 	 * @var object
 	 */
 	public $date_array = array();
 	/**
+	 * Array of dates to ignore when creating slots
+	 *
+	 * @var object
+	 */
+	public $filter_date_array = array();
+	/**
 	 * Constructor
 	 */
-	public function __construct( ) {
+	public function __construct( $timeframe_id = '' ) {
 
 		$this->slot_templates = new CB_Slot_Templates();
 
@@ -55,29 +61,49 @@ class CB_Slots {
 		$this->slots_table 	= $wpdb->prefix . CB_SLOTS_TABLE;
 		$this->bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
 		$this->slots_bookings_relation_table = $wpdb->prefix . CB_SLOTS_BOOKINGS_REL_TABLE;
+
+		$this->timeframe_id = $timeframe_id;
 	}
 	/**
 	 * Retrieve slots
 	 */
-	public function get_slots( $timeframe_id ) {
+	public function get_slots( ) {
 
 		global $wpdb;
 
-		$this->timeframe_id = $timeframe_id;
-		$sql = $this->prepare_slots_sql();
+		$select = (
+			$this->slots_table . '.slot_id, ' .
+			$this->slots_table . '.timeframe_id, ' .
+			$this->slots_table . '.date, ' .
+			$this->slots_table . '.booking_code, ' .
+			$this->bookings_table . '.booking_status, ' .
+			$this->slots_bookings_relation_table . '.booking_id '
+		);
 
-		$results = $wpdb->get_results( $sql );
+		$sql = $this->prepare_slots_sql( $select );
 
-		return $results;
+		$this->slots_array = $wpdb->get_results( $sql, ARRAY_A );
 
+		return $this->slots_array;
 	}
 	/**
-	 * Set the timeframe id
-	 *
-	 * @param int $id
+	 * Retrieve slot dates as an array
 	 */
-	public function set_timeframe_id( $id ) {
-		$this->timeframe_id = $id;
+	public function get_slot_dates_array( ) {
+
+		$slot_dates = array();
+
+		if ( ! isset ( $this->slots_array ) && ! empty ($this->slots_array) ) { // make sure that slots object exists
+			$this->get_slots( );
+		}
+
+		if ( is_array ( $this->slots_array ) ) {
+			foreach ( $this->slots_array as $slot ) {
+			$slot_dates[] = $slot['date'];
+			}
+		}
+
+		return $slot_dates;
 	}
 	/**
 	 * Construct SQL query for slots of one timeframe @TODO
@@ -85,22 +111,21 @@ class CB_Slots {
 	 * @return string $sql
 	 *
 	 */
-	public function prepare_slots_sql() {
+	public function prepare_slots_sql( $select ) {
+
+			$where = sprintf ('%s.timeframe_id = %s',
+				$this->slots_table,
+				$this->timeframe_id
+	);
 
 		$sql =(
-		"SELECT
-			{$this->slots_table}.slot_id,
-			{$this->slots_table}.timeframe_id,
-			{$this->slots_table}.date,
-			{$this->slots_table}.booking_code,
-			{$this->bookings_table}.booking_status,
-			{$this->slots_bookings_relation_table}.booking_id
+		"SELECT {$select}
 			FROM {$this->slots_table}
 			LEFT JOIN {$this->slots_bookings_relation_table}
 			ON ({$this->slots_table}.slot_id={$this->slots_bookings_relation_table}.slot_id)
 			LEFT JOIN {$this->bookings_table}
 			ON ({$this->slots_bookings_relation_table}.booking_id = {$this->bookings_table}.booking_id)
-			WHERE {$this->slots_table}.timeframe_id = {$this->timeframe_id}
+			WHERE {$where}
 			-- AND {$this->bookings_table}.booking_status != 'BOOKED'
 			ORDER BY date
 			");
@@ -113,43 +138,124 @@ class CB_Slots {
 	 * @param int $template_group_id
 	 * @param array $dates_array
 	 */
-	public function generate_slots( $template_group_id, $dates_array ) {
+	public function generate_slots( ) {
 
+		$this->template_array = $this->get_slot_template_group( $this->template_group_id );
 
+		$dates_filtered_array = $this->apply_date_filter();
 
-		// foreach ( $dates_array as $date ) {
+		// var_dump ( $dates_filtered_array );
 
-		// }
+		$sql = $this->prepare_slots_insert_array( $dates_filtered_array );
+		$result = $this->insert_slots_sql( $sql );
+		return $result;
 
 	}
+		/**
+	 * Get a specific slot_template group
+	 *
+	 * @param int $template_group_id
+	 */
+	public function set_slot_template_group( $template_group_id='' ) {
+		$this->template_group_id = $template_group_id;
+	}
+
 	/**
 	 * Get a specific slot_template group
 	 *
 	 * @param int $template_group_id
 	 */
-	public function get_slot_template_group( $template_group_id='' ) {
+	public function get_slot_template_group( ) {
 
-		$this->template_group = $this->slot_templates->get_slot_templates( $template_group_id  );
+		$this->template_group = $this->slot_templates->get_slot_templates( $this->template_group_id  );
 		// var_dump($this->template_group );
-		// foreach ( $dates_array as $date ) {
 
-		// }
+		return $this->template_group;
+
+	}
+	/**
+	 * Return if slots already defined
+	 *
+	 * @return bool
+	 */
+	public function has_slots( ) {
+
+		if ( ! empty ( $this->slots ) ) {
+			return TRUE;
+		} else {
+			return FALSE;
+		}
+
+		// return $bool
+
+	}
+	/**
+	 * Return if slots already defined
+	 *
+	 * @param int $timeframe_id
+	 */
+	public function set_date_range( $start_date, $end_date ) {
+
+		$this->dates_array = cb_dateRange ( $start_date, $end_date );
+
+	}
+	/**
+	 * Add to the filter dates array
+	 *
+	 * @param array $array
+	 */
+	public function add_to_date_filter( $array = array() ) {
+
+		$this->filter_date_array = array_merge ( $this->filter_date_array, (array) $array );
+	}
+	/**
+	 * Apply the filter dates array
+	 *
+	 * @param array $array
+	 * @return array $dates_array
+	 */
+	public function apply_date_filter( ) {
+
+		$this->dates_array = array_diff( (array) $this->dates_array, $this->filter_date_array );
+
+		return apply_filters('cb_slots_generate_apply_date_filter',$this->dates_array );
 
 	}
 
 	/**
-	 * Construct SQL query to generate slots @TODO
+	 * Prepare the array for insertion
 	 *
-	 * @return string $sql
+	 * @return array $sql
 	 *
 	 */
-	public function prepare_slots_generate_sql() {
+	public function prepare_slots_insert_array( $dates_array_filtered ) {
 
-		$sql =(
-		"INSERT INTO table_name (column1, column2, column3,...)
-		VALUES (value1, value2, value3,...)
-			");
+		$insert_array = array();
 
-		return $sql;
+		foreach ( $dates_array_filtered as $date ) {
+			foreach ( $this->template_array as $templates ) {
+				foreach ( $templates as $template ) {
+					$insert_array[] = array (
+						'timeframe_id' => $this->timeframe_id,
+						'template_order' =>$template['order'],
+						'date' => $date,
+						'time_start' => $template['time_start'],
+						'time_end' => $template['time_end'],
+						'description' => $template['description']
+					);
+				}
+			}
+		}
+
+		return $insert_array;
+	}
+
+	public function insert_slots_sql( $insert_array ) {
+
+		$result = 1;
+		if ( !empty ( $insert_array ) ) { // no slots to add
+			$result = wp_insert_rows( $insert_array, $this->slots_table);
+		}
+		return $result;
 	}
 }

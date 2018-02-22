@@ -523,6 +523,8 @@ class CB_Object {
 
 		$timeframes_table_name = $wpdb->prefix.CB_TIMEFRAMES_TABLE;
 
+		$conditions = '';
+
 		if ( ! empty ( $args['WHERE'] ) ) {
 			$conditions = implode ( $args['WHERE'], " AND " );
 			$conditions = "WHERE ". $conditions;

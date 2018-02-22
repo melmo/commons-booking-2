@@ -31,14 +31,6 @@ class CB_Slot_Templates {
 
 	}
 	/**
-	 * Set the timeframe id
-	 *
-	 * @param int $id
-	 */
-	public function set_timeframe_id( $id ) {
-		$this->timeframe_id = $id;
-	}
-	/**
 	 * Construct SQL query to get slot_sets
 	 *
 	 * @return string $sql
@@ -46,17 +38,14 @@ class CB_Slot_Templates {
 	 */
 	public function prepare_slot_templates_sql( ) {
 
-		$where = '';
-		if ( ! empty ( $this->slot_template_group_id ) ) {
-			$where = sprintf ( " WHERE slot_set_id = %d", $this->slot_template_group_id );
-		}
+		$where = sprintf ( " WHERE template_group_id = %d", $this->slot_template_group_id );
 
 		$sql =(
 		"SELECT
 			*
 			FROM {$this->slot_templates_table}
-			ORDER BY template_group_id
 			{$where}
+			ORDER BY template_group_id
 			");
 
 		return $sql;
@@ -72,9 +61,7 @@ class CB_Slot_Templates {
 
 		global $wpdb;
 
-		if ( ! empty ( $slot_template_group_id ) ) {
-			$this->slot_template_group_id = $slot_template_group_id;
-		}
+		$this->slot_template_group_id = $slot_template_group_id;
 
 		$sql = $this->prepare_slot_templates_sql();
 
