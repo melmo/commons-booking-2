@@ -207,3 +207,13 @@ function wp_insert_rows($row_arrays = array(), $wp_table_name, $update = false, 
 		return false;
 	}
 }
+/**
+ * Only return default value if we don't have a page ID (in the 'page' query variable) @TODO: works only on settings page
+ *
+ * @param  bool  $default On/Off (true/false)
+ * @return mixed          Returns true or '', the blank default
+ */
+function cmb2_set_checkbox_default_for_new_post( $default ) {
+
+	return isset( $_GET['page'] ) ? '' : ( $default ? (string) $default : '' );
+}
