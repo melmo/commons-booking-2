@@ -47,6 +47,7 @@ function cb_load_plugin_textdomain() {
 add_action( 'plugins_loaded', 'cb_load_plugin_textdomain', 1 );
 require_once( CB_PLUGIN_ROOT . 'composer/autoload.php' );
 require_once( CB_PLUGIN_ROOT . 'includes/CB_PostTypes.php' );
+require_once( CB_PLUGIN_ROOT . 'includes/CB_PostTypes_Metaboxes.php' );
 require_once( CB_PLUGIN_ROOT . 'includes/CB_Helpers.php' );
 require_once( CB_PLUGIN_ROOT . 'includes/CB_Gui.php' );
 require_once( CB_PLUGIN_ROOT . 'includes/CB_Settings.php' );
