@@ -78,16 +78,16 @@ class Cb_Extras_Admin {
 		add_filter( 'dashboard_recent_posts_query_args', array( $this, 'cpt_activity_dashboard_support' ), 10, 1 );
 		// Add bubble notification for cpt pending
 		add_action( 'admin_menu', array( $this, 'pending_cpt_bubble' ), 999 );
-		new BB_Modal_View( array(
-			'id' => 'test', // ID of the modal view
-			'hook' => 'admin_notices', // Where return or print the button
-			'input' => 'checkbox', // Or radio
-			'label' => __( 'Open Modal' ), // Button text
-			'data' => array( 'rand' => rand() ), // Array of custom datas
-			'ajax' => array( $this, 'ajax_posts' ), // Ajax function for the list to show on the modal
-			'ajax_on_select' => array( $this, 'ajax_posts_selected' ), // Ajax function to execute on Select button
-			'echo_button' => true // Do you want echo the button in the hook chosen or only return?
-				) );
+		// new BB_Modal_View( array(
+		// 	'id' => 'test', // ID of the modal view
+		// 	'hook' => 'admin_notices', // Where return or print the button
+		// 	'input' => 'checkbox', // Or radio
+		// 	'label' => __( 'Open Modal' ), // Button text
+		// 	'data' => array( 'rand' => rand() ), // Array of custom datas
+		// 	'ajax' => array( $this, 'ajax_posts' ), // Ajax function for the list to show on the modal
+		// 	'ajax_on_select' => array( $this, 'ajax_posts_selected' ), // Ajax function to execute on Select button
+		// 	'echo_button' => true // Do you want echo the button in the hook chosen or only return?
+		// 		) );
 	}
 		/**
 	 * Add the recents post type in the activity widget<br>
