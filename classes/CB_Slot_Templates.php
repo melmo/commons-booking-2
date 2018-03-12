@@ -38,7 +38,10 @@ class CB_Slot_Templates {
 	 */
 	public function prepare_slot_templates_sql( ) {
 
-		$where = sprintf ( " WHERE template_group_id = %d", $this->slot_template_group_id );
+		$where = '';
+		if ( $this->slot_template_group_id != '') {
+			$where = sprintf ( " WHERE template_group_id = %d", $this->slot_template_group_id );
+		}
 
 		$sql =(
 		"SELECT
