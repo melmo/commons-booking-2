@@ -14,12 +14,12 @@
 ?>
 <div class="wrap">
     <h2><?php echo esc_html( get_admin_page_title() ); ?></h2>
+
     <div id="tabs" class="settings-tab">
 		<ul>
 			<li><a href="#tabs-1"><?php _e( 'General' ); ?></a></li>
-			<li><a href="#tabs-pages"><?php _e( 'Pages', CB_TEXTDOMAIN ); ?></a></li>
-			<li><a href="#tabs-bookings"><?php _e( 'Bookings', CB_TEXTDOMAIN ); ?></a></li>
-			<li><a href="#tabs-importexport"><?php _e( 'Import/Export', CB_TEXTDOMAIN ); ?></a></li>
+			<?php echo CB_Settings::get_admin_tabs() ?>
+			<li><a href="#tabs-importexport"><?php _e( 'Import/Export', 'commons-booking' ); ?></a></li>
 			<?php
 						?>
 		</ul>
@@ -27,6 +27,8 @@
 		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-welcome.php' );
 		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-pages.php' );
 		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-bookings.php' );
+		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-codes.php' );
+		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-locations-open.php' );
 		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-importexport.php' );
 		?>
 		</div>
