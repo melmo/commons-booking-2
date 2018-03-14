@@ -39,7 +39,6 @@
 		} else {
 			echo ( __('Timeframe not found', 'commons-booking' ) );
 		}
-		// var_dump($item);
 
     ?>
 <div class="wrap">
@@ -121,7 +120,8 @@ function render_timeframe_settings_meta_box( $item ) {
 		<tr class="form-field-group-header">
         <td colspan="1"><?php _e('Exclude days', 'commons-booking'); ?></td>
         <td valign="top" colspan="1">
-						<input id="exclude_location_closed" name="exclude_location_closed" type="checkbox" value="<?php // echo ($item['exclude_location_closed'])?>" class="checkbox">
+						<input id="exclude_location_closed" name="exclude_location_closed" type="checkbox" value="exclude_location_closed"
+						<?php if ( $item['exclude_location_closed'] ) { echo "CHECKED"; }; ?> class="checkbox">
             <label for="exclude_location_closed"><?php _e('Exclude closed days of the location', 'commons-booking')?></label>
         </td>
         <td valign="top" colspan="1">
@@ -234,12 +234,24 @@ function render_timeframe_view_meta_box( $item ) {
 
 	?>
 	<table cellspacing="2" cellpadding="5" style="width: 100%;" class="form-table">
+
     <tbody>
+			<?php if ( $item['booking_enabled'] !== 1 ) { ?>
+
+			<tr class="form-field cb-form-notice">
+        <td valign="top" colspan="4" class="warning">
+					<?php echo __('Booking is not enabled, users will not be allowed to book.', 'commons-booking'); ?>
+				</td>
+			</tr>
+			<?php	} // end if $item['booking_enabled'] ?>
 			<tr class="form-field cb-form-info-availability">
         <td valign="top" colspan="4">
 					<?php echo CB_Gui::col_format_availability( $item ); ?>. Using template: <?php echo CB_Gui::list_slot_templates_html( $item['slot_template_id'], FALSE); ?>
+
+					<?php echo CB_Gui::col_format_availability( $item ); ?>. Using template: <?php echo CB_Gui::list_slot_templates_html( $item['slot_template_id'], FALSE); ?>
         </td>
     </tr>
+
 		<tr>
         <td valign="top">
             <label for="item_id"><?php _e('Item', 'commons-booking')?></label>
@@ -291,6 +303,16 @@ function render_timeframe_view_meta_box( $item ) {
     </tbody>
 </table>
 <?php
-}
+
+	$args = array ( 'timeframe_id' => $item['timeframe_id'] );
+	$CB = new CB_Object;
+	$CB->set_context('calendar');
+	$cal = $CB->get_timeframes( $args );
+
+	// var_dump ($cal );
+
+?>
+<?php
+} // render_timeframe_view_meta_box
 
 ?>

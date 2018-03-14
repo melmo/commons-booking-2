@@ -241,3 +241,24 @@ function cmb2_set_checkbox_default_for_new_post( $default ) {
 
 	return isset( $_GET['page'] ) ? '' : ( $default ? (string) $default : '' );
 }
+/**
+ * Filter dates array by opening_times (days of the week)
+ *
+ * @param  array $dates_array
+ * @param  array $opening_times
+ * @return array $matching dates
+ */
+function cb_filter_dates_by_opening_times( $dates_array, $opening_times ) {
+
+	$matching_dates = array();
+
+	foreach ($dates_array as $date) {
+			$day_number = date('N', strtotime( $date ) );
+			var_dump ( $day_number );
+			var_dump(  $opening_times );
+			if ( in_array( $day_number, $opening_times ) ) {
+				$matching_dates[] = $date;
+			}
+	}
+	return $matching_dates;
+}

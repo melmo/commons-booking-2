@@ -101,7 +101,7 @@ class CB_Timeframes_Edit  {
 			'timeframe_id' => '',
 			'booking_enabled' => 0,
 			'calendar_enabled' => 0,
-			'location_closed_days_enabled' => 0,
+			'exclude_location_closed' => 0,
 			'holidays_enabled' => 0,
 			'has_end_date' => 0,
 			'item_id' => '',
@@ -195,13 +195,14 @@ public function get_item_count( ) {
 		if ( isset( $request['nonce'] ) && wp_verify_nonce( $request['nonce'], $this->basename ) ) { // we are submitting the form
 			$item = $this->merge_defaults( $request );
 
+			$location = new CB_Location ( $item['location_id'] );
+			$opening_times = $location->get_opening_times();
+
 			if ( isset($request['cb_form_action'] ) && $request['cb_form_action'] == 'save_timeframe' ) { // we saving the settings
 
 				$this->item_valid = $this->validate_timeframe_settings_form( $item );
 
 				if ( $this->item_valid === true) { // validation passed
-
-
 
 					// handle checkboxes
 					$item['has_end_date'] = $this->prepare_checkbox_value(
@@ -212,6 +213,9 @@ public function get_item_count( ) {
 					);
 					$item['calendar_enabled'] = $this->prepare_checkbox_value(
 						$item['calendar_enabled']
+					);
+					$item['exclude_location_closed'] = $this->prepare_checkbox_value(
+						$item['exclude_location_closed']
 					);
 
 					// PREPARE DATA
@@ -232,19 +236,27 @@ public function get_item_count( ) {
 
 				$this->slots_object->set_date_range ($timeframe['date_start'], $timeframe['date_end'] );
 
+				// handle location opening times checkbox
+				if ( $timeframe['exclude_location_closed'] == 1  ) {
+					$filtered_dates = cb_filter_dates_by_opening_times ( $this->slots_object->dates_array, $opening_times );
+					var_dump ($filtered_dates );
+				}
+
 				$this->slots_object->set_slot_template_group( $timeframe['slot_template_id'] );
 				$templates = $this->slots_object->get_slot_template_group(); // get the templates array
 
-
+				// handle regenerate slots checkbox
 				if ( isset( $request['regenerate_all_slots'] ) ) { 	// regenerate slots is passed
 					$this->slots_object->delete_slots( $timeframe['timeframe_id'] );
 				}
 
-				$this->slots_object->get_slots();
+
+				$this->slots_object->get_slots(); // get the previously defined slots
+
 				// handle slots already in db: check if dates exist
 				$existing_dates = $this->slots_object->get_slot_dates_array();
 
-				$this->slots_object->add_to_date_filter ( $existing_dates );
+				$this->slots_object->add_to_date_filter ( $existing_dates ); // add these date to ignore list
 
 				$sql_slots_result = $this->slots_object->generate_slots( );
 
@@ -255,7 +267,6 @@ public function get_item_count( ) {
 			} // end if
 		}
 
-		// $this->timeframe_id = $this->get_timeframe_id ( $request );
 		$this->timeframe = $this->get_single_timeframe( $this->timeframe_id );
 
 		// setup the meta box
@@ -277,6 +288,7 @@ public function get_item_count( ) {
 			$this->slots_array = $this->slots_object->get_slots(); //get previously created slots
 		}
 
+		// setup the screens
 		if ( isset( $request['edit'] ) && $request['edit'] == 1 ) {
 			$this->screen = 'timeframe_settings';
 		} elseif ( isset( $request['generate_slots']) && $request['generate_slots'] == 1 ) {
@@ -398,7 +410,7 @@ public function get_item_count( ) {
 				array(
 					'booking_enabled' => $item['booking_enabled'],
 					'calendar_enabled' => $item['calendar_enabled'],
-					'location_closed_days_enabled' => $item['location_closed_days_enabled'],
+					'exclude_location_closed' => $item['exclude_location_closed'],
 					'holidays_enabled' => $item['holidays_enabled'],
 					'has_end_date' => $item['has_end_date'],
 					'item_id' => $item['item_id'],
@@ -413,7 +425,7 @@ public function get_item_count( ) {
 					array(
 						'%d',	// booking_enabled
 						'%d',	// calendar_enabled
-						'%d',	// location_closed_days_enabled
+						'%d',	// exclude_location_closed
 						'%d',	// holidays_enabled
 						'%d',	// has_end_date
 						'%d',	// location_id
@@ -449,7 +461,7 @@ public function get_item_count( ) {
 				array(
 					'booking_enabled' => $item['booking_enabled'],
 					'calendar_enabled' => $item['calendar_enabled'],
-					'location_closed_days_enabled' => $item['location_closed_days_enabled'],
+					'exclude_location_closed' => $item['exclude_location_closed'],
 					'holidays_enabled' => $item['holidays_enabled'],
 					'has_end_date' => $item['has_end_date'],
 					'item_id' => $item['item_id'],
@@ -466,7 +478,7 @@ public function get_item_count( ) {
 					array(
 						'%d',	// booking_enabled
 						'%d',	// calendar_enabled
-						'%d',	// location_closed_days_enabled
+						'%d',	// exclude_location_closed
 						'%d',	// holidays_enabled
 						'%d',	// has_end_date
 						'%d',	// item_id

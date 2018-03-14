@@ -210,162 +210,162 @@ class CB_Settings {
 	 *
 	 * @return array
 	 */
-	public static function get_settings_template_locations_open() {
+	public static function get_settings_template_location_opening_times() {
 
-		$settings_locations_open = array(
-			'name' => __( 'Locations', 'commons-booking' ),
+		$settings_location_opening_times = array(
+			'name' => __( 'Location Opening Times', 'commons-booking' ),
 			'slug' => 'locations',
 			'fields' => array (
 					array(
 						'name'             => __( 'Opening hours', 'commons-booking' ),
-						'id'               => 'locations-has-opening-hours',
+						'id'               => 'location-has-opening-times',
 						'type'             => 'checkbox',
-						'description'      => 'Location has fixed opening hours',
+						'description'      => 'Location has fixed opening times',
 						'classes'					 => 'header-condition'
 					),
 					array(
 						'before_row'       => __('Monday', 'commons-booking' ), // Headline
 						'name'             => __( 'Open on Mondays', 'commons-booking' ),
-						'id'               => 'locations-open-monday',
+						'id'               => 'location-open-mon',
 						'type'             => 'checkbox',
 					),
 					array(
 						'name'             => __( 'Opening time', 'commons-booking' ),
-						'id'               => 'locations-open-monday-from',
+						'id'               => 'location-open-mon-from',
 						'type'             => 'text_time',
 						'time_format'      => 'H:i',
-						'classes'					 => 'monday-hidden'
+						'classes'					 => 'mon-hidden'
 					),
 					array(
 						'name'             => __( 'Closing time', 'commons-booking' ),
-						'id'               => 'locations-open-monday-til',
+						'id'               => 'location-open-mon-til',
 						'type' 						 => 'text_time',
 						'time_format'      => 'H:i',
-						'classes'					 => 'monday-hidden'
+						'classes'					 => 'mon-hidden'
 					),
 					array(
 						'before_row'       => __('tuesday', 'commons-booking' ), // Headline
 						'name'             => __( 'Open on tuesdays', 'commons-booking' ),
-						'id'               => 'locations-open-tuesday',
+						'id'               => 'location-open-tue',
 						'type'             => 'checkbox',
 					),
 					array(
 						'name'             => __( 'Opening time', 'commons-booking' ),
-						'id'               => 'locations-open-tuesday-from',
+						'id'               => 'location-open-tue-from',
 						'type'             => 'text_time',
 						'time_format'      => 'H:i',
-						'classes'					 => 'tuesday-hidden'
+						'classes'					 => 'tue-hidden'
 					),
 					array(
 						'name'             => __( 'Closing time', 'commons-booking' ),
-						'id'               => 'locations-open-tuesday-til',
+						'id'               => 'location-open-tue-til',
 						'type' 						 => 'text_time',
 						'time_format'      => 'H:i',
-						'classes'					 => 'tuesday-hidden'
+						'classes'					 => 'tue-hidden'
 					),
 					array(
 						'before_row'       => __('wednesday', 'commons-booking' ), // Headline
 						'name'             => __( 'Open on wednesdays', 'commons-booking' ),
-						'id'               => 'locations-open-wednesday',
+						'id'               => 'location-open-wed',
 						'type'             => 'checkbox',
 					),
 					array(
 						'name'             => __( 'Opening time', 'commons-booking' ),
-						'id'               => 'locations-open-wednesday-from',
+						'id'               => 'location-open-wed-from',
 						'type'             => 'text_time',
 						'time_format'      => 'H:i',
-						'classes'					 => 'wednesday-hidden'
+						'classes'					 => 'wed-hidden'
 					),
 					array(
 						'name'             => __( 'Closing time', 'commons-booking' ),
-						'id'               => 'locations-open-wednesday-til',
+						'id'               => 'location-open-wed-til',
 						'type' 						 => 'text_time',
 						'time_format'      => 'H:i',
-						'classes'					 => 'wednesday-hidden'
+						'classes'					 => 'wed-hidden'
 					),
 					array(
 						'before_row'       => __('thursday', 'commons-booking' ), // Headline
 						'name'             => __( 'Open on thursdays', 'commons-booking' ),
-						'id'               => 'locations-open-thursday',
+						'id'               => 'location-open-thu',
 						'type'             => 'checkbox',
 					),
 					array(
 						'name'             => __( 'Opening time', 'commons-booking' ),
-						'id'               => 'locations-open-thursday-from',
+						'id'               => 'location-open-thu-from',
 						'type'             => 'text_time',
 						'time_format'      => 'H:i',
-						'classes'					 => 'thursday-hidden'
+						'classes'					 => 'thu-hidden'
 					),
 					array(
 						'name'             => __( 'Closing time', 'commons-booking' ),
-						'id'               => 'locations-open-thursday-til',
+						'id'               => 'location-open-thu-til',
 						'type' 						 => 'text_time',
 						'time_format'      => 'H:i',
-						'classes'					 => 'thursday-hidden'
+						'classes'					 => 'thu-hidden'
 					),
 					array(
 						'before_row'       => __('friday', 'commons-booking' ), // Headline
 						'name'             => __( 'Open on fridays', 'commons-booking' ),
-						'id'               => 'locations-open-friday',
+						'id'               => 'location-open-fri',
 						'type'             => 'checkbox',
 					),
 					array(
 						'name'             => __( 'Opening time', 'commons-booking' ),
-						'id'               => 'locations-open-friday-from',
+						'id'               => 'location-open-fri-from',
 						'type'             => 'text_time',
 						'time_format'      => 'H:i',
-						'classes'					 => 'friday-hidden'
+						'classes'					 => 'fri-hidden'
 					),
 					array(
 						'name'             => __( 'Closing time', 'commons-booking' ),
-						'id'               => 'locations-open-friday-til',
+						'id'               => 'location-open-fri-til',
 						'type' 						 => 'text_time',
 						'time_format'      => 'H:i',
-						'classes'					 => 'friday-hidden'
+						'classes'					 => 'fri-hidden'
 					),
 					array(
 						'before_row'       => __('saturday', 'commons-booking' ), // Headline
 						'name'             => __( 'Open on saturdays', 'commons-booking' ),
-						'id'               => 'locations-open-saturday',
+						'id'               => 'location-open-sat',
 						'type'             => 'checkbox',
 					),
 					array(
 						'name'             => __( 'Opening time', 'commons-booking' ),
-						'id'               => 'locations-open-saturday-from',
+						'id'               => 'location-open-sat-from',
 						'type'             => 'text_time',
 						'time_format'      => 'H:i',
-						'classes'					 => 'saturday-hidden'
+						'classes'					 => 'sat-hidden'
 					),
 					array(
 						'name'             => __( 'Closing time', 'commons-booking' ),
-						'id'               => 'locations-open-saturday-til',
+						'id'               => 'location-open-sat-til',
 						'type' 						 => 'text_time',
 						'time_format'      => 'H:i',
-						'classes'					 => 'saturday-hidden'
+						'classes'					 => 'sat-hidden'
 					),
 					array(
 						'before_row'       => __('sunday', 'commons-booking' ), // Headline
 						'name'             => __( 'Open on sundays', 'commons-booking' ),
-						'id'               => 'locations-open-sunday',
+						'id'               => 'location-open-sun',
 						'type'             => 'checkbox',
 					),
 					array(
 						'name'             => __( 'Opening time', 'commons-booking' ),
-						'id'               => 'locations-open-sunday-from',
+						'id'               => 'location-open-sun-from',
 						'type'             => 'text_time',
 						'time_format'      => 'H:i',
-						'classes'					 => 'sunday-hidden'
+						'classes'					 => 'sun-hidden'
 					),
 					array(
 						'name'             => __( 'Closing time', 'commons-booking' ),
-						'id'               => 'locations-open-sunday-til',
+						'id'               => 'location-open-sun-til',
 						'type' 						 => 'text_time',
 						'time_format'      => 'H:i',
-						'classes'					 => 'sunday-hidden'
+						'classes'					 => 'sun-hidden'
 					),
 			)
 		);
-		return $settings_locations_open;
+		return $settings_location_opening_times;
 	}
 	/**
 	 * Populate settings array
@@ -380,7 +380,7 @@ class CB_Settings {
 			'pages' => self::get_settings_template_pages(),
 			'bookings' => self::get_settings_template_bookings(),
 			'codes' => self::get_settings_template_codes(),
-			'locations-open' => self::get_settings_template_locations_open(),
+			'locations-open' => self::get_settings_template_location_opening_times(),
 		);
 
 		}

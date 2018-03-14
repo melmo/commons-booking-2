@@ -47,7 +47,7 @@ class CB_Calendar extends CB_Object {
 		$this->timeframe_id = $timeframe_id;
 		$this->date_start = $date_start;
 
-		// Timeframes may not have an end date, in this case, use +30 days
+		// Timeframes may not have an end date, in this case, use +30 days @TODO: Use Setting
 		if ( $date_end == '0000-00-00' ) {
 			$this->date_end = date("Y-m-d", strtotime( "+1 month", strtotime( $date_start ) ) );
 		} else {
@@ -64,7 +64,7 @@ class CB_Calendar extends CB_Object {
 		$this->timeframe_id = $id;
 	}
 
-    public function create_days_array( ) {
+  public function create_days_array( ) {
 
 		$dates_array = cb_dateRange( $this->date_start, $this->date_end );
 
@@ -75,7 +75,9 @@ class CB_Calendar extends CB_Object {
 
 	}
 
-    public function add_date_meta( $date ) {
+
+
+  public function add_date_meta( $date ) {
 
 		$weekday = date('N', strtotime( $date ) );
 		$weekname_array = CB_Strings::get_string( 'cal', 'weekday_names' );

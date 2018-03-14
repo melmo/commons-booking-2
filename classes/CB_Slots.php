@@ -215,6 +215,7 @@ class CB_Slots {
 	public function add_to_date_filter( $array = array() ) {
 
 		$this->filter_date_array = array_merge ( $this->filter_date_array, (array) $array );
+
 	}
 	/**
 	 * Apply the filter dates array
