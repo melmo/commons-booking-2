@@ -144,10 +144,19 @@ class CB_Slots {
 
 		$dates_filtered_array = $this->apply_date_filter();
 
-		// var_dump ( $dates_filtered_array );
-
 		$sql = $this->prepare_slots_insert_array( $dates_filtered_array );
 		$result = $this->insert_slots_sql( $sql );
+		return $result;
+
+	}
+	/**
+	 * Delete slots
+	 *
+	 * @param int $timeframe_id
+	 */
+	public function delete_slots( $timeframe_id ) {
+
+		$result = $this->delete_slots_sql( $timeframe_id );
 		return $result;
 
 	}
@@ -168,7 +177,6 @@ class CB_Slots {
 	public function get_slot_template_group( ) {
 
 		$this->template_group = $this->slot_templates->get_slot_templates( $this->template_group_id  );
-		// var_dump($this->template_group );
 
 		return $this->template_group;
 
@@ -256,6 +264,12 @@ class CB_Slots {
 		if ( !empty ( $insert_array ) ) { // no slots to add
 			$result = wp_insert_rows( $insert_array, $this->slots_table);
 		}
+		return $result;
+	}
+
+	public function delete_slots_sql( $timeframe_id ) {
+		global $wpdb;
+		$result = $wpdb->delete( $this->slots_table, array( 'timeframe_id' => $timeframe_id ), array( '%d' ) );
 		return $result;
 	}
 }

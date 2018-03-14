@@ -113,7 +113,7 @@ public static function col_format_post( $id, $title = '' ) {
 	return $html;
 }
 	/**
-	 * Format WP posts as clickable links with title
+	 * Format Dates @TODO: localize
 	 *
 	 * @since 1.0.0
  *
@@ -123,6 +123,21 @@ public static function col_format_post( $id, $title = '' ) {
 public static function col_format_date( $date ) {
 
 	return date ('d.m.y', strtotime($date) );
+}
+	/**
+	 * Format End date, return either date or ∞
+	 *
+	 * @since 1.0.0
+ *
+ * @param string $date
+ * @return mixed $html
+ */
+public static function col_format_date_end( $date, $has_end_date ) {
+	if ( ! $has_end_date ) {
+		return '&#8734; ' . __('(automatically extended)', 'commons-booking');
+	} else {
+		return CB_Gui::col_format_date($date);
+	}
 }
 
 
@@ -149,6 +164,43 @@ public static function col_format_date( $date ) {
 			return $message;
 		}
 	}
+/**
+* Renders a dropdown menu for slot templates
+*
+* @param string $slot_templates array
+* @param string $selected id of the pre-selected item
+*
+* @uses cb_get_post_types_list
+* @return mixed html dropdown
+*/
+public static function cb_edit_table_slot_template_select_html( $field_name, $selected ) {
+
+	$html = '';
+
+	$slot_templates_array = cb_get_slot_templates_dropdown();
+
+	if ( isset ( $slot_templates_array ) && is_array ( $slot_templates_array ) ) {
+
+		$html .= '<select name="' . $field_name .'" size="1" class="cb_'. $field_name .'">';
+
+		if ( ! $selected ) {
+			$new = "selected disabled"; } else { $new = ""; } // if new entry, set pre-selected
+
+			foreach ( $slot_templates_array as $key => $value ) { // loop through posts array
+
+				if ( $key == $selected ) {
+					$s = ' selected'; } else { $s = '';
+				}
+				$html .= '<option value="' . $key . '"' . $s .' >' . $key . ' - ' . $value . '</option>';
+			} // endforeach
+
+			$html .= '</select>';
+		} else {
+			$html .= sprintf( __('<span class="cb-notice">No slot templates found.</span>', 'commons-booking' ));
+		}
+
+		return $html;
+}
 /**
 * Renders a dropdown menu for items and locations
 *
@@ -258,6 +310,37 @@ public static function col_format_availability( $item ) {
 		}	else {
 			$html = __('No slots configured', 'commons-booking');
 		}
+	return $html;
+}
+/**
+ * List slot templates
+ *
+ * @param array $slot_template_group_id
+ * @return mixed $html
+ */
+public static function list_slot_templates_html( $slot_template_group_id, $list_format=TRUE ) {
+
+	$html = '';
+	$html_rows = '';
+
+	$slots = new CB_Slots();
+	$slots->set_slot_template_group( $slot_template_group_id );
+	$templates = $slots->get_slot_template_group( );
+
+	foreach ( $templates as $template_group ) {
+		foreach ( $template_group as $template_slot) {
+			$row =  sprintf (
+				'%s ( %s - %s) ',
+				$template_slot['description'],
+				$template_slot['time_start'],
+				$template_slot['time_end']
+			);
+			$html_rows .= ( $list_format ) ? '<li>' . $row . '</li>' : $row;
+		}
+	}
+	$html .= ( $list_format ) ? '<ol>' . $html_rows . '</ol>' : $html_rows;
+
+
 	return $html;
 }
 

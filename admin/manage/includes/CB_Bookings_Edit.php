@@ -109,6 +109,9 @@ class CB_Bookings_Edit  {
 		if ( ! empty ( $args[ 'status' ] ) ) {
 			$where_args[] = sprintf ( " %s.booking_status = '%s'", $this->bookings_table, $args[ 'status' ] );
 		}
+		if ( ! empty ( $args[ 'timeframe_id' ] ) ) {
+			$where_args[] = sprintf ( " %s.timeframe_id = '%d'", $this->slots_table, $args[ 'timeframe_id' ] );
+		}
 
 		// glue where
 		if ( ! empty ( $where_args ) ) {
@@ -131,7 +134,7 @@ class CB_Bookings_Edit  {
 			{$this->slots_table}.time_end,
 			{$this->slots_table}.status AS slot_status,
 			{$this->slots_table}.description AS slot_description,
-			{$this->slots_table}.order AS slot_order,
+			{$this->slots_table}.template_order AS slot_order,
 			{$this->slots_table}.timeframe_id,
 			{$this->timeframes_table}.timeframe_id,
 			{$this->timeframes_table}.item_id,

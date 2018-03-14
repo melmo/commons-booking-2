@@ -70,18 +70,76 @@
 // function to render the timeframe settings meta box
 function render_timeframe_settings_meta_box( $item ) {
 
-	?>
-<table cellspacing="2" cellpadding="5" style="width: 100%;" class="form-table">
+	?><table cellspacing="2" cellpadding="5" style="width: 100%;" class="form-table">
     <tbody>
 		 <tr class="form-field cb-form-info-availability">
         <td valign="top" colspan="4">
-					<?php echo CB_Gui::col_format_availability( $item ); ?>
+					<?php // echo CB_Gui::col_format_availability( $item ); ?>
+        </td>
+    </tr>
+		<tr class="form-field">
+        <td valign="top" colspan="4">
+						<input id="booking_enabled" name="booking_enabled" type="checkbox" value="booking_enabled" <?php if ($item['booking_enabled']) { echo "CHECKED"; }; ?> class="checkbox">
+            <label for="booking_enabled"><?php _e('Enable Bookings', 'commons-booking')?></label>
+        </td>
+		</tr>
+		<tr class="form-field">
+        <td>
+            <label for="location_id"><?php _e('Location', 'commons-booking')?></label>
+        </td>
+        <td>
+					<?php echo CB_Gui::cb_edit_table_post_select_html('cb_location', 'location_id', $item['location_id'] ); ?>
+        </td>
+    </tr>
+		<tr class="form-field">
+        <td valign="top" colspan="4">
+						<input id="calendar_enabled" name="calendar_enabled" type="checkbox" value="calendar_enabled" <?php if (! empty ( $item['calendar_enabled']) ) { echo "CHECKED"; }; ?> class="checkbox">
+            <label for="calendar_enabled"><strong><?php _e('Enable booking calendar', 'commons-booking')?></strong></label>
+        </td>
+		</tr>
+		 <tr class="form-field">
+        <td valign="top">
+            <label for="date_start"><?php _e('Start Date', 'commons-booking')?></label>
+        </td>
+        <td>
+ 						<input id="date_start" name="date_start" type="date" value="<?php echo esc_attr($item['date_start'])?>" class="date">
+        </td>
+ 				<td valign="top">
+				 		<input id="has_end_date" name="has_end_date" type="checkbox" value="has_end_date" <?php if ($item['has_end_date']) { echo "CHECKED"; }; ?> class="checkbox">
+            <label for="has_end_date"><?php _e('Set an end date', 'commons-booking')?></label>
         </td>
     </tr>
 		 <tr class="form-field">
-		 		 <tr class="form-field-group-header">
-        <td colspan="4"><?php _e('General settings', 'commons-booking'); ?></td>
+		    <td valign="top">
+            <label for="date_end"><?php _e('End Date', 'commons-booking')?></label>
+        </td>
+        <td colspan="3">
+						 <input id="date_end" name="date_end" type="date" value="<?php
+						 if (  $item['has_end_date'] == 1 ) { echo esc_attr($item['date_end']); } ?>" class="date">
+        </td>
 		</tr>
+		<tr class="form-field-group-header">
+        <td colspan="1"><?php _e('Exclude days', 'commons-booking'); ?></td>
+        <td valign="top" colspan="1">
+						<input id="exclude_location_closed" name="exclude_location_closed" type="checkbox" value="<?php // echo ($item['exclude_location_closed'])?>" class="checkbox">
+            <label for="exclude_location_closed"><?php _e('Exclude closed days of the location', 'commons-booking')?></label>
+        </td>
+        <td valign="top" colspan="1">
+						<input id="exclude_holiday_closed" name="exclude_holiday_closed" type="checkbox" value="<?php // echo ($item['exclude_holiday_closed'])?>" class="checkbox">
+            <label for="exclude_holiday_closed"><?php _e('Exclude holidays', 'commons-booking')?></label>
+        </td>
+    </tr>
+		 <tr class="form-field">
+        <td valign="top">
+          <label for="slot_template_select"><?php _e('Booking Mode', 'commons-booking')?></label>
+				</td>
+				<td valign="top">
+					<?php echo CB_Gui::cb_edit_table_slot_template_select_html('slot_template_id', $item['slot_template_id'] ); ?>
+        </td>
+				<td></td>
+				<td></td>
+    </tr>
+				<tr class="form-field">
         <td valign="top">
             <label for="item_id"><?php _e('Item', 'commons-booking')?></label>
         </td>
@@ -95,23 +153,6 @@ function render_timeframe_settings_meta_box( $item ) {
 					<?php echo CB_Gui::cb_edit_table_post_select_html('cb_location', 'location_id', $item['location_id'] ); ?>
         </td>
     </tr>
-		 <tr class="form-field">
-        <td valign="top">
-            <label for="date_start"><?php _e('Start Date', 'commons-booking')?></label>
-        </td>
-        <td>
- 						<input id="date_start" name="date_start" type="date" value="<?php echo esc_attr($item['date_start'])?>" class="date">
-        </td>
-        <td valign="top">
-            <label for="date_end"><?php _e('End Date', 'commons-booking')?></label>
-        </td>
-        <td>
- 						<input id="date_end" name="date_end" type="date" value="<?php echo esc_attr($item['date_end'])?>" class="date">
-        </td>
-    </tr>
-		 <tr class="form-field-group-header">
-        <td colspan="4"><?php _e('Meta', 'commons-booking'); ?></td>
-		</tr>
 		 <tr class="form-field">
         <td valign="top">
             <label for="description"><?php _e('Description', 'commons-booking')?></label>
@@ -129,74 +170,60 @@ function render_timeframe_settings_meta_box( $item ) {
     </tbody>
 </table>
 <?php }
-// function to render the timeframe generate slots meta box
+// function to render the timeframe generate slots/calendar meta box
 function render_timeframe_generate_slots_meta_box( $item ) {
 ?>
 
 <table cellspacing="2" cellpadding="5" style="width: 100%;" class="form-table">
+		<?php if ( $item['calendar_enabled'] == 1 ) { // we use a calendar ?>
     <tbody>
-		 <tr class="form-field cb-form-info-availability">
-        <td valign="top" colspan="4">
-					<?php echo CB_Gui::col_format_availability( $item ); ?>
-        </td>
-    </tr>
-    </tr>
-		 <tr class="form-field-group-header">
-        <td colspan="4"><?php _e('Exclude days', 'commons-booking'); ?></td>
-		</tr>
-		 <tr class="form-field">
-        <td valign="top" colspan="2">
-						<input id="exclude_location_closed" name="exclude_location_closed" type="checkbox" value="<?php // echo ($item['exclude_location_closed'])?>" class="checkbox">
-            <label for="exclude_location_closed"><?php _e('Exclude closed days of the location', 'commons-booking')?> (Edit <?php echo CB_Gui::col_format_post( $item['location_id'] ); ?>)</label>
-						<?php //@TODO: REfresh location name & id via javascript/ajax if location_id select changes ?>
-        </td>
-        <td valign="top" colspan="2">
-						<input id="exclude_holiday_closed" name="exclude_holiday_closed" type="checkbox" value="<?php // echo ($item['exclude_holiday_closed'])?>" class="checkbox">
-            <label for="exclude_holiday_closed"><?php _e('Exclude holidays', 'commons-booking')?> (Edit holiday setting)</label>
-        </td>
-    </tr>
-		 <tr class="form-field-group-header">
-        <td colspan="4"><?php _e('Multiple bookings per day', 'commons-booking'); ?></td>
-		</tr>
-		 <tr class="form-field">
-        <td valign="top">
-          <label for="slot_template_select"><?php _e('Slot set', 'commons-booking')?></label>
+			<tr class="form-field">
+				<td colspan="4">
+					<ul>
+						<li><?php printf ( __('Starting from: %s', 'commons-booking'), CB_Gui::col_format_date( $item['date_start'] ) ); ?></li>
+						<li><?php // end date
+					if ( $item['has_end_date'] != 1 ) {
+						printf ( __('Ending at: Without an end date. Users will be able to book %d days in advance. (Edit in settings)', 'commons-booking'), '30'); //@TODO get from settings
+					} else {
+						printf ( __('Ending at: %s', 'commons-booking'), CB_Gui::col_format_date( $item['date_end'] ) );
+					}
+					?></li>
+						<li><?php // slot
+						echo __('The following slot(s) will be created for each day: ', 'commons-booking');
+
+						echo CB_Gui::list_slot_templates_html( $item['slot_template_id']);
+					?></li>
+					</ul>
+
+					<?php
+
+					?>
 				</td>
-				<td valign="top">
-					<input id="slot_template_select" name="slot_template_select" type="text" value="0">
-        </td>
-				<td></td>
-				<td></td>
-    </tr>
-		 <tr class="form-field-group-header">
-        <td colspan="4"><?php _e('Codes', 'commons-booking'); ?></td>
-		</tr>
-		 <tr class="form-field">
-        <td valign="top" colspan="2">
-						<input id="create_codes_bool" name="create_codes_bool" type="checkbox" value="<?php // echo ($item['create_codes_bool'])?>" class="checkbox">
-            <label for="create_codes_bool"><?php _e('Create codes', 'commons-booking')?> (Edit codes pool)</label>
-        </td>
-        <td valign="top" colspan="2">
-        </td>
-    </tr>
-	<?php if ( isset( $item['availability'] ) &&  $item['availability']['total'] > 0 )  { // slots already have been created ?>
+			</tr>
+	<?php if ( isset( $item['availability'] ) &&  $item['availability']['total'] > 0 )  { // slots already have been created, so ask the user how to handle them ?>
 		 <tr class="form-field cb-form-notice">
         <td valign="top" colspan="4" class="warning">
-					<?php printf ( __('%d Slot(s) have already been created for this timeframe.', 'commons-booking'),
+					<?php printf ( __('%d Slots have already been created for this timeframe.', 'commons-booking'),
 				$item['availability']['total'] ); ?>
         </td>
 		</tr>
 		<tr class="form-field cb-form-danger">
-		      <td valign="top" colspan="2">
-						<input id="delete_redundant_slots" name="delete_redundant_slots" type="checkbox" value="<?php // echo ($item['delete_redundant_slots'])?>" class="checkbox">
-            <label for="delete_redundant_slots"><?php _e('Delete slots not in timeframe', 'commons-booking')?></label>
-        </td>
-        <td valign="top" colspan="2">
-						<input id="regenerate_all_slots" name="regenerate_all_slots" type="checkbox" value="<?php // echo ($item['regenerate_all_slots'])?>" class="checkbox">
+        <td valign="top" colspan="4">
+						<input id="regenerate_all_slots" name="regenerate_all_slots" type="checkbox" value="regenerate_all_slots" class="checkbox">
             <label for="regenerate_all_slots"><?php _e('Regenerate all slots (delete existing)', 'commons-booking')?></label>
         </td>
 		</tr>
 		<?php } // end if slots present ?>
+		</tbody>
+	<?php } else { // no calendar @TODO: delete existing slots ?>
+		<tbody>
+			<tr class="form-field">
+				<td colspan="4">
+				<?php echo __( 'No calendar will be created. Users can book the item by contacting the item owner.', 'commons-booking'); ?>
+				</td>
+			</tr>
+		</tbody>
+	<?php } // endif calendar_enabled ?>
 	</table>
 
 <?php
@@ -210,7 +237,7 @@ function render_timeframe_view_meta_box( $item ) {
     <tbody>
 			<tr class="form-field cb-form-info-availability">
         <td valign="top" colspan="4">
-					<?php echo CB_Gui::col_format_availability( $item ); ?>
+					<?php echo CB_Gui::col_format_availability( $item ); ?>. Using template: <?php echo CB_Gui::list_slot_templates_html( $item['slot_template_id'], FALSE); ?>
         </td>
     </tr>
 		<tr>
@@ -238,7 +265,7 @@ function render_timeframe_view_meta_box( $item ) {
             <label for="date_end"><?php _e('End Date', 'commons-booking')?></label>
         </td>
         <td>
-						<?php echo CB_Gui::col_format_date( $item['date_end'] ); ?>
+						<?php echo CB_Gui::col_format_date_end( $item['date_end'], $item['has_end_date'] ); ?>
         </td>
     </tr>
 		 <tr class="form-field">
@@ -258,6 +285,7 @@ function render_timeframe_view_meta_box( $item ) {
 		 <tr class="form-field">
         <td valign="top" colspan="4">
 					<a class="add-new-h2" href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=cb_timeframes_edit&edit=1&timeframe_id=' . $item['timeframe_id'] );?>"><?php _e('Edit timeframe', 'commons-booking')?></a>
+					<a class="add-new-h2" href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=cb_bookings_table&timeframe_id=' . $item['timeframe_id'] );?>"><?php _e('View Bookings', 'commons-booking')?></a>
         </td>
     	</tr>
     </tbody>

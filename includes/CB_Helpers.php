@@ -28,6 +28,30 @@ function cb_get_pages_dropdown() {
   return $dropdown;
 }
 /**
+ * Get a List of slot templates for use in dropdown selects.
+ * @TODO Hardcoded for now
+ *
+ * @return Array of wordpress pages as [slot_template_id][title]
+ */
+
+function cb_get_slot_templates_dropdown() {
+	// dropdown for page select
+
+	$obj = new CB_Slot_Templates();
+	$dropdown = array();
+
+	$slot_templates = $obj->get_slot_templates();
+
+  foreach ( $slot_templates as $key => $val ) {
+		$descriptions = array();
+		foreach ($val as $slot) {
+			$descriptions[] = $slot['description'];
+		}
+    $dropdown[$key] = implode (', ', $descriptions );
+	}
+  return $dropdown;
+}
+/**
  * Get array of post types @TODO: Apply filters to let users only add their own post types
  *
  * @param string post type single name
@@ -211,7 +235,7 @@ function wp_insert_rows($row_arrays = array(), $wp_table_name, $update = false, 
  * Only return default value if we don't have a page ID (in the 'page' query variable) @TODO: works only on settings page
  *
  * @param  bool  $default On/Off (true/false)
- * @return mixed          Returns true or '', the blank default
+ * @return mixed  Returns true or '', the blank default
  */
 function cmb2_set_checkbox_default_for_new_post( $default ) {
 

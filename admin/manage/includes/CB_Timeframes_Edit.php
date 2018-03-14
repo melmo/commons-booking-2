@@ -99,13 +99,18 @@ class CB_Timeframes_Edit  {
 		// set default settings_args
 		$this->settings_args_defaults = array(
 			'timeframe_id' => '',
+			'booking_enabled' => 0,
+			'calendar_enabled' => 0,
+			'location_closed_days_enabled' => 0,
+			'holidays_enabled' => 0,
+			'has_end_date' => 0,
 			'item_id' => '',
 			'location_id' => '',
 			'date_start' => '',
 			'date_end' => '',
 			'description' => '',
 			'owner_id' => '',
-			'slot_template_select' => 0,
+			'slot_template_id' => 0,
 			'cb_form_action' => '',
 			'modified' => ''
 		);
@@ -196,6 +201,22 @@ public function get_item_count( ) {
 
 				if ( $this->item_valid === true) { // validation passed
 
+
+
+					// handle checkboxes
+					$item['has_end_date'] = $this->prepare_checkbox_value(
+						$item['has_end_date']
+					);
+					$item['booking_enabled'] = $this->prepare_checkbox_value(
+						$item['booking_enabled']
+					);
+					$item['calendar_enabled'] = $this->prepare_checkbox_value(
+						$item['calendar_enabled']
+					);
+
+					// PREPARE DATA
+					$item['date_end'] = $this->maybe_set_end_date($item);
+
 					if ( $this->timeframe_id == '' ) { // no id, so add new
 						$sql_timeframe_result = $this->add_row( $item );
 					} else { // id is present, so update
@@ -204,18 +225,23 @@ public function get_item_count( ) {
 
 					$this->message->output(); // diplay message(s)
 					$this->maybe_set_next_screen( $sql_timeframe_result, 'generate_slots' );
-					var_dump ($sql_timeframe_result);
-				}
-			} elseif ( isset($request['cb_form_action'] ) && $request['cb_form_action'] == 'generate_slots' ) { // we are creating the slots
+				} // end if validation passed
+			} elseif ( isset( $request['cb_form_action'] ) && $request['cb_form_action'] == 'generate_slots' ) { // we are creating the slots
 
 				$timeframe = $this->get_single_timeframe( $this->timeframe_id );
 
 				$this->slots_object->set_date_range ($timeframe['date_start'], $timeframe['date_end'] );
 
-				$this->slots_object->set_slot_template_group( $item['slot_template_select'] );
+				$this->slots_object->set_slot_template_group( $timeframe['slot_template_id'] );
 				$templates = $this->slots_object->get_slot_template_group(); // get the templates array
 
+
+				if ( isset( $request['regenerate_all_slots'] ) ) { 	// regenerate slots is passed
+					$this->slots_object->delete_slots( $timeframe['timeframe_id'] );
+				}
+
 				$this->slots_object->get_slots();
+				// handle slots already in db: check if dates exist
 				$existing_dates = $this->slots_object->get_slot_dates_array();
 
 				$this->slots_object->add_to_date_filter ( $existing_dates );
@@ -225,7 +251,6 @@ public function get_item_count( ) {
 				$this->set_message( $sql_slots_result, __('Slots generated.'));
 
 				$this->message->output(); // diplay message(s)
-				// $this->set_screen('gernerate_slots');
 				$this->maybe_set_next_screen( $sql_slots_result, 'view' );
 			} // end if
 		}
@@ -267,7 +292,7 @@ public function get_item_count( ) {
 	 */
 	public function maybe_set_next_screen( $result, $target ) {
 
-		if ( $result ) { // operation successful, so set next screen
+		if ( $result !== FALSE ) { // operation successful, so set next screen
 			$this->screen = $target;
 		}
 	}
@@ -303,11 +328,13 @@ public function get_item_count( ) {
 
 			case 'generate_slots':
 				// Metabox: Timeframe generate slots (Screen 2)
-				add_meta_box('timeframe_form_meta_box',  __('Generate Slots & Codes', 'commons-booking') , 'render_timeframe_generate_slots_meta_box' , 'timeframe', 'normal', 'default');
+				add_meta_box('timeframe_form_meta_box',  __('Review calendar settings', 'commons-booking') , 'render_timeframe_generate_slots_meta_box' , 'timeframe', 'normal', 'default');
 				$this->form_footer = sprintf ('
 				<input type="hidden" name="cb_form_action" value="generate_slots">
+				<a href="javascript:history.back();" class="button-secondary">%s</a>
 				<input type="submit" value="%s" id="submit" class="button-primary" name="submit">',
-				__('Generate slots >>', 'commons-booking' ) );
+				__('<< Edit timeframe', 'commons-booking'),
+				__('Generate calendar >>', 'commons-booking' ) );
 				break;
 
 			case 'view':
@@ -335,10 +362,12 @@ public function get_item_count( ) {
 
 		if ( $this->timeframe_id ) {
 
+			var_dump($this->timeframe);
+
 			$item = 	CB_Gui::col_format_post( $this->timeframe['item_id'] );
 			$location = 	CB_Gui::col_format_post( $this->timeframe['location_id'] );
 			$date_start = CB_Gui::col_format_date ( $this->timeframe['date_start'] );
-			$date_end = CB_Gui::col_format_date ( $this->timeframe['date_end'] );
+			$date_end = CB_Gui::col_format_date_end ( $this->timeframe['date_end'], $this->timeframe['has_end_date'] );
 
 			$title = sprintf (
 				__('Timeframe (%d): %s at %s, %s - %s', 'commons-booking' ),
@@ -367,23 +396,32 @@ public function get_item_count( ) {
 		$result = $wpdb->insert(
 			$this->timeframes_table,
 				array(
+					'booking_enabled' => $item['booking_enabled'],
+					'calendar_enabled' => $item['calendar_enabled'],
+					'location_closed_days_enabled' => $item['location_closed_days_enabled'],
+					'holidays_enabled' => $item['holidays_enabled'],
+					'has_end_date' => $item['has_end_date'],
 					'item_id' => $item['item_id'],
 					'location_id' => $item['location_id'],
 					'date_start' => $item['date_start'],
 					'date_end' => $item['date_end'],
 					'description' => $item['description'],
 					'owner_id' => $item['owner_id'],
+					'slot_template_id' => $item['slot_template_id'],
 					'modified' => $item['modified']
 				),
 					array(
-						'%d',	// item_id
+						'%d',	// booking_enabled
+						'%d',	// calendar_enabled
+						'%d',	// location_closed_days_enabled
+						'%d',	// holidays_enabled
+						'%d',	// has_end_date
 						'%d',	// location_id
 						'%s',	// date_start
 						'%s',	// date_end
 						'%s',	// description
 						'%d',	// owner_id
 						'%s' // modified
-
 					)
 			);
 		$this->timeframe_id = $wpdb->insert_id;
@@ -402,33 +440,51 @@ public function get_item_count( ) {
 	 */
 	public function update_row( $item ) {
 
-				var_dump("row updated");
-
 		global $wpdb;
+
+		var_dump($item);
 
 		$result = $wpdb->update(
 			$this->timeframes_table,
 				array(
+					'booking_enabled' => $item['booking_enabled'],
+					'calendar_enabled' => $item['calendar_enabled'],
+					'location_closed_days_enabled' => $item['location_closed_days_enabled'],
+					'holidays_enabled' => $item['holidays_enabled'],
+					'has_end_date' => $item['has_end_date'],
 					'item_id' => $item['item_id'],
 					'location_id' => $item['location_id'],
 					'date_start' => $item['date_start'],
 					'date_end' => $item['date_end'],
 					'description' => $item['description'],
-					'owner_id' => $item['owner_id']
+					'owner_id' => $item['owner_id'],
+					'slot_template_id' => $item['slot_template_id'],
+					'modified' => $item['modified']
 				),
-				array( 'timeframe_id' => $item['timeframe_id']),
+				array(
+					'timeframe_id' => $item['timeframe_id']),
 					array(
+						'%d',	// booking_enabled
+						'%d',	// calendar_enabled
+						'%d',	// location_closed_days_enabled
+						'%d',	// holidays_enabled
+						'%d',	// has_end_date
 						'%d',	// item_id
 						'%d',	// location_id
 						'%s',	// date_start
 						'%s',	// date_end
 						'%s',	// description
-						'%d'	// value2
+						'%d',	// owner_id
+						'%d',	// slot_template_group_id
+						'%s' // modified
 					),
 				array( '%d' )
 			);
 
 		$this->set_message( $result, __('Timeframe updated.'));
+
+		var_dump($result);
+
 		return ($result);
 	}
 	/**
@@ -443,10 +499,12 @@ public function get_item_count( ) {
 			$string = ' ' . $info ;
 		}
 
-		if ($result) {
-			$this->message = new WP_Admin_Notice( __( 'Success!', 'commons-booking' ) . $string, 'updated' );
-		} else {
+		if ( $result === FALSE ) {
 			$this->message = new WP_Admin_Notice( __( 'Error while trying: ', 'commons-booking') . $string, 'error' );
+		} elseif ( $result === 0 ) {
+			$this->message = new WP_Admin_Notice( __( 'Nothing to update.', 'commons-booking' ) . $string, 'updated' );
+		} else {
+			$this->message = new WP_Admin_Notice( __( 'Success!', 'commons-booking' ) . $string, 'updated' );
 		}
 
 	}
@@ -539,8 +597,10 @@ function validate_timeframe_settings_form( $item ){
 
 		$message = '';
 
+		// start date
 		if (empty($item['date_start'])) $message .= __('Start date is required. ', 'commons-booking');
-		if (empty($item['date_end'])) $message .= __('End date is required. ', 'commons-booking');
+		// end date
+		if ( $item['has_end_date'] == 1 && empty($item['date_end'])) $message .= __('End date is required. ', 'commons-booking');
 
     if ( ($message === '') ) return true;
 
@@ -548,6 +608,35 @@ function validate_timeframe_settings_form( $item ){
 		$this->message->output(); // diplay message(s)
 
     return FALSE;
+	}
+/**
+ * Handle the checkbox values
+ *
+ * @param $checkbox
+ * @return
+ */
+function prepare_checkbox_value( $checkbox ){
+
+		if ( ! empty ( $checkbox ) ) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+/**
+ * Handle timeframes without an end date
+ *
+ * @param $item
+ * @return $end_date
+ */
+function maybe_set_end_date( $item ){
+
+		if ( $item['has_end_date'] == 0 ) { // no end date, so use the date setting @TODO: get setting
+			$end_date =  date("Y-m-d", strtotime( "+1 month", strtotime( $item['date_start'] ) ) );
+		} else {
+			$end_date = $item['date_end'];
+		}
+    return $end_date;
 	}
 }
 ?>

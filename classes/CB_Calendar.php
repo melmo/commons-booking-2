@@ -46,7 +46,13 @@ class CB_Calendar extends CB_Object {
 
 		$this->timeframe_id = $timeframe_id;
 		$this->date_start = $date_start;
-		$this->date_end = $date_end;
+
+		// Timeframes may not have an end date, in this case, use +30 days
+		if ( $date_end == '0000-00-00' ) {
+			$this->date_end = date("Y-m-d", strtotime( "+1 month", strtotime( $date_start ) ) );
+		} else {
+			$this->date_end = $date_end;
+		}
 
 		$this->create_days_array();
 

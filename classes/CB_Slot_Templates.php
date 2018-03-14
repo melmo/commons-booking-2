@@ -56,7 +56,7 @@ class CB_Slot_Templates {
 	/**
 	 * Get slot templates
 	 *
-	 * @param int $slot_set_id
+	 * @param int $slot_template_id
 	 * @return array $slot_template_array
 	 *
 	 */

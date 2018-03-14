@@ -218,11 +218,16 @@ class CB_Object {
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.timeframe_id',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.location_id',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.item_id',
-			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.set_id',
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.slot_template_id',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.date_start',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.date_end',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.description',
-			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.owner_id'
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.owner_id',
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.calendar_enabled',
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.booking_enabled',
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.has_end_date',
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.location_closed_days_enabled',
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.holidays_enabled'
 		);
 
 		$sql_conditions['SELECT'] = $sql_fields_timeframe;
@@ -505,7 +510,7 @@ class CB_Object {
 
 		} else { // no timeframes found
 
-			return CB_Strings::throw_error( __FILE__,' no timeframes!' ); //@TODO: This will be shown to a front-end user. No dev "error",  use CB_guistrings (also, todo).
+			// return CB_Strings::throw_error( __FILE__,' no timeframes!' ); //@TODO: This will be shown to a front-end user. No dev "error",  use CB_guistrings (also, todo).
 		}
 	}
 	/**
@@ -753,7 +758,7 @@ class CB_Object {
 	 * @param string $error
 	 *
 	 */
-	public function throw_error( $file, $error ){
+	public static function throw_error( $file, $error ){
 
 		if( WP_DEBUG === true ) {
 			printf ( 'Error: <strong>%s</strong> (%s)<br/> ', $error, $file );

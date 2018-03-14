@@ -25,7 +25,9 @@ class CB_Bookings_Table extends WP_List_Table
 
 				$this->Bookings_Admin = new CB_Bookings_Edit();
 
-        parent::__construct( $this->Bookings_Admin->names );
+				parent::__construct( $this->Bookings_Admin->names );
+
+				$request = $_REQUEST;
 
     }
 
@@ -227,6 +229,7 @@ class CB_Bookings_Table extends WP_List_Table
         // will be used in pagination settings
 				$total_items = $this->Bookings_Admin->get_item_count();
 
+
         // prepare query params, as usual current page, order by and order direction
         $paged = isset($_REQUEST['paged']) ? max(0, intval($_REQUEST['paged']) - 1) : 0;
         $orderby = (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], array_keys($this->get_sortable_columns()))) ? $_REQUEST['orderby'] : 'booking_id';
@@ -237,6 +240,13 @@ class CB_Bookings_Table extends WP_List_Table
 				$args = array (
 					// 'status' => 'booked'
 				);
+
+				// query params for timeframes, items, status...
+				if ( isset( $_REQUEST['timeframe_id'] ) ) {
+					$args['timeframe_id'] = $_REQUEST['timeframe_id'];
+				}
+
+
 				$base_sql = $this->Bookings_Admin->prepare_booking_sql( $args );
 
 
