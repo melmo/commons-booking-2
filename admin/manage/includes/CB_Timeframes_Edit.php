@@ -192,8 +192,6 @@ public function get_item_count( ) {
 		$this->setup_vars( $request );
 
 		$item = $this->merge_defaults( $request );
-			$location = new CB_Location ( 6 );
-			$opening_times = $location->get_opening_times();
 
 		if ( isset( $request['nonce'] ) && wp_verify_nonce( $request['nonce'], $this->basename ) ) { // we are submitting the form
 
@@ -251,7 +249,15 @@ public function get_item_count( ) {
 				$this->slots_object->add_to_date_filter ( $existing_dates ); // add these date to ignore list
 
 				// handle location opening times checkbox
-				if ( $timeframe['exclude_location_closed'] == 1  ) {
+			$location = new CB_Location ( $timeframe['location_id'] );
+			$opening_times = $location->get_opening_times();
+			$pickup_mode = $location->get_pickup_mode();
+
+			var_dump ($pickup_mode);
+			var_dump ($opening_times);
+
+
+				if ( $timeframe['exclude_location_closed'] == 1 && $pickup_mode == 'opening_times'   ) {
 					$filtered_dates = cb_filter_dates_by_opening_times ( $timeframe['date_start'], $timeframe['date_end'], $opening_times, TRUE );
 					$this->slots_object->add_to_date_filter ( $filtered_dates ); // add these date to ignore list
 				}
