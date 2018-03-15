@@ -9,23 +9,23 @@
  */
 
 /* Variables: colors, widths, padding */
-@import "partials/variables";
+@import "partials/_variables";
 
 /* Mixins */
-@import "partials/mixins";
+@import "partials/_mixins";
 
 /* Base styles */
-@import "partials/base";
+@import "partials/_base";
 
 /* Calendar styles */
-@import "partials/calendar";
+@import "partials/_calendar";
 
 /* Booking Bar */
-@import "partials/bookingbar";
+@import "partials/_bookingbar";
 
 /* Tooltips */
-@import "partials/tooltipster";
+@import "partials/_tooltipster";
 
 /* Leaflet.js customization */
-@import "partials/map-leaflet.css";
+@import "partials/_map-leaflet.css";
 
