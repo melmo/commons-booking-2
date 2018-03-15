@@ -27,13 +27,6 @@
 			$item = $Timeframes_Edit->get_single_timeframe( $item['timeframe_id'] );
 		}
 
-		//var_dump ($item);
-		// if this is not post back we load item to edit or give new one to create
-		//$item_id = $Timeframes_Edit->get_timeframe_id_from_request( $_REQUEST );
-		//$item = $Timeframes_Edit->get_single_timeframe( $item_id );
-
-
-
 		if( is_array($item) ) { // make sure that id exists
 			// here we adding our custom meta box
 		} else {
@@ -180,24 +173,25 @@ function render_timeframe_generate_slots_meta_box( $item ) {
 			<tr class="form-field">
 				<td colspan="4">
 					<ul>
-						<li><?php printf ( __('Starting from: %s', 'commons-booking'), CB_Gui::col_format_date( $item['date_start'] ) ); ?></li>
+						<li><?php printf ( __('<strong>Start date</strong>: %s', 'commons-booking'), CB_Gui::col_format_date( $item['date_start'] ) ); ?></li>
 						<li><?php // end date
 					if ( $item['has_end_date'] != 1 ) {
-						printf ( __('Ending at: Without an end date. Users will be able to book %d days in advance. (Edit in settings)', 'commons-booking'), '30'); //@TODO get from settings
+						printf ( __('<strong>End date</strong>: No end date. Users will be able to book %d days in advance. (Edit in settings)', 'commons-booking'), '30'); //@TODO get from settings
 					} else {
-						printf ( __('Ending at: %s', 'commons-booking'), CB_Gui::col_format_date( $item['date_end'] ) );
+						printf ( __('<strong<End date</strong>: %s', 'commons-booking'), CB_Gui::col_format_date( $item['date_end'] ) );
 					}
 					?></li>
 						<li><?php // slot
-						echo __('The following slot(s) will be created for each day: ', 'commons-booking');
-
+						echo __('<strong>Slots</strong>: The following slot(s) will be created for each day: ', 'commons-booking');
 						echo CB_Gui::list_slot_templates_html( $item['slot_template_id']);
 					?></li>
-					</ul>
+					<li><?php // location opening times
 
-					<?php
-
+					printf( __('Opening times (%s): ', 'commons-booking'),
+						CB_Gui::col_format_post( $item['location_id'], __( 'Edit', 'commons-booking' ) ) );
+						echo CB_Gui::list_location_opening_times_html( $item['location_id']);
 					?>
+					</ul>
 				</td>
 			</tr>
 	<?php if ( isset( $item['availability'] ) &&  $item['availability']['total'] > 0 )  { // slots already have been created, so ask the user how to handle them ?>

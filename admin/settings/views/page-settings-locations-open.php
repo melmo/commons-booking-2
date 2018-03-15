@@ -13,7 +13,7 @@
  */
 ?>
 <?php $slug = 'locations'; ?>
-<?php $setting = 'locations-open'; ?>
+<?php $setting = 'locations-opening-times'; ?>
 
 <div id="tabs-<?php echo $slug; ?>" class="wrap">
 	<div class="metabox-holder"><div class="postbox"><div class="inside">

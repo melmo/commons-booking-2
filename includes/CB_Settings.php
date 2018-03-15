@@ -204,7 +204,7 @@ class CB_Settings {
 		return $settings_codes;
 	}
 	/**
-	 * Locations settings template
+	 * Locations meta box: opening times template
 	 *
 	 * @since 1.0.0
 	 *
@@ -212,16 +212,15 @@ class CB_Settings {
 	 */
 	public static function get_settings_template_location_opening_times() {
 
-		$settings_location_opening_times = array(
+		$settings_template_location_opening_times = array(
 			'name' => __( 'Location Opening Times', 'commons-booking' ),
 			'slug' => 'locations',
 			'fields' => array (
 					array(
-						'name'             => __( 'Opening hours', 'commons-booking' ),
-						'id'               => 'location-has-opening-times',
+						'before_row'       => __('Monday', 'commons-booking' ), // Headline
+						'name'             => __( 'Open on Mondays', 'commons-booking' ),
+						'id'               => 'location-open-mon',
 						'type'             => 'checkbox',
-						'description'      => 'Location has fixed opening times',
-						'classes'					 => 'header-condition'
 					),
 					array(
 						'before_row'       => __('Monday', 'commons-booking' ), // Headline
@@ -365,7 +364,56 @@ class CB_Settings {
 					),
 			)
 		);
-		return $settings_location_opening_times;
+		return $settings_template_location_opening_times;
+	}
+	/**
+	 * Locations meta box: choose pickup mode template
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array
+	 */
+	public static function get_settings_template_location_pickup_mode() {
+
+		$settings_template_location_pickup_mode = array(
+			'name' => __( 'Pickup mode', 'commons-booking' ),
+			'slug' => 'locations',
+			'fields' => array (
+				array(
+						'name'             => __( 'Pickup mode', 'commons-booking' ),
+						'id'               => 'location-pickup-mode',
+						'type'             => 'radio_inline',
+						'options' 				 => array(
+																	'personal_contact'   => __( 'Contact the location for pickup', 'commons-booking' ),
+																	'opening_times' 		 => __( 'Fixed opening times for pickup', 'commons-booking' ),
+																	),
+						'default' => 'personal_contact',
+				),
+			)
+		);
+		return $settings_template_location_pickup_mode;
+	}
+	/**
+	 * Locations meta box: location contact (personal contact)
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array
+	 */
+	public static function get_settings_template_location_personal_contact_info() {
+
+		$settings_template_location_personal_contact_info = array(
+			'name' => __( 'Personal contact', 'commons-booking' ),
+			'slug' => 'locations',
+			'fields' => array (
+				array(
+						'name'             => __( 'Personal contact', 'commons-booking' ),
+						'id'               => 'location-personal-contact-info',
+						'type'             => 'wysiwyg',
+				),
+			)
+		);
+		return $settings_template_location_personal_contact_info;
 	}
 	/**
 	 * Populate settings array
@@ -380,7 +428,11 @@ class CB_Settings {
 			'pages' => self::get_settings_template_pages(),
 			'bookings' => self::get_settings_template_bookings(),
 			'codes' => self::get_settings_template_codes(),
-			'locations-open' => self::get_settings_template_location_opening_times(),
+			'location-opening-times' => self::get_settings_template_location_opening_times(),
+			'location-pickup-mode' => self::get_settings_template_location_pickup_mode(),
+			'location-personal-contact-info' => self::get_settings_template_location_personal_contact_info(),
+
+			//@TODO: unnessecary, delete
 		);
 
 		}

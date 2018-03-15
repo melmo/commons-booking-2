@@ -27,8 +27,22 @@ class CB_Location  {
   */
 	public function has_opening_times( ) {
 
-		$bool = get_post_meta( $this->location_id, 'locations-has-opening-hours', true );
-		return $bool;
+		$meta_val = get_post_meta( $this->location_id, 'location-has-opening-times', true );
+
+		return cb_checkbox_bool ($meta_val );
+	}
+	/**
+	* Return pickup mode
+	* @param int $location_id
+	* @return string
+  */
+	public function get_pickup_mode( ) {
+
+		$meta_val = get_post_meta( $this->location_id, 'location-pickup-mode', true );
+
+		$mode = ( empty( $meta_val ) ) ? 'personal_contact' : $meta_val;
+
+		return $mode;
 	}
 	/**
 	* Return an array of open days & times
@@ -44,14 +58,12 @@ class CB_Location  {
 			'sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'
 		);
 
-		// if ( $this->has_opening_times() == 1 ) { // checkbox set
-
 			foreach ( $weekdays as $weekday ) { // loop through days
 
 				$day_open = get_post_meta( $location_id, 'location-open-' . $weekday, true );
 
 				if ( cb_checkbox_bool( $day_open ) ) {
-					$day_numeric = date ('N', strtotime ($weekday));
+					$day_numeric = date ('w', strtotime ($weekday));
 
 					$opening_times[ $day_numeric ] = array (
 						'from' =>

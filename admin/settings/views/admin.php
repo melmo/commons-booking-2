@@ -28,7 +28,7 @@
 		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-pages.php' );
 		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-bookings.php' );
 		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-codes.php' );
-		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-locations-open.php' );
+		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-locations-opening-times.php' );
 		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-importexport.php' );
 		?>
 		</div>

@@ -343,7 +343,44 @@ public static function list_slot_templates_html( $slot_template_group_id, $list_
 
 	return $html;
 }
+/**
+ * List location opening times (days + hours)
+ *
+ * @param array $location_id
+ * @return mixed $html
+ */
+public static function list_location_opening_times_html( $location_id) {
+	$location = new CB_Location ( $location_id );
+	$opening_times = $location->get_opening_times();
+	$pickup_mode = $location->get_pickup_mode();
 
+	$html = '';
+
+	if ( $pickup_mode == 'opening_times' && is_array( $opening_times ) && ! empty ( $opening_times ) ){
+		$html .= '<ul>';
+		foreach ( $opening_times as $day => $hours_array ) {
+			$html .=  sprintf ('<li>%s<ul>', jddayofweek( $day, 2 ) );
+
+			// from / till may or may not be set.
+			$from = ( ! empty ($hours_array ) ) ? $hours_array['from'] : '';
+			$till = ( ! empty ($hours_array ) ) ? $hours_array['till'] : '';
+
+			$html .= sprintf( '<li>%s</li><li>%s</li>',
+				$from,
+				$till
+			);
+
+			$html .= '</ul></li>';
+
+		} // end foreach
+		$html .= '</ul>';
+	} elseif ( $pickup_mode == 'personal_contact' ) {
+		$html = __('No opening times, users will have to contact the location.');
+	} else {
+		$html = __('No opening times defined for this location.');
+	}
+	return $html;
+}
 
 }
-add_action( 'plugins_loaded', array( 'CB_Strings', 'get_instance' ) );
+add_action( 'plugins_loaded', array( 'CB_Gui', 'get_instance' ) );
