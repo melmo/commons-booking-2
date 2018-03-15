@@ -236,7 +236,7 @@ function render_timeframe_view_meta_box( $item ) {
 	<table cellspacing="2" cellpadding="5" style="width: 100%;" class="form-table">
 
     <tbody>
-			<?php if ( $item['booking_enabled'] !== 1 ) { ?>
+			<?php if ( $item['booking_enabled'] != 1 ) { ?>
 
 			<tr class="form-field cb-form-notice">
         <td valign="top" colspan="4" class="warning">
@@ -246,8 +246,6 @@ function render_timeframe_view_meta_box( $item ) {
 			<?php	} // end if $item['booking_enabled'] ?>
 			<tr class="form-field cb-form-info-availability">
         <td valign="top" colspan="4">
-					<?php echo CB_Gui::col_format_availability( $item ); ?>. Using template: <?php echo CB_Gui::list_slot_templates_html( $item['slot_template_id'], FALSE); ?>
-
 					<?php echo CB_Gui::col_format_availability( $item ); ?>. Using template: <?php echo CB_Gui::list_slot_templates_html( $item['slot_template_id'], FALSE); ?>
         </td>
     </tr>

@@ -2,8 +2,7 @@
 /**
  * Timeframes Admin functions
  *
- * Handles editing, cancelling and detail view of bookings.
- *  Also provides formatting functions for row items in the table.
+ * Handles "edit", "generate_slots" and "view"-view of timeframes.
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
@@ -192,11 +191,11 @@ public function get_item_count( ) {
 
 		$this->setup_vars( $request );
 
-		if ( isset( $request['nonce'] ) && wp_verify_nonce( $request['nonce'], $this->basename ) ) { // we are submitting the form
-			$item = $this->merge_defaults( $request );
-
-			$location = new CB_Location ( $item['location_id'] );
+		$item = $this->merge_defaults( $request );
+			$location = new CB_Location ( 6 );
 			$opening_times = $location->get_opening_times();
+
+		if ( isset( $request['nonce'] ) && wp_verify_nonce( $request['nonce'], $this->basename ) ) { // we are submitting the form
 
 			if ( isset($request['cb_form_action'] ) && $request['cb_form_action'] == 'save_timeframe' ) { // we saving the settings
 
@@ -236,12 +235,6 @@ public function get_item_count( ) {
 
 				$this->slots_object->set_date_range ($timeframe['date_start'], $timeframe['date_end'] );
 
-				// handle location opening times checkbox
-				if ( $timeframe['exclude_location_closed'] == 1  ) {
-					$filtered_dates = cb_filter_dates_by_opening_times ( $this->slots_object->dates_array, $opening_times );
-					var_dump ($filtered_dates );
-				}
-
 				$this->slots_object->set_slot_template_group( $timeframe['slot_template_id'] );
 				$templates = $this->slots_object->get_slot_template_group(); // get the templates array
 
@@ -250,13 +243,18 @@ public function get_item_count( ) {
 					$this->slots_object->delete_slots( $timeframe['timeframe_id'] );
 				}
 
-
 				$this->slots_object->get_slots(); // get the previously defined slots
 
-				// handle slots already in db: check if dates exist
+				// handle slots already in db: get exising dates
 				$existing_dates = $this->slots_object->get_slot_dates_array();
 
 				$this->slots_object->add_to_date_filter ( $existing_dates ); // add these date to ignore list
+
+				// handle location opening times checkbox
+				if ( $timeframe['exclude_location_closed'] == 1  ) {
+					$filtered_dates = cb_filter_dates_by_opening_times ( $timeframe['date_start'], $timeframe['date_end'], $opening_times, TRUE );
+					$this->slots_object->add_to_date_filter ( $filtered_dates ); // add these date to ignore list
+				}
 
 				$sql_slots_result = $this->slots_object->generate_slots( );
 

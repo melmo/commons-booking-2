@@ -218,6 +218,16 @@ class CB_Slots {
 
 	}
 	/**
+	 * Substract from the filter dates array
+	 *
+	 * @param array $array
+	 */
+	public function remove_from_date_filter( $array = array() ) {
+
+		$this->filter_date_array = array_intersect ( $this->filter_date_array, (array) $array );
+
+	}
+	/**
 	 * Apply the filter dates array
 	 *
 	 * @param array $array

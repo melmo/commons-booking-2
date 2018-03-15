@@ -242,23 +242,46 @@ function cmb2_set_checkbox_default_for_new_post( $default ) {
 	return isset( $_GET['page'] ) ? '' : ( $default ? (string) $default : '' );
 }
 /**
+ * Format checkbox value as bool
+ *
+ * @param string $value
+ * @return bool  Returns true or '', the blank default
+ *
+ */
+function cb_checkbox_bool( $value ) {
+
+	if ( isset ( $value ) && $value  == 'on' ) {
+		return true;
+	}	else {
+		return false;
+	}
+}
+/**
  * Filter dates array by opening_times (days of the week)
  *
- * @param  array $dates_array
+ * @param  string $date_start
+ * @param  string $date_end
  * @param  array $opening_times
  * @return array $matching dates
  */
-function cb_filter_dates_by_opening_times( $dates_array, $opening_times ) {
+function cb_filter_dates_by_opening_times( $date_start, $date_end, $opening_times, $inverse = FALSE ) {
 
-	$matching_dates = array();
+	$matches = array();
+	$misses = array();
+
+	$dates_array = cb_dateRange(  $date_start, $date_end );
 
 	foreach ($dates_array as $date) {
-			$day_number = date('N', strtotime( $date ) );
-			var_dump ( $day_number );
-			var_dump(  $opening_times );
-			if ( in_array( $day_number, $opening_times ) ) {
-				$matching_dates[] = $date;
+			$day_number = date('w', strtotime( $date ) );
+			if ( array_key_exists( $day_number, $opening_times ) ) {
+				$matches[] = $date;
+			} else {
+				$misses[] = $date;
 			}
 	}
-	return $matching_dates;
+	if ( $inverse ) {
+		return $misses;
+	} else {
+		return $matches;
+	}
 }

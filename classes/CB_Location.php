@@ -44,14 +44,15 @@ class CB_Location  {
 			'sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'
 		);
 
-		if ( $this->has_opening_times() == 1 ) { // checkbox set
+		// if ( $this->has_opening_times() == 1 ) { // checkbox set
 
 			foreach ( $weekdays as $weekday ) { // loop through days
 
 				$day_open = get_post_meta( $location_id, 'location-open-' . $weekday, true );
 
-				if ( $day_open ) {
-					$day_numeric = date ('w', strtotime ($weekday));
+				if ( cb_checkbox_bool( $day_open ) ) {
+					$day_numeric = date ('N', strtotime ($weekday));
+
 					$opening_times[ $day_numeric ] = array (
 						'from' =>
 						get_post_meta( $location_id, 'location-open-' . $weekday . '-from', true ),
@@ -60,7 +61,7 @@ class CB_Location  {
 					);
 				}
 			}
-		}
+		// }
 		return $opening_times;
 	}
 }
