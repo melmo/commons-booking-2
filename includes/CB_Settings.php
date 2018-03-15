@@ -407,9 +407,21 @@ class CB_Settings {
 			'slug' => 'locations',
 			'fields' => array (
 				array(
-						'name'             => __( 'Personal contact', 'commons-booking' ),
-						'id'               => 'location-personal-contact-info',
-						'type'             => 'wysiwyg',
+						'name'             => __( 'my title', 'commons-booking' ),
+						'id'               => 'location-personal-contact-info-title',
+						'type'             => 'title',
+				),
+				array(
+						'name'             => __( 'Public', 'commons-booking' ),
+						'id'               => 'location-personal-contact-info-public',
+						'type'             => 'textarea_small',
+						'default'					 => __('Please contact the location after booking. The contact information will be in your confirmation email.', 'commons-booking' ),
+				),
+				array(
+						'name'             => __( 'Private', 'commons-booking' ),
+						'id'               => 'location-personal-contact-info-private',
+						'type'             => 'textarea_small',
+						'default'					 => __('Contact info: Phone, mail, etc.', 'commons-booking' ),
 				),
 			)
 		);
