@@ -64,6 +64,7 @@ class CB_PostTypes_Metaboxes {
 			'cmb_styles' => false, // false to disable the CMB stylesheet
 			'fields'				=> $fields_location_personal_contact_info
 		) );
+
 		/**
 		 * Metabox: Opening times (conditional)
 		 */
