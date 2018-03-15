@@ -249,12 +249,9 @@ public function get_item_count( ) {
 				$this->slots_object->add_to_date_filter ( $existing_dates ); // add these date to ignore list
 
 				// handle location opening times checkbox
-			$location = new CB_Location ( $timeframe['location_id'] );
-			$opening_times = $location->get_opening_times();
-			$pickup_mode = $location->get_pickup_mode();
-
-			var_dump ($pickup_mode);
-			var_dump ($opening_times);
+				$location = new CB_Location ( $timeframe['location_id'] );
+				$opening_times = $location->get_opening_times();
+				$pickup_mode = $location->get_pickup_mode();
 
 
 				if ( $timeframe['exclude_location_closed'] == 1 && $pickup_mode == 'opening_times'   ) {
