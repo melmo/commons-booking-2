@@ -15,16 +15,16 @@
 ?>
 <?php
 
-		$Bookings_Edit = new CB_Bookings_Edit();
+		$Bookings_Admin = new CB_Bookings_Admin();
 
-		$defaults = $Bookings_Edit->default_fields;
-		$Bookings_Edit->set_basename( basename(__FILE__) );
-		$Bookings_Edit->handle_request( $_REQUEST ); // handle adding and updating
+		$defaults = $Bookings_Admin->default_fields;
+		$Bookings_Admin->set_basename( basename(__FILE__) );
+		$Bookings_Admin->handle_request( $_REQUEST ); // handle adding and updating
 
 		global $wpdb;
 		$bookings_table = $wpdb->prefix . CB_BOOKINGS_TABLE;
 
-		$edit_slug = $Bookings_Edit->edit_slug; // set the slug from CB_Admin_Enque
+		$edit_slug = $Bookings_Admin->edit_slug; // set the slug from CB_Admin_Enque
 
     // this is default $item which will be used for new records
     $default = array(
@@ -33,8 +33,8 @@
     );
 
 		// if this is not post back we load item to edit or give new one to create
-		$item_id = $Bookings_Edit->get_booking_id_from_request( $_REQUEST );
-    $item = $Bookings_Edit->get_booking( $item_id );
+		$item_id = $Bookings_Admin->get_booking_id_from_request( $_REQUEST );
+    $item = $Bookings_Admin->get_booking( $item_id );
 
 		if( is_array($item) ) { // make sure that id exists
 			add_meta_box('bookings_form_meta_box', __('Booking', 'commons-booking') , 'render_meta_box' , 'booking', 'normal', 'default');
@@ -79,7 +79,7 @@
 function render_meta_box( $slots ) {
 
 	$info = $slots[0];
-	$Bookings_Edit = new CB_Bookings_Edit; // we need the class to format out entries.
+	$Bookings_Admin = new CB_Bookings_Admin; // we need the class to format out entries.
 
 	?>
 <table cellspacing="2" cellpadding="5" style="width: 100%;" class="form-table">

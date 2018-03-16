@@ -10,7 +10,7 @@
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
  */
-class CB_Bookings_Edit  {
+class CB_Bookings_Admin  {
 
 	public $default_fields = array();
 	// set vars

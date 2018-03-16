@@ -20,7 +20,7 @@ class CB_Timeframes_Table extends WP_List_Table
 	 *
 	 * @var array
 	 */
-	public $Timeframes_Edit;
+	public $Timeframes_Admin;
 	/**
 	 * Array holding the rows
 	 *
@@ -53,9 +53,9 @@ class CB_Timeframes_Table extends WP_List_Table
     {
 				global $status, $page;
 
-				$this->Timeframes_Edit = new CB_Timeframes_Edit(); // Table Editing & Admin functions
+				$this->Timeframes_Admin = new CB_Timeframes_Admin(); // Table Editing & Admin functions
 				$this->init_timeframes_object(); // init
-				parent::__construct( $this->Timeframes_Edit->names );
+				parent::__construct( $this->Timeframes_Admin->names );
 		}
     /**
      * Initialise a new object for the retrieval of timeframes, set the context

@@ -23,7 +23,7 @@ class CB_Bookings_Table extends WP_List_Table
     {
 				global $status, $page;
 
-				$this->Bookings_Admin = new CB_Bookings_Edit();
+				$this->Bookings_Admin = new CB_Bookings_Admin();
 
 				parent::__construct( $this->Bookings_Admin->names );
 

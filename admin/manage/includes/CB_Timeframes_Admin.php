@@ -10,7 +10,7 @@
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
  */
-class CB_Timeframes_Edit  {
+class CB_Timeframes_Admin  {
 	/**
 	 * Slots object
 	 *

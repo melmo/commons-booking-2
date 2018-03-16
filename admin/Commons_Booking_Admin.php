@@ -61,7 +61,7 @@ class Commons_Booking_Admin {
 		/*
 		* Bookings Functions
 		*/
-		require_once( CB_PLUGIN_ROOT . 'admin/manage/includes/CB_Bookings_Edit.php' );
+		require_once( CB_PLUGIN_ROOT . 'admin/manage/includes/CB_Bookings_Admin.php' );
 		/*
 		* Bookings Table
 		*/
@@ -69,7 +69,7 @@ class Commons_Booking_Admin {
 		/*
 		 * Timeframes Table
 		 */
-		require_once( CB_PLUGIN_ROOT . 'admin/manage/includes/CB_Timeframes_Edit.php' );
+		require_once( CB_PLUGIN_ROOT . 'admin/manage/includes/CB_Timeframes_Admin.php' );
 		/*
 		 * Timeframes Table
 		 */
