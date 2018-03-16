@@ -5,7 +5,7 @@ CB2 is a complete rewrite of [Commons Booking](https://github.com/wielebenwir/co
 Main reasons for a new code base were:
 
 * Provide a much more flexible booking system, that can adapt to  diverse scenarios.
-* Create a Database structure that allows for multiple bookings per hour (though this will *not* be implemented in CB2.0, possible for a future version).
+* Create a Database structure that allows for multiple bookings per day (though the booking functionality will *not* be implemented in CB2.0, possible for a future version).
 * Re-Structure the code and allow to create an [API](https://github.com/wielebenwir/commons-api) to connect CB instances.
 * Many feature requests were not possible with the old codebase.
 
