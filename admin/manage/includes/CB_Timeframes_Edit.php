@@ -620,12 +620,15 @@ public function col_format_post( $id, $title = '' ) {
  */
 function validate_timeframe_settings_form( $item ){
 
+	// @TODO: Validaton fails if end date empty
+
 		$message = '';
 
+		var_dump( $item['date_end'] );
 		// start date
 		if (empty($item['date_start'])) $message .= __('Start date is required. ', 'commons-booking');
 		// end date
-		if ( $item['has_end_date'] == 1 && empty($item['date_end'])) $message .= __('End date is required. ', 'commons-booking');
+		if ( $item['has_end_date'] == 1 && empty( $item['date_end'] ) ) $message .= __('End date is required. ', 'commons-booking' );
 
     if ( ($message === '') ) return true;
 

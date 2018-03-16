@@ -357,7 +357,7 @@ public static function list_location_opening_times_html( $location_id) {
 	$html = '';
 
 	if ( $pickup_mode == 'opening_times' && is_array( $opening_times ) && ! empty ( $opening_times ) ){
-		$html .= '<ul>';
+		$html .= '<ul class="opening_hours_list">';
 		foreach ( $opening_times as $day => $hours_array ) {
 			$html .=  sprintf ('<li>%s<ul>', jddayofweek( $day, 2 ) );
 

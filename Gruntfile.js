@@ -23,8 +23,8 @@ module.exports = function (grunt) {
           environment: 'development',
           debugInfo: true,
           noLineComments: false,
-          sassDir: 'public/assets/sass',
-          cssDir: 'public/assets/css',
+          sassDir: 'admin/assets/sass',
+          cssDir: 'admin/assets/css',
           outputStyle: 'expanded',
           relativeAssets: true,
           sourcemap: true

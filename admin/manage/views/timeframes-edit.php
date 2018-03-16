@@ -45,7 +45,7 @@
         <?php /* NOTICE: here we storing id to determine will be item added or updated */ ?>
         <input type="hidden" name="timeframe_id" value="<?php echo $item['timeframe_id']; ?>"/>
 
-        <div class="metabox-holder" id="poststuff">
+        <div class="metabox-holder" id="cb_admin_metabox">
             <div id="post-body">
                 <div id="post-body-content">
                     <?php /* And here we call our custom meta box */ ?>
@@ -69,7 +69,7 @@ function render_timeframe_settings_meta_box( $item ) {
 					<?php // echo CB_Gui::col_format_availability( $item ); ?>
         </td>
     </tr>
-		<tr class="form-field">
+		<tr class="form-field form-field-header">
         <td valign="top" colspan="4">
 						<input id="booking_enabled" name="booking_enabled" type="checkbox" value="booking_enabled" <?php if ( $item['booking_enabled'] ) { echo "CHECKED"; }; ?> class="checkbox">
             <label for="booking_enabled"><?php _e('Enable Bookings', 'commons-booking')?></label>
@@ -92,10 +92,10 @@ function render_timeframe_settings_meta_box( $item ) {
 				</td>
 				<?php } // end if ! isset ($item['item_id'] ?>
     </tr>
-		<tr class="form-field">
+		<tr class="form-field form-field-header">
         <td valign="top" colspan="4">
 						<input id="calendar_enabled" name="calendar_enabled" type="checkbox" value="calendar_enabled" <?php if (! empty ( $item['calendar_enabled']) ) { echo "CHECKED"; }; ?> class="checkbox">
-            <label for="calendar_enabled"><strong><?php _e('Enable booking calendar', 'commons-booking')?></strong></label>
+            <label for="calendar_enabled"><?php _e('Enable booking calendar', 'commons-booking')?></label>
         </td>
 		</tr>
 		 <tr class="form-field">

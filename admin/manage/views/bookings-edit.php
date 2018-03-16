@@ -62,7 +62,7 @@
         <?php /* NOTICE: here we storing id to determine will be item added or updated */ ?>
         <input type="hidden" name="booking_id" value="<?php echo $item[0]['booking_id'] ?>"/>
 
-        <div class="metabox-holder" id="poststuff">
+        <div class="metabox-holder" id="cb_admin_metabox">
             <div id="post-body">
                 <div id="post-body-content">
                     <?php /* And here we call our custom meta box */ ?>

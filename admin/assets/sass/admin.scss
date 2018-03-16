@@ -1,7 +1,28 @@
-// This stylesheet is used to style the admin of WordPress.
+/*
+ * This stylesheet is used to style the public-facing components of the plugin
+ * @package   Commons_Booking
+ * @author    Florian Egermann <florian@wielebenwir.de>
+ * @license   GPL-2.0+
+ * @since 0.2
+ * @link      http://www.wielebenwir.de
+ * @copyright 2015 wielebenwir
+ */
 
-// Dashboard
+ .cb-form-danger {
+	 color: red;
+ }
 
-#dashboard_right_now a.demo-count:before {
-	content: "\f115";
+#cb_admin_metabox { // container
+	.form-field-header { // header
+		font-weight: bold;
+	}
+	#timeframe_form_meta_box {
+		ul.opening_hours_list {
+			li ul, li ul li {
+				display: inline;
+				padding: 5px;
+			}
+		}
+
+	}
 }
