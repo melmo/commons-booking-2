@@ -416,8 +416,6 @@ public function get_item_count( ) {
 
 		if ( $this->timeframe_id ) {
 
-			var_dump($this->timeframe);
-
 			$item = 	CB_Gui::col_format_post( $this->timeframe['item_id'] );
 			$location = 	CB_Gui::col_format_post( $this->timeframe['location_id'] );
 			$date_start = CB_Gui::col_format_date ( $this->timeframe['date_start'] );
@@ -501,8 +499,6 @@ public function get_item_count( ) {
 	public function update_row( $item ) {
 
 		global $wpdb;
-
-		var_dump($item);
 
 		$result = $wpdb->update(
 			$this->timeframes_table,
@@ -611,8 +607,6 @@ function validate_timeframe_settings_form( $item ){
 	// @TODO: Validaton fails if end date empty
 
 		$message = '';
-
-		var_dump( $item['date_end'] );
 		// start date
 		if (empty($item['date_start'])) $message .= __('Start date is required. ', 'commons-booking');
 		// end date
