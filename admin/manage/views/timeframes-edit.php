@@ -15,16 +15,16 @@
 ?>
 <?php
 
-		$Timeframes_Edit = new CB_Timeframes_Edit();
+		$Timeframes_Admin = new CB_Timeframes_Admin();
 
-		$Timeframes_Edit->set_basename( basename(__FILE__) );
-		$timeframe_id = $Timeframes_Edit->handle_request( $_REQUEST ); // handle adding and updating
+		$Timeframes_Admin->set_basename( basename(__FILE__) );
+		$timeframe_id = $Timeframes_Admin->handle_request( $_REQUEST ); // handle adding and updating
 
-		$edit_slug = $Timeframes_Edit->edit_slug; // set the slug from CB_Admin_Enque
-		$item = $Timeframes_Edit->settings_args;
+		$edit_slug = $Timeframes_Admin->edit_slug; // set the slug from CB_Admin_Enque
+		$item = $Timeframes_Admin->settings_args;
 
 		if ( $item['timeframe_id'] ) {
-			$item = $Timeframes_Edit->get_single_timeframe( $item['timeframe_id'] );
+			$item = $Timeframes_Admin->get_single_timeframe( $item['timeframe_id'] );
 		}
 
 		if( is_array($item) ) { // make sure that id exists
@@ -39,7 +39,7 @@
     <div class="icon32 icon32-posts-post" id="icon-edit"><br></div>
     <h1 class="wp-heading-inline"><?php _e('Timeframe', 'commons-booking')?> <a class="add-new-h2" href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=cb_timeframes_table' );?>"><?php _e('back to list', 'commons-booking')?></a>
     </h1>
-		<h2><?php echo $Timeframes_Edit->do_title(); ?></h2>
+		<h2><?php echo $Timeframes_Admin->do_title(); ?></h2>
     <form id="form" method="POST">
         <input type="hidden" name="nonce" value="<?php echo wp_create_nonce(basename(__FILE__))?>"/>
         <?php /* NOTICE: here we storing id to determine will be item added or updated */ ?>
@@ -50,7 +50,7 @@
                 <div id="post-body-content">
                     <?php /* And here we call our custom meta box */ ?>
                     <?php do_meta_boxes('timeframe', 'normal', $item); ?>
-										<?php $Timeframes_Edit->do_form_footer(); ?>
+										<?php $Timeframes_Admin->do_form_footer(); ?>
 
                 </div>
             </div>

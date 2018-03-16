@@ -532,7 +532,8 @@ class CB_Settings {
 		} elseif ( ! $option &&  is_array( $options_array ) ) {
 			return $options_array;
 		} else {
-			CB_Object::throw_error( __FILE__, $options_page . ' is not a valid setting');
+			// @TODO rework message system, so it does not block usage.
+			// CB_Object::throw_error( __FILE__, $options_page . ' is not a valid setting');
 		}
 	}
 }
