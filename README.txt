@@ -1,9 +1,9 @@
-=== Commons Booking ===
+=== Commons Booking 2.0 ===
 Contributors: @flegfleg
-Donate link: http://example.com/
-Tags: comments, spam (maximum 12)
+Donate link: http://www.wielebenwir.de/verein/unterstutzen/
+Tags: commons, booking, management,
 Requires at least: 4.7
-Tested up to: 4.8
+Tested up to: 4.9.4
 Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
