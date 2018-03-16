@@ -15,11 +15,12 @@ We´ll populate the project kanban soon.
 ## Building commons booking 2
 
 
-### Prerequisites: 
+### Prerequisites
 
-	* [Composer](https://getcomposer.org/doc/00-intro.md)
-	* [Grunt](https://gruntjs.com/getting-started)
-	* A Wordpress install
+* [Composer](https://getcomposer.org/doc/00-intro.md)
+* [Grunt](https://gruntjs.com/getting-started)
+* A Wordpress install
+
 
 ### Clone & install dependencies
 
