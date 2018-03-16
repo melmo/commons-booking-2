@@ -40,7 +40,7 @@ class CB_Slot_Templates {
 
 		$where = '';
 		if ( $this->slot_template_group_id != '') {
-			$where = sprintf ( " WHERE template_group_id = %d", $this->slot_template_group_id );
+			$where = sprintf ( " WHERE slot_template_group_id = %d", $this->slot_template_group_id );
 		}
 
 		$sql =(
@@ -48,7 +48,7 @@ class CB_Slot_Templates {
 			*
 			FROM {$this->slot_templates_table}
 			{$where}
-			ORDER BY template_group_id
+			ORDER BY slot_template_group_id
 			");
 
 		return $sql;
@@ -56,7 +56,7 @@ class CB_Slot_Templates {
 	/**
 	 * Get slot templates
 	 *
-	 * @param int $slot_template_id
+	 * @param int $slot_template_group_id
 	 * @return array $slot_template_array
 	 *
 	 */
@@ -76,7 +76,7 @@ class CB_Slot_Templates {
 
 	}
 	/**
-	 * Map SQL Results to new array with the index of template_group_id
+	 * Map SQL Results to new array with the index of slot_template_group_id
 	 *
 	 * @param array $slot_template_array
 	 * @return array $templates_formatted
@@ -87,7 +87,7 @@ class CB_Slot_Templates {
 		$templates_formatted = array();
 
 		foreach ( $slot_template_array as $key => $val ) {
-			$templates_formatted[$val['template_group_id']][] = $val;
+			$templates_formatted[$val['slot_template_group_id']][] = $val;
 		}
 
 		return $templates_formatted;

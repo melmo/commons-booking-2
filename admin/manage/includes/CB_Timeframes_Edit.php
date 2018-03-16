@@ -110,7 +110,7 @@ class CB_Timeframes_Edit  {
 			'date_end' => '',
 			'description' => '',
 			'owner_id' => '',
-			'slot_template_id' => 0,
+			'slot_template_group_id' => 0,
 			'cb_form_action' => '',
 			'modified' => ''
 		);
@@ -239,7 +239,7 @@ public function get_item_count( ) {
 
 				$this->slots_object->set_date_range ($timeframe['date_start'], $timeframe['date_end'] );
 
-				$this->slots_object->set_slot_template_group( $timeframe['slot_template_id'] );
+				$this->slots_object->set_slot_template_group( $timeframe['slot_template_group_id'] );
 				$templates = $this->slots_object->get_slot_template_group(); // get the templates array
 
 				// handle regenerate slots checkbox
@@ -433,7 +433,7 @@ public function get_item_count( ) {
 					'date_end' => $item['date_end'],
 					'description' => $item['description'],
 					'owner_id' => $item['owner_id'],
-					'slot_template_id' => $item['slot_template_id'],
+					'slot_template_group_id' => $item['slot_template_group_id'],
 					'modified' => $item['modified']
 				),
 					array(
@@ -484,7 +484,7 @@ public function get_item_count( ) {
 					'date_end' => $item['date_end'],
 					'description' => $item['description'],
 					'owner_id' => $item['owner_id'],
-					'slot_template_id' => $item['slot_template_id'],
+					'slot_template_group_id' => $item['slot_template_group_id'],
 					'modified' => $item['modified']
 				),
 				array(

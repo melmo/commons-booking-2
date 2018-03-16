@@ -218,7 +218,7 @@ class CB_Object {
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.timeframe_id',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.location_id',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.item_id',
-			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.slot_template_id',
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.slot_template_group_id',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.date_start',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.date_end',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.description',

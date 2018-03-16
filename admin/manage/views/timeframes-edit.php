@@ -136,7 +136,7 @@ function render_timeframe_settings_meta_box( $item ) {
           <label for="slot_template_select"><?php _e('Booking Mode', 'commons-booking')?></label>
 				</td>
 				<td valign="top">
-					<?php echo CB_Gui::cb_edit_table_slot_template_select_html('slot_template_id', $item['slot_template_id'] ); ?>
+					<?php echo CB_Gui::cb_edit_table_slot_template_select_html('slot_template_group_id', $item['slot_template_group_id'] ); ?>
         </td>
 				<td></td>
 				<td></td>
@@ -190,7 +190,7 @@ function render_timeframe_generate_slots_meta_box( $item ) {
 					?></li>
 						<li><?php // slot
 						echo __('<strong>Slots</strong>: The following slot(s) will be created for each day: ', 'commons-booking');
-						echo CB_Gui::list_slot_templates_html( $item['slot_template_id']);
+						echo CB_Gui::list_slot_templates_html( $item['slot_template_group_id']);
 					?></li>
 					<li><?php // location opening times
 
@@ -247,7 +247,7 @@ function render_timeframe_view_meta_box( $item ) {
 			<?php	} // end if $item['booking_enabled'] ?>
 			<tr class="form-field cb-form-info-availability">
         <td valign="top" colspan="4">
-					<?php echo CB_Gui::col_format_availability( $item ); ?>. Using template: <?php echo CB_Gui::list_slot_templates_html( $item['slot_template_id'], FALSE); ?>
+					<?php echo CB_Gui::col_format_availability( $item ); ?>. Using template: <?php echo CB_Gui::list_slot_templates_html( $item['slot_template_group_id'], FALSE); ?>
         </td>
     </tr>
 
