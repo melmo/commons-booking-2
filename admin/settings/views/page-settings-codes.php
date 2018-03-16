@@ -16,6 +16,9 @@
 
 <div id="tabs-<?php echo $slug; ?>" class="wrap">
 	<div class="metabox-holder"><div class="postbox"><div class="inside">
+				@TODO validation
+				@TODO provide defaults
+
 			<?php
 				$cmb_bookings = new_cmb2_box(
 					array(
