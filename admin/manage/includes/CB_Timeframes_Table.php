@@ -8,11 +8,10 @@
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
  */
-
- /**
- * Custom_Table_Example_List_Table class that will display our custom table
- * records in nice table
- */
+if( !class_exists('WP_List_Table')){ // include list table class if not available.
+    require_once( ABSPATH . 'wp-admin/includes/screen.php' );
+    require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
+}
 class CB_Timeframes_Table extends WP_List_Table
 {
 		/**
