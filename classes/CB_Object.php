@@ -224,6 +224,7 @@ class CB_Object {
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.description',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.owner_id',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.calendar_enabled',
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.codes_enabled',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.booking_enabled',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.has_end_date',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.exclude_location_closed',

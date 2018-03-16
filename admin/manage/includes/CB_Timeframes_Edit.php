@@ -98,7 +98,8 @@ class CB_Timeframes_Edit  {
 		// set default settings_args
 		$this->settings_args_defaults = array(
 			'timeframe_id' => '',
-			'booking_enabled' => 0,
+			'booking_enabled' => 1,
+			'codes_enabled' => 0,
 			'calendar_enabled' => 0,
 			'exclude_location_closed' => 0,
 			'holidays_enabled' => 0,
@@ -214,9 +215,12 @@ public function get_item_count( ) {
 					$item['exclude_location_closed'] = $this->prepare_checkbox_value(
 						$item['exclude_location_closed']
 					);
+					$item['codes_enabled'] = $this->prepare_checkbox_value(
+						$item['codes_enabled']
+					);
 
 					// PREPARE DATA
-					$item['date_end'] = $this->maybe_set_end_date($item);
+					$item['date_end'] = $this->maybe_set_end_date( $item );
 
 					if ( $this->timeframe_id == '' ) { // no id, so add new
 						$sql_timeframe_result = $this->add_row( $item );
@@ -224,7 +228,7 @@ public function get_item_count( ) {
 						$sql_timeframe_result = $this->update_row( $item );
 					} // endif ($item_valid === true
 
-					$this->message->output(); // diplay message(s)
+					$this->message->output(); // display message(s)
 					$this->maybe_set_next_screen( $sql_timeframe_result, 'generate_slots' );
 				} // end if validation passed
 			} elseif ( isset( $request['cb_form_action'] ) && $request['cb_form_action'] == 'generate_slots' ) { // we are creating the slots
@@ -259,6 +263,9 @@ public function get_item_count( ) {
 					$this->slots_object->add_to_date_filter ( $filtered_dates ); // add these date to ignore list
 				}
 
+				// generate codes if set.
+				$this->slots_object->set_include_codes( $timeframe['codes_enabled'] );
+
 				$sql_slots_result = $this->slots_object->generate_slots( );
 
 				$this->set_message( $sql_slots_result, __('Slots generated.'));
@@ -271,7 +278,7 @@ public function get_item_count( ) {
 		$this->timeframe = $this->get_single_timeframe( $this->timeframe_id );
 
 		// setup the meta box
-		$this->setup_screens( );
+		$this->setup_metaboxes( );
 		return $this->timeframe_id;
 
 	}
@@ -318,8 +325,10 @@ public function get_item_count( ) {
 	}
 	/**
 	 * Set up the meta boxes
+	 *
+	 * @uses add_meta_box()
 	 */
-	public function setup_screens( ) {
+	public function setup_metaboxes( ) {
 
 		$this->form_fields_hidden = "";
 
@@ -355,11 +364,12 @@ public function get_item_count( ) {
 				add_meta_box('timeframe_form_meta_box', __('Timeframe information', 'commons-booking') , 'render_timeframe_view_meta_box' , 'timeframe', 'normal', 'default');
 				break;
 		}
-
 	}
-
 	/**
 	 * Return the meta box save/generate form_footer for each screen
+	 *
+	 * @return mixed
+	 *
 	 */
 	public function do_form_footer( ) {
 
@@ -410,6 +420,7 @@ public function get_item_count( ) {
 			$this->timeframes_table,
 				array(
 					'booking_enabled' => $item['booking_enabled'],
+					'codes_enabled' => $item['codes_enabled'],
 					'calendar_enabled' => $item['calendar_enabled'],
 					'exclude_location_closed' => $item['exclude_location_closed'],
 					'holidays_enabled' => $item['holidays_enabled'],
@@ -425,6 +436,7 @@ public function get_item_count( ) {
 				),
 					array(
 						'%d',	// booking_enabled
+						'%d',	// codes_enabled
 						'%d',	// calendar_enabled
 						'%d',	// exclude_location_closed
 						'%d',	// holidays_enabled
@@ -439,8 +451,6 @@ public function get_item_count( ) {
 			);
 		$this->timeframe_id = $wpdb->insert_id;
 		$this->settings_args['timeframe_id'] = $wpdb->insert_id;
-
-		// save the id of the newly created entry @TODO
 
 		$this->set_message( $result, __('Timeframe created.') );
 		return ($result);
@@ -461,6 +471,7 @@ public function get_item_count( ) {
 			$this->timeframes_table,
 				array(
 					'booking_enabled' => $item['booking_enabled'],
+					'codes_enabled' => $item['codes_enabled'],
 					'calendar_enabled' => $item['calendar_enabled'],
 					'exclude_location_closed' => $item['exclude_location_closed'],
 					'holidays_enabled' => $item['holidays_enabled'],
@@ -478,6 +489,7 @@ public function get_item_count( ) {
 					'timeframe_id' => $item['timeframe_id']),
 					array(
 						'%d',	// booking_enabled
+						'%d',	// codes_enabled
 						'%d',	// calendar_enabled
 						'%d',	// exclude_location_closed
 						'%d',	// holidays_enabled

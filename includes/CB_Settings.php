@@ -196,7 +196,7 @@ class CB_Settings {
 						'name'             => __( 'Codes', 'commons-booking' ),
 						'desc'             => __( 'Booking codes, comma-seperated', 'commons-booking' ),
 						'id'               => 'codes-pool',
-						'type'             => 'textarea',
+						'type'             => 'textarea_code',
 						'default'          => 'none',
 				)
 			)
@@ -215,6 +215,7 @@ class CB_Settings {
 		$settings_template_location_opening_times = array(
 			'name' => __( 'Location Opening Times', 'commons-booking' ),
 			'slug' => 'locations',
+			'show_in_plugin_settings' => false,
 			'fields' => array (
 					array(
 						'before_row'       => __('Monday', 'commons-booking' ), // Headline
@@ -378,6 +379,7 @@ class CB_Settings {
 		$settings_template_location_pickup_mode = array(
 			'name' => __( 'Pickup mode', 'commons-booking' ),
 			'slug' => 'locations',
+			'show_in_plugin_settings' => false,
 			'fields' => array (
 				array(
 						'name'             => __( 'Pickup mode', 'commons-booking' ),
@@ -405,6 +407,7 @@ class CB_Settings {
 		$settings_template_location_personal_contact_info = array(
 			'name' => __( 'Personal contact', 'commons-booking' ),
 			'slug' => 'locations',
+			'show_in_plugin_settings' => false,
 			'fields' => array (
 				array(
 						'name'             => __( 'my title', 'commons-booking' ),
@@ -443,8 +446,6 @@ class CB_Settings {
 			'location-opening-times' => self::get_settings_template_location_opening_times(),
 			'location-pickup-mode' => self::get_settings_template_location_pickup_mode(),
 			'location-personal-contact-info' => self::get_settings_template_location_personal_contact_info(),
-
-			//@TODO: unnessecary, delete
 		);
 
 		}
@@ -455,13 +456,17 @@ class CB_Settings {
 	 *
 	 * @return mixed $html
 	 */
-	public static function get_admin_tabs() {
+	public static function get_admin_tabs( ) {
 
 		$html = '';
 		foreach ( self::$plugin_settings as $tab ) {
-			$title = $tab['name'];
-			$slug = $tab['slug'];
-			$html .= '<li><a href="#tabs-' . $slug . '">' . $title . '</a></li>';
+			if ( isset ( $tab['show_in_plugin_settings'] ) && $tab['show_in_plugin_settings']  === false ) {
+				// this setting is for post metaboxes only
+			} else {
+				$title = $tab['name'];
+				$slug = $tab['slug'];
+				$html .= '<li><a href="#tabs-' . $slug . '">' . $title . '</a></li>';
+			}
 		}
 		return apply_filters( 'cb_get_admin_tabs', $html );
 	}

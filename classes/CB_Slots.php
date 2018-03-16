@@ -49,6 +49,12 @@ class CB_Slots {
 	 */
 	public $filter_date_array = array();
 	/**
+	 * Use booking codes
+	 *
+	 * @var bool
+	 */
+	public $include_codes = FALSE;
+	/**
 	 * Constructor
 	 */
 	public function __construct( $timeframe_id = '' ) {
@@ -63,6 +69,7 @@ class CB_Slots {
 		$this->slots_bookings_relation_table = $wpdb->prefix . CB_SLOTS_BOOKINGS_REL_TABLE;
 
 		$this->timeframe_id = $timeframe_id;
+		$this->include_codes = FALSE;
 	}
 	/**
 	 * Retrieve slots
@@ -102,7 +109,6 @@ class CB_Slots {
 			$slot_dates[] = $slot['date'];
 			}
 		}
-
 		return $slot_dates;
 	}
 	/**
@@ -158,7 +164,6 @@ class CB_Slots {
 
 		$result = $this->delete_slots_sql( $timeframe_id );
 		return $result;
-
 	}
 		/**
 	 * Get a specific slot_template group
@@ -240,7 +245,19 @@ class CB_Slots {
 		return apply_filters('cb_slots_generate_apply_date_filter',$this->dates_array );
 
 	}
+	/**
+	 * Define if codes will be generated
+	 *
+	 * @param bool $timeframe_id
+	 */
+	public function set_include_codes( $bool = FALSE ) {
 
+		var_dump($bool);
+
+		if ( $bool === TRUE OR $bool == 1 ) {
+			$this->include_codes = TRUE;
+		}
+	}
 	/**
 	 * Prepare the array for insertion
 	 *
@@ -260,13 +277,33 @@ class CB_Slots {
 						'date' => $date,
 						'time_start' => $template['time_start'],
 						'time_end' => $template['time_end'],
-						'description' => $template['description']
+						'description' => $template['description'],
+						'booking_code' => $this->maybe_return_booking_code(),
 					);
 				}
 			}
 		}
 
 		return $insert_array;
+	}
+
+	/**
+	 * If include_codes is set, generate a random code
+	 *
+	 * @uses CB_Codes
+	 * @return string $code
+	 *
+	 */
+	private function maybe_return_booking_code( ) {
+
+		$code = NULL;
+		$codes_obj = new CB_Codes;
+
+		if ( $this->include_codes ) {
+			$code = $codes_obj->get_random_code();
+		}
+		return $code;
+
 	}
 
 	public function insert_slots_sql( $insert_array ) {

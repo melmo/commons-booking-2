@@ -71,7 +71,7 @@ function render_timeframe_settings_meta_box( $item ) {
     </tr>
 		<tr class="form-field">
         <td valign="top" colspan="4">
-						<input id="booking_enabled" name="booking_enabled" type="checkbox" value="booking_enabled" <?php if ($item['booking_enabled']) { echo "CHECKED"; }; ?> class="checkbox">
+						<input id="booking_enabled" name="booking_enabled" type="checkbox" value="booking_enabled" <?php if ( $item['booking_enabled'] ) { echo "CHECKED"; }; ?> class="checkbox">
             <label for="booking_enabled"><?php _e('Enable Bookings', 'commons-booking')?></label>
         </td>
 		</tr>
@@ -82,6 +82,15 @@ function render_timeframe_settings_meta_box( $item ) {
         <td>
 					<?php echo CB_Gui::cb_edit_table_post_select_html('cb_location', 'location_id', $item['location_id'] ); ?>
         </td>
+				<?php // show item select only if needed
+				if ( ($item['item_id'] == 0  ) ) { ?>
+        <td valign="top">
+            <label for="item_id"><?php _e('Item', 'commons-booking')?></label>
+        </td>
+				<td>
+					<?php echo CB_Gui::cb_edit_table_post_select_html('cb_item', 'item_id', $item['item_id'] ); ?>
+				</td>
+				<?php } // end if ! isset ($item['item_id'] ?>
     </tr>
 		<tr class="form-field">
         <td valign="top" colspan="4">
@@ -110,7 +119,7 @@ function render_timeframe_settings_meta_box( $item ) {
 						 if (  $item['has_end_date'] == 1 ) { echo esc_attr($item['date_end']); } ?>" class="date">
         </td>
 		</tr>
-		<tr class="form-field-group-header">
+		<tr class="form-field">
         <td colspan="1"><?php _e('Exclude days', 'commons-booking'); ?></td>
         <td valign="top" colspan="1">
 						<input id="exclude_location_closed" name="exclude_location_closed" type="checkbox" value="exclude_location_closed"
@@ -132,20 +141,18 @@ function render_timeframe_settings_meta_box( $item ) {
 				<td></td>
 				<td></td>
     </tr>
-				<tr class="form-field">
-        <td valign="top">
-            <label for="item_id"><?php _e('Item', 'commons-booking')?></label>
-        </td>
-				<td>
-					<?php echo CB_Gui::cb_edit_table_post_select_html('cb_item', 'item_id', $item['item_id'] ); ?>
-				</td>
-        <td>
-            <label for="location_id"><?php _e('Location', 'commons-booking')?></label>
+		<tr class="form-field">
+		        <td valign="top">
+            <label for="codes_enabled"><?php _e('Codes', 'commons-booking')?></label>
         </td>
         <td>
-					<?php echo CB_Gui::cb_edit_table_post_select_html('cb_location', 'location_id', $item['location_id'] ); ?>
+						<input id="codes_enabled" name="codes_enabled" type="checkbox" value="codes_enabled"
+						<?php if ( $item['codes_enabled'] ) { echo "CHECKED"; }; ?> class="checkbox">
+            <label for="codes_enabled"><?php _e('Enable booking codes', 'commons-booking')?></label>
         </td>
-    </tr>
+				<td></td>
+				<td></td>
+		</tr>
 		 <tr class="form-field">
         <td valign="top">
             <label for="description"><?php _e('Description', 'commons-booking')?></label>
@@ -294,6 +301,7 @@ function render_timeframe_view_meta_box( $item ) {
     	</tr>
     </tbody>
 </table>
+@TODO: render calendar here.
 <?php
 
 	$args = array ( 'timeframe_id' => $item['timeframe_id'] );
