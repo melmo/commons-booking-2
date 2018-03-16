@@ -33,7 +33,10 @@ We´ll populate the project kanban soon.
 Currently, the plugin has no installer that creates the necessary database tables, or interface to create slot_templates (used for multiple bookings per day). 
 
 For now, just* import this sql file into your db:
-*If you don´t use the standad wp database prefix (`wp_`), you need to adjust the file. 
+
+* [Download .sql file](https://github.com/wielebenwir/commons-booking-2/wiki/etc/commons-booking-2-db-tables.sql.txt) (rename to .sql to import)
+
+*If you don´t use the standad wp database prefix (`wp_`), you need to adjust the file before import. 
 
 ### Activate
 
