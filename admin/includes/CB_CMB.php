@@ -1,7 +1,9 @@
 <?php
 /**
- * Commons_Booking
- * 
+ * Custom meta boxes for items & locations
+ * @TODO not in use right now, maybe depreciate
+ * meta boxes are defined in CB_PostTypes_Metaboxes
+ *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
@@ -15,7 +17,7 @@ class CB_CMB {
 	/**
 	 * Initialize CMB2.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 */
 	public function __construct() {
 		require_once( 'lib/cmb2/init.php' );
@@ -26,8 +28,8 @@ class CB_CMB {
 	/**
 	 * NOTE:     Your metabox on Demo CPT
 	 *
-	 * @since 1.0.0
-	 * 
+	 * @since 2.0.0
+	 *
 	 * @return void
 	 */
 	public function cmb_demo_metaboxes() {
@@ -62,7 +64,7 @@ class CB_CMB {
 				),
 			)
 						) );
-				$cmb2Grid = new \Cmb2Grid\Grid\Cmb2Grid( $cmb_demo );
+		$cmb2Grid = new \Cmb2Grid\Grid\Cmb2Grid( $cmb_demo );
 		$row = $cmb2Grid->addRow();
 				$field1 = $cmb_demo->add_field( array(
 			'name' => __( 'Text', CB_TEXTDOMAIN ),

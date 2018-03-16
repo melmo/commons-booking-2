@@ -89,7 +89,7 @@ function render_meta_box( $slots ) {
             <label for="user"><?php _e('Name', 'commons-booking')?></label>
         </th>
         <td>
-						<?php echo $Bookings_Edit->col_format_user($info['user_id']); ?>
+						<?php echo CB_Gui::col_format_user($info['user_id']); ?>
         </td>
     </tr>
 		<!-- @TODO pull in more user info here -->
@@ -98,7 +98,7 @@ function render_meta_box( $slots ) {
             <label for="date_time"><?php _e('Booking Date & time', 'commons-booking')?></label>
         </th>
         <td>
-						<?php echo $Bookings_Edit->col_format_date_time($info['booking_time']); ?>
+						<?php echo CB_Gui::col_format_date_time($info['booking_time']); ?>
         </td>
     </tr>
 		 <tr class="form-field">
@@ -106,7 +106,7 @@ function render_meta_box( $slots ) {
             <label for="item"><?php _e('Item', 'commons-booking')?></label>
         </th>
         <td>
-						<?php echo $Bookings_Edit->col_format_post($info['item_id']); ?>
+						<?php echo CB_Gui::col_format_post($info['item_id']); ?>
         </td>
     </tr>
 		 <tr class="form-field">
@@ -114,7 +114,7 @@ function render_meta_box( $slots ) {
             <label for="location"><?php _e('Location', 'commons-booking')?></label>
         </th>
         <td>
-						<?php echo $Bookings_Edit->col_format_post($info['location_id']); ?>
+						<?php echo CB_Gui::col_format_post($info['location_id']); ?>
         </td>
     </tr>
 		 <tr class="form-field">
@@ -132,9 +132,9 @@ function render_meta_box( $slots ) {
             <label for="date_time"><?php _e('Date & time', 'commons-booking')?></label>
         </th>
         <td>
-						<?php echo $Bookings_Edit->col_format_date($slot['date']); ?>:
-						<?php echo $Bookings_Edit->col_format_date($slot['time_start']); ?> -
-						<?php echo $Bookings_Edit->col_format_date($slot['time_end']); ?>
+						<?php echo CB_Gui::col_format_date($slot['date']); ?>:
+						<?php echo CB_Gui::col_format_date($slot['time_start']); ?> -
+						<?php echo CB_Gui::col_format_date($slot['time_end']); ?>
         </td>
     </tr>
 		<?php } ?>

@@ -80,7 +80,7 @@ function render_timeframe_settings_meta_box( $item ) {
             <label for="location_id"><?php _e('Location', 'commons-booking')?></label>
         </td>
         <td>
-					<?php echo CB_Gui::cb_edit_table_post_select_html('cb_location', 'location_id', $item['location_id'] ); ?>
+					<?php echo CB_Gui::edit_table_post_select_html('cb_location', 'location_id', $item['location_id'] ); ?>
         </td>
 				<?php // show item select only if needed
 				if ( ($item['item_id'] == 0  ) ) { ?>
@@ -88,7 +88,7 @@ function render_timeframe_settings_meta_box( $item ) {
             <label for="item_id"><?php _e('Item', 'commons-booking')?></label>
         </td>
 				<td>
-					<?php echo CB_Gui::cb_edit_table_post_select_html('cb_item', 'item_id', $item['item_id'] ); ?>
+					<?php echo CB_Gui::edit_table_post_select_html('cb_item', 'item_id', $item['item_id'] ); ?>
 				</td>
 				<?php } // end if ! isset ($item['item_id'] ?>
     </tr>
@@ -136,7 +136,7 @@ function render_timeframe_settings_meta_box( $item ) {
           <label for="slot_template_select"><?php _e('Booking Mode', 'commons-booking')?></label>
 				</td>
 				<td valign="top">
-					<?php echo CB_Gui::cb_edit_table_slot_template_select_html('slot_template_group_id', $item['slot_template_group_id'] ); ?>
+					<?php echo CB_Gui::edit_table_slot_template_select_html('slot_template_group_id', $item['slot_template_group_id'] ); ?>
         </td>
 				<td></td>
 				<td></td>
@@ -164,7 +164,7 @@ function render_timeframe_settings_meta_box( $item ) {
             <label for="owner_id"><?php _e('Owner', 'commons-booking')?></label>
         </td>
         <td>
-				<?php echo CB_Gui::cb_edit_table_owner_select_html( array('subscriber', 'editor', 'admin'), $item['owner_id'] ); ?>
+				<?php echo CB_Gui::edit_table_owner_select_html( array('subscriber', 'editor', 'admin'), $item['owner_id'] ); ?>
         </td>
     </tr>
     </tbody>
@@ -308,8 +308,6 @@ function render_timeframe_view_meta_box( $item ) {
 	$CB = new CB_Object;
 	$CB->set_context('calendar');
 	$cal = $CB->get_timeframes( $args );
-
-	// var_dump ($cal );
 
 ?>
 <?php

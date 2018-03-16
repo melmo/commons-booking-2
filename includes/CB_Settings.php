@@ -28,7 +28,7 @@ class CB_Settings {
 	/**
 	 * Return an instance of this class.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return object A single instance of this class.
 	 */
@@ -51,7 +51,7 @@ class CB_Settings {
 	/**
 	 * Initialize
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */
@@ -61,7 +61,7 @@ class CB_Settings {
 	/**
 	 * Booking settings template
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return array
 	 */
@@ -99,7 +99,7 @@ class CB_Settings {
 	/**
 	 * calendar settings template
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return array
 	 */
@@ -124,7 +124,7 @@ class CB_Settings {
 	/**
 	 * Pages settings template
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return array
 	 */
@@ -206,7 +206,7 @@ class CB_Settings {
 	/**
 	 * Codes settings template
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return array
 	 */
@@ -231,7 +231,7 @@ class CB_Settings {
 	/**
 	 * Locations meta box: opening times template
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return array
 	 */
@@ -395,7 +395,7 @@ class CB_Settings {
 	/**
 	 * Locations meta box: choose pickup mode template
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return array
 	 */
@@ -423,7 +423,7 @@ class CB_Settings {
 	/**
 	 * Locations meta box: location contact (personal contact)
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return array
 	 */
@@ -458,7 +458,7 @@ class CB_Settings {
 	/**
 	 * Populate settings array
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */
@@ -478,7 +478,7 @@ class CB_Settings {
 	/**
 	 * Get settings admin tabs
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return mixed $html
 	 */
@@ -499,7 +499,7 @@ class CB_Settings {
 	/**
 	 * Get settings admin box
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return array $metabox
 	 */
@@ -513,7 +513,7 @@ class CB_Settings {
 	/**
 	 * Get a setting from the WP options table
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @param string $options_page
 	 * @param string $toption (optional)

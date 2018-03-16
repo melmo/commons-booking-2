@@ -2,14 +2,15 @@
 /**
  * CB_Extras Admin
  *
+ *  This class contains all the snippet or extras that improve the experience on the backend
+ *
+ * @TODO: Lots of helper functions that *could* be implemented later
+ *
  * @package   Commons Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
- */
-/**
- * This class contain all the snippet or extra that improve the experience on the backend
  */
 class Cb_Extras_Admin {
 	/**
@@ -95,7 +96,7 @@ class Cb_Extras_Admin {
 	 *
 	 * @param array $query_args The content of the widget.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return array
 	 */
@@ -113,7 +114,7 @@ class Cb_Extras_Admin {
 	 *
 	 *        Reference:  http://wordpress.stackexchange.com/questions/89028/put-update-like-notification-bubble-on-multiple-cpts-menus-for-pending-items/95058
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */
@@ -151,7 +152,7 @@ class Cb_Extras_Admin {
 	 * @param array $needle   First parameter.
 	 * @param array $haystack Second parameter.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return mixed
 	 */

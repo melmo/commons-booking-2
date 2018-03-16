@@ -1,15 +1,14 @@
 <?php
 /**
- * Commons_Booking
+ * Base Admin class
+ *
+ * Handles includes of admin-related files
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
- */
-/**
- * This class should ideally be used to work with the administrative side of the WordPress site.
  */
 class Commons_Booking_Admin {
 	/**
@@ -22,7 +21,7 @@ class Commons_Booking_Admin {
 	 * Initialize the plugin by loading admin scripts & styles and adding a
 	 * settings page and menu.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */
@@ -79,7 +78,7 @@ class Commons_Booking_Admin {
 	/**
 	 * Return an instance of this class.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return object A single instance of this class.
 	 */

@@ -9,7 +9,7 @@
  * Plugin Name:       Commons Booking
  * Plugin URI:        @TODO
  * Description:       @TODO
- * Version:           1.0.0
+ * Version:           2.0.0
  * Author:            Florian Egermann
  * Author URI:        http://commonsbooking.wielebenwir.de
  * Text Domain:       commons-booking
@@ -22,18 +22,18 @@
 if ( !defined( 'WPINC' ) ) {
 	die;
 }
-define( 'CB_VERSION', '1.0.0' );
-define( 'CB_TEXTDOMAIN', 'commons-booking' );
+define( 'CB_VERSION', '2.0.0' );
+define( 'CB_TEXTDOMAIN', 'commons-booking-2' );
 define( 'CB_NAME', 'Commons Booking' );
 define( 'CB_PLUGIN_ROOT', plugin_dir_path( __FILE__ ) );
 define( 'CB_PLUGIN_ABSOLUTE',  __FILE__  );
 
-define( 'CB_TIMEFRAMES_TABLE', 'cb_timeframes' );
-define( 'CB_BOOKINGS_TABLE', 'cb_bookings' );
-define( 'CB_SETS_TABLE', 'cb_sets' );
-define( 'CB_SLOTS_TABLE', 'cb_slots' );
-define( 'CB_SLOTS_BOOKINGS_REL_TABLE', 'cb_slots_bookings_relation' );
-define( 'CB_SLOT_TEMPLATES_TABLE', 'cb_slot_templates' );
+define( 'CB_TIMEFRAMES_TABLE', 'cb2_timeframes' );
+define( 'CB_BOOKINGS_TABLE', 'cb2_bookings' );
+define( 'CB_SETS_TABLE', 'cb2_sets' );
+define( 'CB_SLOTS_TABLE', 'cb2_slots' );
+define( 'CB_SLOTS_BOOKINGS_REL_TABLE', 'cb2_slots_bookings_relation' );
+define( 'CB_SLOT_TEMPLATES_TABLE', 'cb2_slot_templates' );
 
 /**
  * Load the textdomain of the plugin

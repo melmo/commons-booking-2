@@ -1,15 +1,12 @@
 <?php
 /**
- * CB Timeframe
+ * @TODO: this class is right now just a wrapper for CB_Object
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
- */
-/**
- * Interface for Items
  */
 class CB_Timeframe extends CB_Object {
 	/**
@@ -27,7 +24,7 @@ class CB_Timeframe extends CB_Object {
 	/**
 	 * Initialize the class
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */

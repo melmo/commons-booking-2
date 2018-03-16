@@ -1,15 +1,16 @@
 <?php
 /**
- * Commons_Booking
- * 
+ * Contextual Helpers
+ *
+ * Provide user info
+ *
+ * @TODO: not in use right now.
+ *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
- */
-/**
- * This class contain the contextual help code.
  */
 class Cb_ContextualHelp {
     /**
@@ -25,10 +26,10 @@ class Cb_ContextualHelp {
     }
     /**
      * Filter for change the folder of Contextual Help
-     * 
+     *
      * @param string $paths The path.
-	 * 
-     * @since 1.0.0
+	 *
+     * @since 2.0.0
      *
      * @return string The path.
      */
@@ -38,10 +39,10 @@ class Cb_ContextualHelp {
     }
     /**
      * Filter for change the folder image of Contextual Help
-     * 
+     *
      * @param string $paths The path.
-	 * 
-     * @since 1.0.0
+	 *
+     * @since 2.0.0
      *
      * @return string the path
      */
@@ -52,9 +53,9 @@ class Cb_ContextualHelp {
     /**
      * Contextual Help, docs in /help-docs folter
      * Documentation https://github.com/kevinlangleyjr/wp-contextual-help
-     * 
-     * @since 1.0.0 
-	 * 
+     *
+     * @since 2.0.0
+	 *
      * @return void
      */
     public function contextual_help() {

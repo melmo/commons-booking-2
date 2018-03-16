@@ -1,21 +1,20 @@
 <?php
 /**
- * Commons_Booking
- * 
+ * Admin Pointers for the backend.
+ *
+ * @TODO: not in use.
+ *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
  */
-/**
- * All the WP pointers.
- */
-class Cb_Pointers {
+class CB_Pointers {
 	/**
 	 * Initialize the Pointers.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 */
 	public function __construct() {
 		if ( !apply_filters( 'commons_booking_cb_pointers_initialize', true ) ) {
@@ -46,4 +45,4 @@ class Cb_Pointers {
 				) );
 	}
 }
-new Cb_Pointers();
+new CB_Pointers();

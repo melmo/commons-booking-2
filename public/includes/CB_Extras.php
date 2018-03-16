@@ -23,7 +23,7 @@ class CB_Extras {
 	 *
 	 * @param array $classes THe array with all the classes of the page.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return array
 	 */

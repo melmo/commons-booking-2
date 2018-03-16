@@ -1,7 +1,7 @@
 <?php
 /**
- * Commons_Booking
- * 
+ * @TODO: remove
+ *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
@@ -11,7 +11,7 @@
 /**
  * This class contain the Templating stuff for the frontend
  */
-class Cb_Template {
+class CB_Template {
 	/**
 	 * Initialize the class
 	 */
@@ -19,17 +19,17 @@ class Cb_Template {
 		if ( !apply_filters( 'commons_booking_cb_template_initialize', true ) ) {
 			return;
 		}
-		
+
 		// Override the template hierarchy for load /templates/content-demo.php
 		add_filter( 'template_include', array( __CLASS__, 'load_content_demo' ) );
 	}
 		/**
 	 * Example for override the template system on the frontend
-	 * 
+	 *
 	 * @param string $original_template The original templace HTML.
 	 *
-	 * @since 1.0.0
-	 * 
+	 * @since 2.0.0
+	 *
 	 * @return string
 	 */
 	public static function load_content_demo( $original_template ) {
@@ -38,8 +38,8 @@ class Cb_Template {
 		}
 		return $original_template;
 	}
-	
+
 }
-$cb_template = new Cb_Template();
+$cb_template = new CB_Template();
 $cb_template->initialize();
 do_action( 'commons_booking_cb_template_instance', $cb_template );

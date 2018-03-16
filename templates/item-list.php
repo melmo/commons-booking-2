@@ -8,7 +8,7 @@
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
  *
- * @see       Cb_Enqueue::cb_template_chooser()
+ * @see       CB_Enqueue::cb_template_chooser()
  */
 ?>
 <?php
@@ -16,12 +16,12 @@ $timeframe = new CB_Timeframe;
 
 $args = array (
 	'item_id' => get_the_id(), // This template is called in the loop, so you need to supply the id
-	'discard_empty' => TRUE,
+	//'discard_empty' => TRUE,
 	// 'has_open_slots' => TRUE,
 	// 'has_bookings' => TRUE,
 	// 'user_id' => 3,
-	'paged' => TRUE,
-	'per_page' => 2,
+	// 'paged' => FALSE,
+	// 'per_page' => 2,
 	'order_by' => 'date_end',
 	'order' => 'DESC'
 );

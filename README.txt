@@ -1,10 +1,10 @@
-=== Plugin Name ===
-Contributors: (this should be a list of wordpress.org userid's) 
+=== Commons Booking ===
+Contributors: @flegfleg
 Donate link: http://example.com/
 Tags: comments, spam (maximum 12)
 Requires at least: 4.7
 Tested up to: 4.8
-Stable tag: 1.0.0
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires PHP: 5.3

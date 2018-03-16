@@ -1,6 +1,9 @@
 <?php
 /**
- * Commons_Booking
+ * Enqueues for the front end.
+ *
+ * Scripts, styles, etc.
+ * Content filters: Overwrite items, location with templates
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
@@ -8,10 +11,7 @@
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
  */
-/**
- * This class contain the Enqueue stuff for the frontend
- */
-class Cb_Enqueue {
+class CB_Enqueue {
 	/**
 	 * Initialize the class
 	 */
@@ -28,7 +28,7 @@ class Cb_Enqueue {
 	/**
 	 * Register and enqueue public-facing style sheet.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */
@@ -38,7 +38,7 @@ class Cb_Enqueue {
 	/**
 	 * Register and enqueues public-facing JavaScript files.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */
@@ -48,7 +48,7 @@ class Cb_Enqueue {
 	/**
 	 * Templates: Enable formatting of cb_items and cb_locations.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return mixed html
 	 *
@@ -72,6 +72,6 @@ class Cb_Enqueue {
 	}
 
 }
-$cb_enqueue = new Cb_Enqueue();
+$cb_enqueue = new CB_Enqueue();
 $cb_enqueue->initialize();
 do_action( 'commons_booking_cb_enqueue_instance', $cb_enqueue );

@@ -1,17 +1,15 @@
 <?php
 /**
- * CB_Gui
+ * Format common snippets
  *
- * Holds code snippets for items, locations, etc
+ * Provides snippets for items, locations, etc in the desired formatting
+ * Example Usage: CB_Gui::col_format_post( $id );
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
- */
-/**
- * Translatable Strings
  */
 class CB_Gui {
 	/**
@@ -30,7 +28,7 @@ class CB_Gui {
 	/**
 	 * Return an instance of this class.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return object A single instance of this class.
 	 */
@@ -53,7 +51,7 @@ class CB_Gui {
 	/**
 	 * Initialize
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */
@@ -63,7 +61,9 @@ class CB_Gui {
 	/**
 	 * Retrieve a interface string
 	 *
-	 * @since 1.0.0
+	 * @TODO: not in use, maybe depreciate
+	 *
+	 * @since 2.0.0
 	 *
 	 * @param $category The string category
 	 * @param $key 		Optional: The key
@@ -93,7 +93,7 @@ class CB_Gui {
 	/**
 	 * Format WP posts as clickable links with title
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
  *
  * @param int $id
  * @param string $title
@@ -115,7 +115,7 @@ public static function col_format_post( $id, $title = '' ) {
 	/**
 	 * Format Dates @TODO: localize
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
  *
  * @param string $date
  * @return mixed $html
@@ -124,10 +124,23 @@ public static function col_format_date( $date ) {
 
 	return date ('d.m.y', strtotime($date) );
 }
+/**
+ * Get date/time formatted to use in column
+ *
+ * @since 2.0.0
+ *
+ * @param string $datetime
+ * @return string $datetime
+ */
+public static function col_format_date_time( $date ) {
+
+  return date ('j.n.y. - H', strtotime( $date  )) ;
+
+}
 	/**
 	 * Format End date, return either date or ∞
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
  *
  * @param string $date
  * @return mixed $html
@@ -144,7 +157,7 @@ public static function col_format_date_end( $date, $has_end_date ) {
 	/**
 	 * Display a front-facing message
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @param $string 		The message
 	 * @param $category Optional The message category
@@ -173,7 +186,7 @@ public static function col_format_date_end( $date, $has_end_date ) {
 * @uses cb_get_post_types_list
 * @return mixed html dropdown
 */
-public static function cb_edit_table_slot_template_select_html( $field_name, $selected ) {
+public static function edit_table_slot_template_select_html( $field_name, $selected ) {
 
 	$html = '';
 
@@ -211,7 +224,7 @@ public static function cb_edit_table_slot_template_select_html( $field_name, $se
 * @uses cb_get_post_types_list
 * @return mixed html dropdown
 */
-public static function cb_edit_table_post_select_html( $post_type_name, $field_name, $selected ) {
+public static function edit_table_post_select_html( $post_type_name, $field_name, $selected ) {
 
 	$html = '';
 	$post_types_array = cb_get_post_types_list( $post_type_name );
@@ -248,7 +261,7 @@ public static function cb_edit_table_post_select_html( $post_type_name, $field_n
 * @uses cb_get_post_types_list
 * @return mixed html dropdown
 */
-public static function cb_edit_table_owner_select_html( $roles = array(), $selected ) {
+public static function edit_table_owner_select_html( $roles = array(), $selected ) {
 
 	$html = '';
 	$users_array = cb_get_users_list( );

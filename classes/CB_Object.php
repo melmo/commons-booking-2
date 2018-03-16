@@ -517,7 +517,7 @@ class CB_Object {
 	/**
 	 * Do an sql search for timeframes matching $query_args
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @param array $args
 	 * @return object timeframes
@@ -567,7 +567,7 @@ class CB_Object {
 		/**
 	 * Do an sql search for slots matching $slots_query_args
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return object slots
 	 *
@@ -619,7 +619,7 @@ class CB_Object {
 		 * 					...
 		 *    6 =>														// timeframe id
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @param  	array $slots
 	 * @param  	bool  $grouped_by_timeframe
@@ -644,7 +644,7 @@ class CB_Object {
 	/**
 	 * Map the slots array to the dates array, filter,  apply filters
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @param  	array $dates_array
 	 * @param  	array $slots_array
@@ -665,7 +665,7 @@ class CB_Object {
 	/**
 	 * Count slots as booked/available
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @param  array $slots_array
 	 *
@@ -700,7 +700,7 @@ class CB_Object {
 	/**
 	 * Set context @TODO
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @param string $context
 	 *
@@ -711,7 +711,7 @@ class CB_Object {
 	/**
 	 * Get a setting from the options table
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
  	 * @param string $option_key_short short name for the option
  	 * @param string $field_id name of the field
@@ -729,7 +729,7 @@ class CB_Object {
 	/**
 	 * Return an instance of this class.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return object A single instance of this class.
 	 */
@@ -753,7 +753,7 @@ class CB_Object {
 	/**
 	 * Error logging.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @param string $file
 	 * @param string $error
@@ -768,7 +768,7 @@ class CB_Object {
 	/**
 	 * User Facing messages.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @param string $message
 	 *

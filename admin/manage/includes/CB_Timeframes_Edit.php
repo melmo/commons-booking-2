@@ -119,7 +119,10 @@ class CB_Timeframes_Edit  {
 		$this->screen = 'view'; // start screen
 
 	}
-	/* Initialise a new object for the retrieval of timeframes, set the context
+	/**
+	 * Initialise a new object for the retrieval of timeframes, set the context
+	 *
+	 * @since 2.0.0
 	*/
 	public function init_timeframes_object() {
 			$this->timeframes_array = new CB_Object();
@@ -127,6 +130,8 @@ class CB_Timeframes_Edit  {
 	}
 	/**
 	 * Get the timeframes id from the request array
+	 *
+	 * @since 2.0.0
 	 *
 	 * @param array $request
 	 * @return array $timeframes
@@ -142,6 +147,8 @@ class CB_Timeframes_Edit  {
 	}
 	/**
 	 * Get single timeframe
+	 *
+	 * @since 2.0.0
 	 *
 	 * @param array $request
 	 * @return array $timeframe
@@ -165,6 +172,8 @@ class CB_Timeframes_Edit  {
 /**
  * Return the number of timeframes in the db
  *
+ * @since 2.0.0
+ *
  * @return int $total_timeframes
  */
 public function get_item_count( ) {
@@ -183,8 +192,11 @@ public function get_item_count( ) {
 }
 	/**
 	 * Handle the request
+	 *
 	 * Creating timeframes with generating of slots and bookings
 	 * Editing timeframes
+	 *
+	 * @since 2.0.0
 	 *
 	 * @param $request
 	 */
@@ -287,6 +299,11 @@ public function get_item_count( ) {
 	/**
 	 * Set up vars
 	 *
+	 * Handle default/settings args and request args
+	 * Setup the screens
+	 *
+	 * @since 2.0.0
+	 *
 	 * @param string $request
 	 */
 	public function setup_vars( $request ) {
@@ -309,6 +326,8 @@ public function get_item_count( ) {
 	/**
 	 * Set the next screen, if sql-result is positive
 	 *
+	 * @since 2.0.0
+	 *
 	 * @param int $result
 	 * @param string $target
 	 */
@@ -320,13 +339,17 @@ public function get_item_count( ) {
 	}
 	/**
 	 * Set the next screen
+	 *
+	 * @since 2.0.0
 	 */
 	public function set_screen( $screen ) {
 
 			$this->screen = $screen;
 	}
 	/**
-	 * Set up the meta boxes
+	 * Set up the meta boxes for admin functions
+	 *
+	 * @since 2.0.0
 	 *
 	 * @uses add_meta_box()
 	 */
@@ -370,6 +393,8 @@ public function get_item_count( ) {
 	/**
 	 * Return the meta box save/generate form_footer for each screen
 	 *
+	 * @since 2.0.0
+	 *
 	 * @return mixed
 	 *
 	 */
@@ -380,6 +405,10 @@ public function get_item_count( ) {
 	}
 	/**
 	 * Return the meta box title for each screen
+	 *
+	 * @since 2.0.0
+	 *
+	 * @uses CB_Gui
 	 *
 	 * @return mixed $title
 	 */
@@ -411,8 +440,11 @@ public function get_item_count( ) {
 	/**
 	 * Save row in the bookings databse
 	 *
+	 * @since 2.0.0
+	 *
 	 * @param array $item
 	 * @uses set_message
+	 * @return bool $result
 	 */
 	public function add_row( $item ) {
 
@@ -460,8 +492,11 @@ public function get_item_count( ) {
 	/**
 	 * Update row in the bookings database
 	 *
+	 * @since 2.0.0
+	 *
 	 * @param $item
 	 * @uses set_message
+	 * @return bool $result
 	 */
 	public function update_row( $item ) {
 
@@ -510,12 +545,13 @@ public function get_item_count( ) {
 
 		$this->set_message( $result, __('Timeframe updated.'));
 
-		var_dump($result);
-
 		return ($result);
 	}
 	/**
 	 * Create a new admin message.
+	 *
+	 * @since 2.0.0
+	 *
 	 * @param array|bool $result
 	 * @param string $info
 	 */
@@ -538,6 +574,8 @@ public function get_item_count( ) {
 	/**
 	 * Set the base file name (necessary to verify nonce).
 	 *
+	 * @since 2.0.0
+	 *
 	 * @param $filename
 	 */
 	public function set_basename( $filename ) {
@@ -547,6 +585,8 @@ public function get_item_count( ) {
 	}
 	/**
 	 * Merge settings_args_defaults & input vars
+	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $request
 	 * @return array $item
@@ -559,63 +599,9 @@ public function get_item_count( ) {
 		return $item;
 	}
 /**
- * Get user info formatted to use in column
- *
- * @param int $id
- * @return string $user
- */
-public function col_format_user( $id ) {
-
-	$user_last = get_user_meta( $id, 'last_name',TRUE );
-	$user_first = get_user_meta( $id, 'first_name',TRUE );
-	$user_edit_link = get_edit_user_link( $id);
-
-	$user = sprintf ( '<a href="%s">%s %s</a>', $user_edit_link, $user_first, $user_last );
-
-	return $user;
-}
-/**
- * Get date formatted to use in column
- *
- * @param string $date
- * @return string $date
- */
-public function col_format_date( $date ) {
-
-  return date ('j.n.y.', strtotime( $date  )) ;
-
-}
-/**
- * Get date/time formatted to use in column
- *
- * @param int $datetime
- * @return string $datetime
- */
-public function col_format_date_time( $date ) {
-
-  return date ('j.n.y. - H', strtotime( $date  )) ;
-
-}
-/**
- * Get CB custom post type info formatted to use in column
- *
- * @param int $id
- * @return mixed $my_post
- */
-public function col_format_post( $id, $title = '' ) {
-
-	$my_post_name = get_the_title( $id );
-
-	if ( ! empty ( $title ) ) {
-		$my_post_link = edit_post_link ( $title, '', '', $id );
-	} else {
-		$my_post_link = edit_post_link ( $my_post_name, '', '', $id );
-
-	}
-	return $my_post_link;
-}
-/**
  * Validate @TODO
+ *
+ * @since 2.0.0
  *
  * @param $item
  * @return bool|string

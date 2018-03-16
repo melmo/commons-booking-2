@@ -1,6 +1,7 @@
 <?php
 /**
- * Commons_Booking
+ * Custom meta boxes for items & locations
+ * @TODO: item metaboxes
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
@@ -13,7 +14,10 @@
  */
 class CB_PostTypes_Metaboxes {
 	/**
-	 * Initialize the snippet
+	 * Initialize
+	 *
+	 * @since 2.0.0
+	 *
 	 */
 	function __construct() {
 
@@ -21,8 +25,10 @@ class CB_PostTypes_Metaboxes {
 
 		add_action( 'cmb2_admin_init', array( $this, 'add_location_metaboxes' ) );
 	}
-			/**
+	/**
 	 * Load CPT and Taxonomies on WordPress
+	 *
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */

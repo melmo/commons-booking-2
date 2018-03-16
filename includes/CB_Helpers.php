@@ -31,7 +31,7 @@ function cb_get_pages_dropdown() {
  * Get a List of slot templates for use in dropdown selects.
  * @TODO Hardcoded for now
  *
- * @return Array of wordpress pages as [slot_template_id][title]
+ * @return Array of wordpress pages as [slot_template_group_id][title]
  */
 
 function cb_get_slot_templates_dropdown() {

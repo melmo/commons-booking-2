@@ -1,15 +1,14 @@
 <?php
 /**
- * CB_Item
+ * Handles item templates and meta information
+ * @TODO: this class is not in use right now.
+ * Using CB_Enque to handle item display on the frontend
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
- */
-/**
- * Interface for Items
  */
 class CB_Item  {
 	/**
@@ -22,8 +21,8 @@ class CB_Item  {
 	 * Initialize the plugin by loading admin scripts & styles and adding a
 	 * settings page and menu.
 	 *
-	 * @since 1.0.0
-	 * 
+	 * @since 2.0.0
+	 *
 	 * @return void
 	 */
 	public static function initialize() {
@@ -35,12 +34,12 @@ class CB_Item  {
 	public function __construct() {
 	}
 	/**
-	* Example for override the template system on the frontend
-	* 
+	* Override the template system on the frontend
+	*
 	* @param string $original_template The original templace HTML.
 	*
-	* @since 1.0.0
-	* 
+	* @since 2.0.0
+	*
 	* @return string
 	*/
 	public static function get_item_template( $content ) {
@@ -52,7 +51,7 @@ class CB_Item  {
 	/**
 	 * Return an instance of this class.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return object A single instance of this class.
 	 */

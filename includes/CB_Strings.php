@@ -1,15 +1,13 @@
 <?php
 /**
- * CB_Strings
+ * Translateable string snippets.
+ * @TODO merge with CB_Gui
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
- */
-/**
- * Translatable Strings
  */
 class CB_Strings extends CB_Object {
 	/**
@@ -28,7 +26,7 @@ class CB_Strings extends CB_Object {
 	/**
 	 * Return an instance of this class.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return object A single instance of this class.
 	 */
@@ -51,7 +49,7 @@ class CB_Strings extends CB_Object {
 	/**
 	 * Initialize
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */
@@ -62,7 +60,7 @@ class CB_Strings extends CB_Object {
 	/**
 	 * Retrieve a interface string
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @param $category The string category
 	 * @param $key 		Optional: The key

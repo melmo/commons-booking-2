@@ -51,7 +51,7 @@ class CB_Bookings_Table extends WP_List_Table
      */
     function column_date($item)
     {
-			return $this->Bookings_Admin->col_format_date( $item['date'] );
+			return CB_Gui::col_format_date( $item['date'] );
     }
     /**
      * Format col: user_id
@@ -61,7 +61,7 @@ class CB_Bookings_Table extends WP_List_Table
      */
     function column_user_id($item)
     {
-			return $this->Bookings_Admin->col_format_user( $item['user_id'] );
+			return CB_Gui::col_format_user( $item['user_id'] );
     }
     /**
      * Format col: item_id
@@ -71,7 +71,7 @@ class CB_Bookings_Table extends WP_List_Table
      */
     function column_item_id($item)
     {
-        return $this->Bookings_Admin->col_format_post( $item['item_id'] );
+        return CB_Gui::col_format_post( $item['item_id'] );
     }
     /**
      * Format col: location_id
@@ -81,7 +81,7 @@ class CB_Bookings_Table extends WP_List_Table
      */
     function column_location_id( $item )
     {
-        return $this->Bookings_Admin->col_format_post( $item['location_id'] );
+        return CB_Gui::col_format_post( $item['location_id'] );
     }
 
     /**

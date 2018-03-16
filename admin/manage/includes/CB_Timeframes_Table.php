@@ -84,7 +84,7 @@ class CB_Timeframes_Table extends WP_List_Table
      * @return HTML
      */
     function column_date_start( $item ) {
-			return $this->Timeframes_Edit->col_format_date( $item['date_start'] );
+			return CB_Gui::col_format_date( $item['date_start'] );
     }
     /**
      * Format col: date_end
@@ -93,7 +93,7 @@ class CB_Timeframes_Table extends WP_List_Table
      * @return HTML
      */
     function column_date_end( $item ) {
-			return $this->Timeframes_Edit->col_format_date( $item['date_end'] );
+			return CB_Gui::col_format_date( $item['date_end'] );
     }
     /**
      * Format col: user_id
@@ -102,7 +102,7 @@ class CB_Timeframes_Table extends WP_List_Table
      * @return HTML
      */
     function column_owner_id( $item ) {
-			return $this->Timeframes_Edit->col_format_user( $item['owner_id'] );
+			return CB_Gui::col_format_user( $item['owner_id'] );
     }
     /**
      * Format col: availability
@@ -127,7 +127,7 @@ class CB_Timeframes_Table extends WP_List_Table
      */
     function column_item_id($item)
     {
-        return $this->Timeframes_Edit->col_format_post( $item['item_id'] );
+        return CB_Gui::col_format_post( $item['item_id'] );
     }
     /**
      * Format col: location_id
@@ -137,7 +137,7 @@ class CB_Timeframes_Table extends WP_List_Table
      */
     function column_location_id( $item )
     {
-        return $this->Timeframes_Edit->col_format_post( $item['location_id'] );
+        return CB_Gui::col_format_post( $item['location_id'] );
     }
 
     /**

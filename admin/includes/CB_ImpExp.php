@@ -1,7 +1,7 @@
 <?php
 /**
  * Commons_Booking
- * 
+ *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
@@ -11,7 +11,7 @@
 /**
  * Provide Import and Export of the settings of the plugin
  */
-class Cb_ImpExp {
+class CB_ImpExp {
 	/**
 	 * Initialize the plugin by loading admin scripts & styles and adding a
 	 * settings page and menu.
@@ -24,9 +24,9 @@ class Cb_ImpExp {
 	}
 	/**
 	 * Process a settings export from config
-	 * 
-	 * @since 1.0.0
-	 * 
+	 *
+	 * @since 2.0.0
+	 *
 	 * @return void
 	 */
 	public function settings_export() {
@@ -55,9 +55,9 @@ class Cb_ImpExp {
 	}
 	/**
 	 * Process a settings import from a json file
-	 * 
-	 * @since 1.0.0
-	 * 
+	 *
+	 * @since 2.0.0
+	 *
 	 * @return void
 	 */
 	public function settings_import() {
@@ -86,4 +86,4 @@ class Cb_ImpExp {
 		exit;
 	}
 }
-new Cb_ImpExp();
+new CB_ImpExp();

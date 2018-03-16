@@ -1,15 +1,12 @@
 <?php
 /**
- * CB Timeframe
+ * Handles all date-related functions.
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
- */
-/**
- * Build a calendar
  */
 class CB_Calendar extends CB_Object {
 	/**
@@ -23,7 +20,7 @@ class CB_Calendar extends CB_Object {
 	 *
 	 * @var array
 	 */
-	// public $dates_array = array();
+	public $dates_array = array();
 	/**
 	 * Date start
 	 *
@@ -39,7 +36,12 @@ class CB_Calendar extends CB_Object {
 	/**
 	 * Initialize the class
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
+	 *
+	 * @param int $timeframe_id
+	 * @param string $date_start
+	 * @param string $date_end
+	 * @return array $dates_array
 	 *
 	 */
 	public function __construct( $timeframe_id, $date_start, $date_end ) {
@@ -59,24 +61,43 @@ class CB_Calendar extends CB_Object {
 		return $this->dates_array;
 
 	}
-
+	/**
+	 * set the timeframe id
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param int $timeframe_id
+   * @return void
+	 *
+	 */
 	public function set_timeframe( $id ) {
 		$this->timeframe_id = $id;
 	}
-
+	/**
+	 * Create an array of dates from start date to end date
+	 *
+	 * @since 2.0.0
+	 *
+   * @return void
+	 *
+	 */
   public function create_days_array( ) {
 
 		$dates_array = cb_dateRange( $this->date_start, $this->date_end );
 
 		foreach ($dates_array as $date) {
 			$this->add_date_meta( $date );
-			// $this->map_slots_to_dates( $date );
 		}
 
 	}
-
-
-
+	/**
+	 * Add meta information to the date: date, name (weekday name), weekday number
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param string $date
+	 *
+	 */
   public function add_date_meta( $date ) {
 
 		$weekday = date('N', strtotime( $date ) );
@@ -88,23 +109,4 @@ class CB_Calendar extends CB_Object {
 			'number' 	=> $weekday
 		);
 	}
-
-    // private function add_timeframe_meta( $date ) {
-
-	// 	$this->days_array[$date]['timeframe_id'] = $this->timeframe_id;
-	// }
-
-
-    // public function map_slots_to_date( $date ) {
-	// 	if ( ! empty ( $this->slots_array[$date] ) ) {
-	// 		$this->days_array[$date]['slots'] = $this->slots_array[$date];
-	// 	}
-	// }
-
-
-	// public function add_slots( $date ) {
-	// 	$slots = new CB_Slots( $this->timeframe_id, $date );
-	// 	$this->slots_array = $slots->get_slots();
-	// 	// return $slots_array;
-	// }
 }

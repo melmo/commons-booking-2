@@ -1,9 +1,8 @@
 <?php
 /**
- * Bookings Admin functions
+ * Booking Admin functions
  *
  * Handles editing, cancelling and detail view of bookings.
- *  Also provides formatting functions for row items in the table.
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
@@ -270,59 +269,6 @@ public function get_item_count( ) {
 		$this->booking_id = $item['booking_id'];
 		return $item;
 	}
-/**
- * Get user info formatted to use in column
- *
- * @param int $id
- * @return string $user
- */
-public function col_format_user( $id ) {
-
-	$user_last = get_user_meta( $id, 'last_name',TRUE );
-	$user_first = get_user_meta( $id, 'first_name',TRUE );
-	$user_edit_link = get_edit_user_link( $id);
-
-	$user = sprintf ( '<a href="%s">%s %s</a>', $user_edit_link, $user_first, $user_last );
-
-	return $user;
-}
-/**
- * Get date formatted to use in column
- *
- * @param string $date
- * @return string $date
- */
-public function col_format_date( $date ) {
-
-  return date ('j.n.y.', strtotime( $date  )) ;
-
-}
-/**
- * Get date/time formatted to use in column
- *
- * @param int $datetime
- * @return string $datetime
- */
-public function col_format_date_time( $date ) {
-
-  return date ('j.n.y. - H', strtotime( $date  )) ;
-
-}
-/**
- * Get CB custom post type info formatted to use in column
- *
- * @param int $id
- * @return mixed $my_post
- */
-public function col_format_post( $id ) {
-
-	$my_post_link = get_the_permalink( $id );
-	$my_post_name = get_the_title( $id );
-
-	$my_post = sprintf ( '<a href="%s">%s</a>', $my_post_link, $my_post_name );
-
-	return $my_post;
-}
 /**
  * Validate @TODO
  *

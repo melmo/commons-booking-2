@@ -1,7 +1,7 @@
 <?php
 /**
  * Commons_Booking
- * 
+ *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
@@ -11,28 +11,28 @@
 /**
  * This class contain the activate and deactive method and relates.
  */
-class Cb_ActDeact {
+class CB_ActDeact {
 	/**
 	 * Initialize the Act/Deact
-	 * 
+	 *
 	 * @return void
 	 */
 	function __construct() {
 		// Activate plugin when new blog is added
 		add_action( 'wpmu_new_blog', array( $this, 'activate_new_site' ) );
-		
+
 		register_activation_hook( CB_TEXTDOMAIN . '/' . CB_TEXTDOMAIN . '.php', array( __CLASS__, 'activate' ) );
 		register_deactivation_hook( CB_TEXTDOMAIN . '/' . CB_TEXTDOMAIN . '.php', array( __CLASS__, 'deactivate' ) );
 		add_action( 'admin_init', array( $this, 'upgrade_procedure' ) );
 	}
-	
+
 	/**
 	 * Fired when a new site is activated with a WPMU environment.
 	 *
 	 * @param integer $blog_id ID of the new blog.
 	 *
-	 * @since 1.0.0
-	 * 
+	 * @since 2.0.0
+	 *
 	 * @return void
 	 */
 	public function activate_new_site( $blog_id ) {
@@ -48,8 +48,8 @@ class Cb_ActDeact {
 	 *
 	 * @param boolean $network_wide True if active in a multiste, false if classic site.
 	 *
-	 * @since 1.0.0
-	 * 
+	 * @since 2.0.0
+	 *
 	 * @return void
 	 */
 	public static function activate( $network_wide ) {
@@ -75,8 +75,8 @@ class Cb_ActDeact {
 	 *                              WPMU is disabled or plugin is
 	 *                              deactivated on an individual blog.
 	 *
-	 * @since 1.0.0
-	 * 
+	 * @since 2.0.0
+	 *
 	 * @return void
 	 */
 	public static function deactivate( $network_wide ) {
@@ -97,8 +97,8 @@ class Cb_ActDeact {
 	/**
 	 * Fired for each blog when the plugin is activated.
 	 *
-	 * @since 1.0.0
-	 * 
+	 * @since 2.0.0
+	 *
 	 * @return void
 	 */
 	private static function single_activate() {
@@ -116,8 +116,8 @@ class Cb_ActDeact {
 	/**
 	 * Fired for each blog when the plugin is deactivated.
 	 *
-	 * @since 1.0.0
-	 * 
+	 * @since 2.0.0
+	 *
 	 * @return void
 	 */
 	private static function single_deactivate() {
@@ -125,10 +125,10 @@ class Cb_ActDeact {
 		// Clear the permalinks
 		flush_rewrite_rules();
 	}
-	
+
 		/**
 	 * Add admin capabilities
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function add_capabilities() {
@@ -190,10 +190,10 @@ class Cb_ActDeact {
 			}
 		}
 	}
-	
+
 		/**
-	 * Upgrade procedure 
-	 * 
+	 * Upgrade procedure
+	 *
 	 * @return void
 	 */
 	public static function upgrade_procedure() {
@@ -205,6 +205,6 @@ class Cb_ActDeact {
 			}
 		}
 	}
-	
+
 }
-new Cb_ActDeact();
+new CB_ActDeact();

@@ -1,6 +1,8 @@
 <?php
 /**
- * Commons_Booking
+ * Public Commons Booking Class
+ *
+ * Include the necessary files for the front-end.
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
@@ -35,7 +37,7 @@ class Commons_Booking {
 	 * Initialize the plugin by setting localization and loading public scripts
 	 * and styles.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */
@@ -48,7 +50,7 @@ class Commons_Booking {
 		/**
 	 * Return the cpts
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return array
 	 */
@@ -59,7 +61,7 @@ class Commons_Booking {
 	/**
 	 * Return an instance of this class.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return object A single instance of this class.
 	 */

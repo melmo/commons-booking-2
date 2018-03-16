@@ -2,6 +2,9 @@
 /**
  * Administration Enqueue
  *
+ * Admin-related scripts, styles
+ * WP Backend Manage menu & settings menu
+ *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
@@ -11,7 +14,7 @@
 /**
  * This class contains the Enqueues for the backend
  */
-class Cb_Enqueue_Admin {
+class CB_Enqueue_Admin {
 		/**
 	 * Slug of the plugin screen.
 	 *
@@ -38,7 +41,7 @@ class Cb_Enqueue_Admin {
 		/**
 	 * Register and enqueue admin-specific style sheet.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return mixed Return early if no settings page is registered.
 	 */
@@ -52,10 +55,10 @@ class Cb_Enqueue_Admin {
 		}
 		wp_enqueue_style( CB_TEXTDOMAIN . '-admin-styles', plugins_url( 'admin/assets/css/admin.css', CB_PLUGIN_ABSOLUTE ), array( 'dashicons' ), CB_VERSION );
 	}
-			/**
+		/**
 	 * Register and enqueue admin-specific JavaScript.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return mixed Return early if no settings page is registered.
 	 */
@@ -73,7 +76,7 @@ class Cb_Enqueue_Admin {
 	/**
 	 * Register the plugin management menu (items, locations, timeframes, bookings) and settings into the WordPress Dashboard menu.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */
@@ -104,7 +107,7 @@ class Cb_Enqueue_Admin {
 	/**
 	 * Render the settings page for this plugin.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */
@@ -114,7 +117,7 @@ class Cb_Enqueue_Admin {
 	/**
 	 * Render the timeframe table page.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */
@@ -124,7 +127,7 @@ class Cb_Enqueue_Admin {
 	/**
 	 * Render the timeframe edit page.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */
@@ -134,7 +137,7 @@ class Cb_Enqueue_Admin {
 	/**
 	 * Render the bookings table page.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */
@@ -144,7 +147,7 @@ class Cb_Enqueue_Admin {
 	/**
 	 * Render the bookings table page.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */
@@ -154,7 +157,7 @@ class Cb_Enqueue_Admin {
 	/**
 	 * Render the timeframe management page.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */
@@ -167,7 +170,7 @@ class Cb_Enqueue_Admin {
 	/**
 	 * Add settings action link to the plugins page.
 	 *
-	 * @since 1.0.0
+	 * @since 2.0.0
 	 *
 	 * @param array $links Array of links.
 	 *
@@ -182,6 +185,6 @@ class Cb_Enqueue_Admin {
 	}
 
 }
-$cb_enqueue_admin = new Cb_Enqueue_Admin();
+$cb_enqueue_admin = new CB_Enqueue_Admin();
 $cb_enqueue_admin->initialize();
 do_action( 'commons_booking_cb_enqueue_admin_instance', $cb_enqueue_admin );
