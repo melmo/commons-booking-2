@@ -17,6 +17,11 @@
 
 <div id="tabs-<?php echo $slug; ?>" class="wrap">
 	<div class="metabox-holder"><div class="postbox"><div class="inside">
+
+@TODO NOT YET IMPLEMENTED.
+@TODO Items page, Locations page should be depreciated, "items-list" and "calendar" used
+@TODO "booking review page",  "booking confirmed page" no longer as seperate pages
+
 	<?php
 		$cmb_pages = new_cmb2_box(
 			array(

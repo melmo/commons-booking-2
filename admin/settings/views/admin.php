@@ -2,8 +2,6 @@
 /**
  * Represents the view for the administration dashboard.
  *
- * This includes the header, options, and other information that should provide
- * The User Interface to the end user.
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
@@ -20,26 +18,15 @@
 			<li><a href="#tabs-1"><?php _e( 'General' ); ?></a></li>
 			<?php echo CB_Settings::get_admin_tabs() ?>
 			<li><a href="#tabs-importexport"><?php _e( 'Import/Export', 'commons-booking' ); ?></a></li>
-			<?php
-						?>
 		</ul>
 		<?php
 		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-welcome.php' );
 		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-pages.php' );
+		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-calendar.php' );
 		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-bookings.php' );
 		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-codes.php' );
 		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-importexport.php' );
 		?>
-		</div>
-		<?php
-				?>
-    </div>
-    <div class="right-column-settings-page metabox-holder">
-		<div class="postbox">
-			<h3 class="hndle"><span><?php _e( 'Plugin Name.', CB_TEXTDOMAIN ); ?></span></h3>
-			<div class="inside">
-				<a href="https://github.com/WPBP/commons-booking"><img src="https://raw.githubusercontent.com/WPBP/boilerplate-assets/master/icon-256x256.png" alt=""></a>
-			</div>
 		</div>
     </div>
 </div>

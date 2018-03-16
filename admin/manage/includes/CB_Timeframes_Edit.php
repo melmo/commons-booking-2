@@ -233,6 +233,8 @@ public function get_item_count( ) {
 				} // end if validation passed
 			} elseif ( isset( $request['cb_form_action'] ) && $request['cb_form_action'] == 'generate_slots' ) { // we are creating the slots
 
+				//@TODO move all of this (till sql_slots_result ) to seperate funtion so we can use it on CRON
+
 				$timeframe = $this->get_single_timeframe( $this->timeframe_id );
 
 				$this->slots_object->set_date_range ($timeframe['date_start'], $timeframe['date_end'] );
@@ -655,12 +657,16 @@ function prepare_checkbox_value( $checkbox ){
  * Handle timeframes without an end date
  *
  * @param $item
+ * @uses CB_Settings
  * @return $end_date
  */
 function maybe_set_end_date( $item ){
 
-		if ( $item['has_end_date'] == 0 ) { // no end date, so use the date setting @TODO: get setting
-			$end_date =  date("Y-m-d", strtotime( "+1 month", strtotime( $item['date_start'] ) ) );
+		if ( $item['has_end_date'] == 0 ) { // no end date, so use the date setting
+
+			$cal_range = CB_Settings::get( 'calendar', 'range');
+
+			$end_date =  date("Y-m-d", strtotime( "+".$cal_range." days", strtotime( $item['date_start'] ) ) );
 		} else {
 			$end_date = $item['date_end'];
 		}

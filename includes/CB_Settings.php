@@ -97,6 +97,31 @@ class CB_Settings {
 		return $settings_bookings;
 	}
 	/**
+	 * calendar settings template
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array
+	 */
+	public static function get_settings_template_calendar() {
+
+		$settings_calendar = array(
+			'name' => __( 'Calendar', 'commons-booking' ),
+			'slug' => 'calendar',
+			'fields' => array (
+					array(
+						'name'             => __( 'Calendar', 'commons-booking' ),
+						'desc'             => __( 'Calendar range, comma-seperated', 'commons-booking' ),
+						'id'               => 'range',
+						'type'             => 'text_small',
+						'default'          => '30',
+						'description'			 => __('Set how many days are shown on each calendar.')
+				)
+			)
+		);
+		return $settings_calendar;
+	}
+	/**
 	 * Pages settings template
 	 *
 	 * @since 1.0.0
@@ -442,6 +467,7 @@ class CB_Settings {
 		self::$plugin_settings = array (
 			'pages' => self::get_settings_template_pages(),
 			'bookings' => self::get_settings_template_bookings(),
+			'calendar' => self::get_settings_template_calendar(),
 			'codes' => self::get_settings_template_codes(),
 			'location-opening-times' => self::get_settings_template_location_opening_times(),
 			'location-pickup-mode' => self::get_settings_template_location_pickup_mode(),

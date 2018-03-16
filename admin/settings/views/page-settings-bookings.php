@@ -16,6 +16,8 @@
 
 <div id="tabs-<?php echo $slug; ?>" class="wrap">
 	<div class="metabox-holder"><div class="postbox"><div class="inside">
+		@TODO not implemented
+		@TODO depreciate "use booking codes" (moved to: timeframe_edit)
 	<?php
 		$cmb_bookings = new_cmb2_box(
 			array(
