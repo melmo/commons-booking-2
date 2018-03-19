@@ -22,6 +22,9 @@ class Cb_Extras_Admin {
 		 */
 		$debug = new WPBP_Debug( 'WPBP' );
 		$debug->log( __( 'Plugin Loaded', CB_TEXTDOMAIN ) );
+
+		$this->check_wp_environment(); // check plugin environment and notify the user if things are not properly defined.
+
 		/*
 		 * Load Wp_Admin_Notice for the notices in the backend
 		 *
@@ -32,7 +35,7 @@ class Cb_Extras_Admin {
 		/*
 		 * Dismissible notice
 		 */
-		// dnh_register_notice( 'my_demo_notice', 'updated', __( 'This is my dismissible notice', CB_TEXTDOMAIN ) );
+		//dnh_register_notice( 'my_demo_notice', 'updated', __( 'This is my dismissible notice', CB_TEXTDOMAIN ) );
 		/*
 		 * Load CronPlus
 		 */
@@ -142,6 +145,28 @@ class Cb_Extras_Admin {
 				);
 			}
 		}
+	}
+	/**
+	 * WP Plugin Environment check for requirements, print message if failed
+	 *
+	 * @since 2.0.0
+	 * @uses WP_Admin_Notice
+	 *
+	 */
+	function check_wp_environment(  ) {
+
+		$notices_array = array();
+
+		// check if pretty permalinks are enabled
+		if ( ! get_option('permalink_structure') ) {  $notices_array[] = __( '"Pretty" Permalinks need to be enabled for Commons Booking to work.', 'commons-booking');
+		}
+
+		if ( $notices_array ) {
+			foreach ( $notices_array as $notice ) {
+				new WP_Admin_Notice( $notice , 'error' );
+			}
+		}
+
 	}
 	/**
 	 * Required for the bubble notification<br>
