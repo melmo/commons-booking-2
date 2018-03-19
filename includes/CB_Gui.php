@@ -296,13 +296,14 @@ public static function edit_table_owner_select_html( $roles = array(), $selected
  */
 public static function col_format_user( $id ) {
 
-	$user_last = get_user_meta( $id, 'last_name',TRUE );
-	$user_first = get_user_meta( $id, 'first_name',TRUE );
-	$user_edit_link = get_edit_user_link( $id);
+	$user = get_user_by( 'id',  $id );
 
-	$user = sprintf ( '<a href="%s">%s %s</a>', $user_edit_link, $user_first, $user_last );
+	$user_nicename = $user->user_nicename;
+	$user_edit_link = get_edit_user_link( $user->ID );
 
-	return $user;
+	$user_html = sprintf ( '<a href="%s"> %s </a>', $user_edit_link, $user_nicename);
+
+	return $user_html;
 }
 /**
  * Get slot availability formatted to use in column

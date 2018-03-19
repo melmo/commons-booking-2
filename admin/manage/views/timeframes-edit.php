@@ -82,15 +82,15 @@ function render_timeframe_settings_meta_box( $item ) {
         <td>
 					<?php echo CB_Gui::edit_table_post_select_html('cb_location', 'location_id', $item['location_id'] ); ?>
         </td>
-				<?php // show item select only if needed
-				if ( ($item['item_id'] == 0  ) ) { ?>
-        <td valign="top">
+				<?php // add class hidden if item already selected
+					$item_select_class = ($item['item_id'] == 0  ) ? '' : 'hidden';
+				 ?>
+        <td valign="top" class="<?php echo $item_select_class; ?>">
             <label for="item_id"><?php _e('Item', 'commons-booking')?></label>
         </td>
-				<td>
+				<td class="<?php echo $item_select_class; ?>">
 					<?php echo CB_Gui::edit_table_post_select_html('cb_item', 'item_id', $item['item_id'] ); ?>
 				</td>
-				<?php } // end if ! isset ($item['item_id'] ?>
     </tr>
 		<tr class="form-field form-field-header">
         <td valign="top" colspan="4">

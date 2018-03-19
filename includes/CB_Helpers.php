@@ -87,10 +87,6 @@ function cb_get_users_list( $roles=array() ) {
 
 	$users = get_users( [ 'role__in' => $roles ] );
 
-	// Array of WP_User objects.
-	foreach ( $users as $user ) {
-			echo '<span>' . esc_html( $user->display_name ) . '</span>';
-	}
   $list = array();
 
   foreach ( $users as $user ) {

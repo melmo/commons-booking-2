@@ -92,7 +92,7 @@ class CB_Timeframes_Table extends WP_List_Table
      * @return HTML
      */
     function column_date_end( $item ) {
-			return CB_Gui::col_format_date( $item['date_end'] );
+			return CB_Gui::col_format_date_end( $item['date_end'], $item['has_end_date'] );
     }
     /**
      * Format col: user_id
