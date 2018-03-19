@@ -332,7 +332,7 @@ public static function col_format_availability( $availability = '' ) {
  * @param array $item
  * @return mixed $html
  */
-public static function col_format_timeframe( $post_id ) {
+public static function col_format_timeframe( $post_id, $echo=false ) {
 
 	$html = '';
 
@@ -351,15 +351,19 @@ public static function col_format_timeframe( $post_id ) {
 			$date_start = self::col_format_date( $timeframe->date_start);
 			$date_end = self::col_format_date_end( $timeframe->date_end, $timeframe->has_end_date);
 			$availability = self::col_format_availability( $timeframe->availability);
-			$edit_link =  self::timeframes_admin_url( 'view', $post_id );
+			$edit_link =  self::timeframes_admin_url( 'edit', 'view', $post_id );
 			$location = get_the_title( $timeframe->location_id );
 			$html .= sprintf( '<strong>%s - %s</strong> %s<br>%s<br>%s<hr>',$date_start, $date_end, $edit_link, $location, $availability );
 		}
 	} else {
 		$html .=  __( 'No timeframes configured.', 'commons-booking' );
-		$html .= ' ' . self::timeframes_admin_url( 'table', $post_id );
+		$html .= ' ' . self::timeframes_admin_url( 'edit', 'table', $post_id );
 	}
+	if ( ! $echo ) {
 	return $html;
+	} else {
+		echo $html;
+	}
 }
 /**
  * List slot templates
@@ -451,20 +455,32 @@ public static function settings_admin_url( $options_page = '' ) {
 /**
  * Return timeframes admin url(s)
  *
- * @TODO enable targets: table, edit(with id), view
+ * @TODO enable targets: table, edit(with id), view, add new. does not make sense right now.
  *
  * @return mixed $html
  */
 public static function timeframes_admin_url( $target='table', $item_id = '' ) {
 
+	$page = 'cb_timeframes_edit';
 	$item_edit = '';
 	if ( $item_id ) {
 		$item_edit = '&item_id=' . $item_id;
 	}
+	// choose page
+	if ( $target == 'edit' ) {
+		$page = 'cb_timeframes_edit&edit=1';
+		$title = __('Edit', 'commons-booking');
+	} elseif ( $target == 'view') {
+		$page = 'cb_timeframes_edit'; //@TODO: we need the timeframe id here
+		$title = __('View', 'commons-booking');
+	} elseif ( $target == 'table' ) {
+		$page = 'cb_timeframes_table';
+		$title = __('Overview', 'commons-booking');
+	}
 
-	$url = admin_url( 'admin.php?page=cb_timeframes_table' . $item_edit );
+	$url = admin_url( 'admin.php?page=' . $page . $item_edit );
 
-	$link = sprintf ( '<a href="%s">' . __( 'Edit', 'commons-booking') . '</a>', $url );
+	$link = sprintf ( '<a href="%s">' .$title . '</a>', $url );
 
 	return $link;
 }

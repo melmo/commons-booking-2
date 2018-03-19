@@ -23,8 +23,34 @@ class CB_PostTypes_Metaboxes {
 
 		$this->slug = CB_TEXTDOMAIN;
 
+		add_action( 'add_meta_boxes', array( $this, 'add_item_wp_metaboxes' ) );
 		add_action( 'cmb2_admin_init', array( $this, 'add_location_metaboxes' ) );
 	}
+	/**
+	 * Register item timeframe meta box
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return void
+	 */
+	public function add_item_wp_metaboxes() {
+		/**
+		 * Metabox: We are using WP internal metabox instead of cmb2 here, since we just render the timeframes and do not save any stuff
+		 */
+		add_meta_box( 'timeframe_meta_box', __( 'Timeframes', 'commons-booking' ), array( $this, 'do_timeframe_item_metabox'), 'cb_item' );
+	}
+	/**
+	 * Wrapper for CB_Gui in timeframe meta box
+	 *
+	 * @since 2.0.0
+	 */
+	public function do_timeframe_item_metabox( ) {
+
+		global $post;
+		echo CB_Gui::col_format_timeframe($post->ID);
+		echo CB_Gui::timeframes_admin_url( 'edit' );
+	}
+
 	/**
 	 * Load CPT and Taxonomies on WordPress
 	 *
