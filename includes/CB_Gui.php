@@ -311,19 +311,53 @@ public static function col_format_user( $id ) {
  * @param array $item
  * @return mixed $html
  */
-public static function col_format_availability( $item ) {
+public static function col_format_availability( $availability = '' ) {
 
 	$html = '';
 
-	if ( isset ( $item['availability'] ) ) {
+	if ( isset ( $availability ) ) {
 		$html = sprintf( __( 'Slots: %d total, %d booked, %d available ', 'commons-booking'),
-					$item['availability']['total'],
-					$item['availability']['booked'],
-					$item['availability']['available']
+					$availability['total'],
+					$availability['booked'],
+					$availability['available']
 					);
 		}	else {
 			$html = __('No slots configured', 'commons-booking');
 		}
+	return $html;
+}
+/**
+ * Get timeframe for display in admin tables
+ *
+ * @param array $item
+ * @return mixed $html
+ */
+public static function col_format_timeframe( $post_id ) {
+
+	$html = '';
+
+	$timeframe_object = new CB_Timeframe;
+
+	$args = array (
+		'item_id' => $post_id, // This template is called by item, so you need to supply the id
+		'order_by' => 'date_start',
+		'order' => 'ASC'
+	);
+
+	$timeframes = $timeframe_object->get( $args );
+
+	if ( isset( $timeframes ) && is_array( $timeframes ) ) {
+		foreach ($timeframes as $timeframe) {
+			$date_start = self::col_format_date( $timeframe->date_start);
+			$date_end = self::col_format_date_end( $timeframe->date_end, $timeframe->has_end_date);
+			$availability = self::col_format_availability( $timeframe->availability);
+			$edit_link =  self::timeframes_admin_url( 'view', $post_id );
+			$html .= sprintf( '<strong>%s - %s</strong> %s <br>%s<hr>',$date_start, $date_end, $edit_link, $availability );
+		}
+	} else {
+		$html .=  __( 'No timeframes configured.', 'commons-booking' );
+		$html .= ' ' . self::timeframes_admin_url( 'table', $post_id );
+	}
 	return $html;
 }
 /**
@@ -398,7 +432,7 @@ public static function list_location_opening_times_html( $location_id) {
 /**
  * Return settings url
  *
- * @param array $slot_template_group_id
+ * @param string $options_page
  * @return mixed $html
  */
 public static function link_to_settings_page( $options_page = '' ) {
@@ -410,6 +444,26 @@ public static function link_to_settings_page( $options_page = '' ) {
 	}
 
 	$link = sprintf ( '<a href="%s" target="_blank">' . __( 'Settings', 'commons-booking') . '</a>', $url );
+
+	return $link;
+}
+/**
+ * Return timeframes admin url(s)
+ *
+ * @TODO enable targets: table, edit(with id), view
+ *
+ * @return mixed $html
+ */
+public static function timeframes_admin_url( $target='table', $item_id = '' ) {
+
+	$item_edit = '';
+	if ( $item_id ) {
+		$item_edit = '&item_id=' . $item_id;
+	}
+
+	$url = admin_url( 'admin.php?page=cb_timeframes_table' . $item_edit );
+
+	$link = sprintf ( '<a href="%s">' . __( 'Edit', 'commons-booking') . '</a>', $url );
 
 	return $link;
 }

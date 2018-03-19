@@ -63,8 +63,8 @@ class CB_PostTypes {
 				),
 				'title',
 				'custom_field' => array( //@TODO: Include Timeframes
-					'title' => 'Timeframes',
-					'meta_key' => '_demo_' . CB_TEXTDOMAIN . '_text',
+					'title' => __('Timeframes', 'commons-booking'),
+					'function' => array ( $this, 'admin_col_get_timeframes' ),
 					'cap' => 'manage_options',
 				),
 				'date' => array(
@@ -106,6 +106,11 @@ class CB_PostTypes {
 			'show_ui' => true,
 		) );
 		add_filter( 'pre_get_posts', array( $this, 'filter_search' ) );
+	}
+
+	public function admin_col_get_timeframes() {
+		global $post;
+		echo CB_Gui::col_format_timeframe( $post->ID );
 	}
 
 }

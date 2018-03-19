@@ -247,7 +247,11 @@ function render_timeframe_view_meta_box( $item ) {
 			<?php	} // end if $item['booking_enabled'] ?>
 			<tr class="form-field cb-form-info-availability">
         <td valign="top" colspan="4">
-					<?php echo CB_Gui::col_format_availability( $item ); ?>. Using template: <?php echo CB_Gui::list_slot_templates_html( $item['slot_template_group_id'], FALSE); ?>
+					<?php
+						if ( isset ($item['availability']) ) {
+					echo CB_Gui::col_format_availability( $item['availability'] );
+					}
+					?>. Using template: <?php echo CB_Gui::list_slot_templates_html( $item['slot_template_group_id'], FALSE); ?>
         </td>
     </tr>
 
