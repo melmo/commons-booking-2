@@ -318,4 +318,61 @@ class CB_Slots {
 		$result = $wpdb->delete( $this->slots_table, array( 'timeframe_id' => $timeframe_id ), array( '%d' ) );
 		return $result;
 	}
+
+	/**
+	 * Create slots for a specific timeframe
+	 *
+	 * Wrapper function that does a lot
+	 *
+	 * 1. decide if slots will be re-generated (delete all slots)
+	 * 2. add all existing dates
+	 * 3. get location opening times
+	 * 4. apply exclude list of location
+	 *
+	 * @uses CB_Location
+	 *
+	 * @param $timeframe
+	 * @param $request
+	 *
+	 * @return int $result
+	 *
+	 */
+	public function re_generate_slots_function( $timeframe, $request ) {
+
+				$this->set_date_range ($timeframe['date_start'], $timeframe['date_end'] );
+
+				$this->set_slot_template_group( $timeframe['slot_template_group_id'] );
+				$templates = $this->get_slot_template_group(); // get the templates array
+
+				// handle regenerate slots checkbox
+				if ( isset( $request['regenerate_all_slots'] ) ) { 	// regenerate slots is passed
+					$this->delete_slots( $timeframe['timeframe_id'] );
+				}
+
+				$this->get_slots(); // get the previously defined slots
+
+				// handle slots already in db: get exising dates
+				$existing_dates = $this->get_slot_dates_array();
+
+				$this->add_to_date_filter ( $existing_dates ); // add these date to ignore list
+
+				// handle location opening times checkbox
+				$location = new CB_Location ( $timeframe['location_id'] );
+				$opening_times = $location->get_opening_times();
+				$pickup_mode = $location->get_pickup_mode();
+
+
+				if ( $timeframe['exclude_location_closed'] == 1 && $pickup_mode == 'opening_times'   ) {
+					$filtered_dates = cb_filter_dates_by_opening_times ( $timeframe['date_start'], $timeframe['date_end'], $opening_times, TRUE );
+					$this->add_to_date_filter ( $filtered_dates ); // add these date to ignore list
+				}
+
+				// generate codes if set.
+				$this->set_include_codes( $timeframe['codes_enabled'] );
+
+				$sql_slots_result = $this->generate_slots( );
+
+				return $sql_slots_result;
+
+	}
 }
