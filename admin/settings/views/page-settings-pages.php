@@ -25,7 +25,7 @@
 	<?php
 		$cmb_pages = new_cmb2_box(
 			array(
-				'id' => 'commons-booking_options-' . $slug,
+				'id' => CB_TEXTDOMAIN  . '_options-' . $slug,
 				'hookup' => false,
 				'show_on' => array(
 					'key' => 'options-page',
@@ -36,6 +36,6 @@
 			)
 		);
 
-	cmb2_metabox_form( 'commons-booking_options-' . $slug , 'commons-booking-settings-' . $slug  );
+	cmb2_metabox_form( CB_TEXTDOMAIN  . '_options-' . $slug , CB_TEXTDOMAIN . '-settings-' . $slug  );
 	?>
 </div></div></div></div>

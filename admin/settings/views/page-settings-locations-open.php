@@ -20,7 +20,7 @@
 			<?php
 				$cmb_bookings = new_cmb2_box(
 					array(
-						'id' => 'commons-booking' . '_options-' . $setting,
+						'id' => CB_TEXTDOMAIN . '_options-' . $setting,
 						'hookup' => false,
 						'show_on' => array(
 							'key' => 'options-page',
@@ -29,5 +29,5 @@
 						'fields' => CB_Settings::get_admin_metabox( $setting)
 					) );
 
-				cmb2_metabox_form( 'commons-booking' . '_options-' . $setting, 'commons-booking' . '-settings-' . $setting );
+				cmb2_metabox_form( CB_TEXTDOMAIN  . '_options-' . $setting, CB_TEXTDOMAIN . '-settings-' . $setting );
 	?></div></div></div></div>

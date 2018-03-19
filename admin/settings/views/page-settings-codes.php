@@ -22,14 +22,14 @@
 			<?php
 				$cmb_bookings = new_cmb2_box(
 					array(
-						'id' => 'commons-booking' . '_options-' . $slug,
+						'id' => CB_TEXTDOMAIN . '_options-' . $slug,
 						'hookup' => false,
 						'show_on' => array(
 							'key' => 'options-page',
-							'value' => array( 'commons-booking' ), ),
+							'value' => array( CB_TEXTDOMAIN ), ),
 						'show_names' => true,
 						'fields' => CB_Settings::get_admin_metabox( $slug)
 					) );
 
-				cmb2_metabox_form( 'commons-booking' . '_options-' . $slug, 'commons-booking' . '-settings-' . $slug );
+				cmb2_metabox_form( CB_TEXTDOMAIN . '_options-' . $slug, CB_TEXTDOMAIN . '-settings-' . $slug );
 	?></div></div></div></div>

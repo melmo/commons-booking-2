@@ -46,11 +46,11 @@ class CB_Codes  {
 		$count = count ( $this->codes_array );
 		$random = rand ( 0 , $count - 1 );
 
-		return esc_attr ( $this->codes_array[ $random ] );
+		return esc_attr ( trim ( $this->codes_array[ $random ] ) );
 
 	}
 
-	/**
+	/**s
 	 * Check if enough comma-seperated codes are defined in the codes pool to generate codes
 	 *
 	 * @return bool
