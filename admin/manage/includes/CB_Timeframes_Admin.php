@@ -231,7 +231,7 @@ public function get_item_count( ) {
 						$item['codes_enabled']
 					);
 
-					// PREPARE DATA
+					// PREPARE Date end -> end date or infinite timeframes
 					$item['date_end'] = $this->maybe_set_end_date( $item );
 
 					if ( $this->timeframe_id == '' ) { // no id, so add new
@@ -244,9 +244,6 @@ public function get_item_count( ) {
 					$this->maybe_set_next_screen( $sql_timeframe_result, 'generate_slots' );
 				} // end if validation passed
 			} elseif ( isset( $request['cb_form_action'] ) && $request['cb_form_action'] == 'generate_slots' ) { // we are creating the slots
-
-				//@TODO move all of this (till sql_slots_result ) to seperate funtion so we can use it on CRON
-
 
 				$timeframe = $this->get_single_timeframe( $this->timeframe_id );
 
