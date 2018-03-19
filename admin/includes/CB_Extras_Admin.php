@@ -12,7 +12,7 @@
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
  */
-class Cb_Extras_Admin {
+class CB_Extras_Admin {
 	/**
 	 * Initialize the snippet
 	 */
@@ -26,17 +26,6 @@ class Cb_Extras_Admin {
 		$this->check_wp_environment(); // check plugin environment and notify the user if things are not properly defined.
 
 		/*
-		 * Load Wp_Admin_Notice for the notices in the backend
-		 *
-		 * First parameter the HTML, the second is the css class
-		 */
-		//new WP_Admin_Notice( __( 'Updated Messages', CB_TEXTDOMAIN ), 'updated' );
-		// new WP_Admin_Notice( __( 'Error Messages', CB_TEXTDOMAIN ), 'error' );
-		/*
-		 * Dismissible notice
-		 */
-		//dnh_register_notice( 'my_demo_notice', 'updated', __( 'This is my dismissible notice', CB_TEXTDOMAIN ) );
-		/*
 		 * Load CronPlus
 		 */
 		$args = array(
@@ -48,50 +37,14 @@ class Cb_Extras_Admin {
 		);
 		$cronplus = new CronPlus( $args );
 		$cronplus->schedule_event();
-		/*
-		 * Load CPT_Columns
-		 *
-		 * Check the file for example
-		 */
-		$post_columns = new CPT_columns( 'demo' );
-		$post_columns->add_column( 'cmb2_field', array(
-			'label' => __( 'CMB2 Field' ),
-			'type' => 'post_meta',
-			'meta_key' => '_demo_' . CB_TEXTDOMAIN . '_text',
-			'orderby' => 'meta_value',
-			'sortable' => true,
-			'prefix' => '<b>',
-			'suffix' => '</b>',
-			'def' => 'Not defined', // Default value in case post meta not found
-			'order' => '-1'
-				)
-		);
-		new Yoast_I18n_WordPressOrg_v3(
-				array(
-			'textdomain' => CB_TEXTDOMAIN,
-			'commons_booking' => CB_NAME,
-			'hook' => 'admin_notices',
-				)
-		);
-		whip_wp_check_versions( array(
-			'php' => '>=5.6',
-		) );
+
 		$plugin = Commons_Booking::get_instance();
 		$this->cpts = $plugin->get_cpts();
 		// Activity Dashboard widget for your cpts
 		add_filter( 'dashboard_recent_posts_query_args', array( $this, 'cpt_activity_dashboard_support' ), 10, 1 );
 		// Add bubble notification for cpt pending
 		add_action( 'admin_menu', array( $this, 'pending_cpt_bubble' ), 999 );
-		// new BB_Modal_View( array(
-		// 	'id' => 'test', // ID of the modal view
-		// 	'hook' => 'admin_notices', // Where return or print the button
-		// 	'input' => 'checkbox', // Or radio
-		// 	'label' => __( 'Open Modal' ), // Button text
-		// 	'data' => array( 'rand' => rand() ), // Array of custom datas
-		// 	'ajax' => array( $this, 'ajax_posts' ), // Ajax function for the list to show on the modal
-		// 	'ajax_on_select' => array( $this, 'ajax_posts_selected' ), // Ajax function to execute on Select button
-		// 	'echo_button' => true // Do you want echo the button in the hook chosen or only return?
-		// 		) );
+
 	}
 		/**
 	 * Add the recents post type in the activity widget<br>
@@ -246,6 +199,6 @@ class Cb_Extras_Admin {
 		return true;
 	}
 	}
-$cb_extras_admin = new Cb_Extras_Admin();
+$cb_extras_admin = new CB_Extras_Admin();
 $cb_extras_admin->initialize();
 do_action( 'commons_booking_cb_extras_admin_instance', $cb_extras_admin );
