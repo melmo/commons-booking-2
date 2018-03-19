@@ -1,16 +1,17 @@
 <?php
 /**
- * Settings for Commons Booking
+ * Admin settings & CB-Posttypes Metaboxes for Commons Booking
+ *
+ * Global settings, settings for items, timeframes, etc
+ * Get setting usage: $setting = CB_Settings::get( 'bookings', 'max-slots');
+ *
+ * All post type metaboxes are defined here.
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
- */
-/**
- * Global settings, settings for items, timeframes, etc
- * Usage: $setting = CB_Settings::get( 'bookings', 'max-slots');
  */
 class CB_Settings {
 	/**
