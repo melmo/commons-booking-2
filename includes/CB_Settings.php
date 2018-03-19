@@ -110,12 +110,12 @@ class CB_Settings {
 			'slug' => 'calendar',
 			'fields' => array (
 					array(
-						'name'             => __( 'Calendar', 'commons-booking' ),
+						'name'             => __( 'Calendar range', 'commons-booking' ),
 						'desc'             => __( 'Calendar range, comma-seperated', 'commons-booking' ),
 						'id'               => 'range',
 						'type'             => 'text_small',
 						'default'          => '30',
-						'description'			 => __('Set how many days are shown on each calendar.')
+						'description'			 => __('days into the future are shown on each calendar.')
 				)
 			)
 		);
