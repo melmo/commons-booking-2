@@ -56,7 +56,7 @@ class CB_Settings {
 	 * @return void
 	 */
 	public static function initialize() {
-			self::set_settings_templates();
+			self::apply_settings_templates();
 		}
 	/**
 	 * Booking settings template
@@ -462,7 +462,7 @@ class CB_Settings {
 	 *
 	 * @return void
 	 */
-	public static function set_settings_templates() {
+	public static function apply_settings_templates() {
 
 		self::$plugin_settings = array (
 			'pages' => self::get_settings_template_pages(),

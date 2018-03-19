@@ -183,7 +183,7 @@ function render_timeframe_generate_slots_meta_box( $item ) {
 						<li><?php printf ( __('<strong>Start date</strong>: %s', 'commons-booking'), CB_Gui::col_format_date( $item['date_start'] ) ); ?></li>
 						<li><?php // end date
 					if ( $item['has_end_date'] != 1 ) {
-						printf ( __('<strong>End date</strong>: No end date. Users will be able to book %d days in advance. (Edit in settings)', 'commons-booking'), CB_Settings::get( 'calendar', 'range') ); //@TODO get from settings
+						printf ( __('<strong>End date</strong>: No end date. Users will be able to book %d days in advance. (Edit in %s)', 'commons-booking'), CB_Settings::get( 'calendar', 'range'), CB_Gui::link_to_settings_page( 'calendar' ) ); //@TODO get from settings
 					} else {
 						printf ( __('<strong<End date</strong>: %s', 'commons-booking'), CB_Gui::col_format_date( $item['date_end'] ) );
 					}

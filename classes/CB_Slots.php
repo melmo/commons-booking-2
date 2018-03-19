@@ -252,8 +252,6 @@ class CB_Slots {
 	 */
 	public function set_include_codes( $bool = FALSE ) {
 
-		var_dump($bool);
-
 		if ( $bool === TRUE OR $bool == 1 ) {
 			$this->include_codes = TRUE;
 		}
