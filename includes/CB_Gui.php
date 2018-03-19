@@ -99,7 +99,7 @@ class CB_Gui {
  * @param string $title
  * @return mixed $html
  */
-public static function col_format_post( $id, $title = '' ) {
+public static function col_format_post( $id, $title = '') {
 
 	if ( empty ( $title ) ) {
 		$title = get_the_title( $id );
@@ -352,7 +352,8 @@ public static function col_format_timeframe( $post_id ) {
 			$date_end = self::col_format_date_end( $timeframe->date_end, $timeframe->has_end_date);
 			$availability = self::col_format_availability( $timeframe->availability);
 			$edit_link =  self::timeframes_admin_url( 'view', $post_id );
-			$html .= sprintf( '<strong>%s - %s</strong> %s <br>%s<hr>',$date_start, $date_end, $edit_link, $availability );
+			$location = get_the_title( $timeframe->location_id );
+			$html .= sprintf( '<strong>%s - %s</strong> %s<br>%s<br>%s<hr>',$date_start, $date_end, $edit_link, $location, $availability );
 		}
 	} else {
 		$html .=  __( 'No timeframes configured.', 'commons-booking' );
@@ -435,7 +436,7 @@ public static function list_location_opening_times_html( $location_id) {
  * @param string $options_page
  * @return mixed $html
  */
-public static function link_to_settings_page( $options_page = '' ) {
+public static function settings_admin_url( $options_page = '' ) {
 
 	if ( $options_page ) {
 		$url =  admin_url( 'admin.php?page=cb_settings_page#tabs-' . $options_page );

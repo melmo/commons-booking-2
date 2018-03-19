@@ -57,12 +57,14 @@ class CB_PostTypes {
 			),
 			# Add some custom columns to the admin screen:
 			'admin_cols' => array(
-				'featured_image' => array(
-					'title' => 'Featured Image',
-					'featured_image' => 'thumbnail'
-				),
+
+				// 'featured_image' => array(
+				// 	'title' => 'Featured Image',
+				// 		'featured_image' => 'thumb',
+  			// 		'size'  => array('80,80')
+				// ),
 				'title',
-				'custom_field' => array( //@TODO: Include Timeframes
+				'timeframes' => array(
 					'title' => __('Timeframes', 'commons-booking'),
 					'function' => array ( $this, 'admin_col_get_timeframes' ),
 					'cap' => 'manage_options',
