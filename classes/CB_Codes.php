@@ -35,7 +35,7 @@ class CB_Codes  {
 	public function get_codes_from_settings( ) {
 
 		$codes_string = CB_Settings::get( 'codes', 'codes-pool');
-		$this->codes_array = explode(',', $codes_string ); //@TODO validate
+		$this->codes_array = explode(',', $codes_string );
 
 	}
 	/**
@@ -48,6 +48,20 @@ class CB_Codes  {
 
 		return esc_attr ( $this->codes_array[ $random ] );
 
+	}
+
+	/**
+	 * Check if enough comma-seperated codes are defined in the codes pool to generate codes
+	 *
+	 * @return bool
+	 */
+	public function validate_enough_codes( ) {
+
+		if ( is_array ( $this->codes_array ) && ( count ($this->codes_array) >= 5 ) ) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 }

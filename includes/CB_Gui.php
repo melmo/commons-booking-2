@@ -353,7 +353,6 @@ public static function list_slot_templates_html( $slot_template_group_id, $list_
 	}
 	$html .= ( $list_format ) ? '<ol>' . $html_rows . '</ol>' : $html_rows;
 
-
 	return $html;
 }
 /**
@@ -393,6 +392,25 @@ public static function list_location_opening_times_html( $location_id) {
 		$html = __('No opening times defined for this location.');
 	}
 	return $html;
+}
+
+/**
+ * Return settings url
+ *
+ * @param array $slot_template_group_id
+ * @return mixed $html
+ */
+public static function link_to_settings_page( $options_page = '' ) {
+
+	if ( $options_page ) {
+		$url =  admin_url( 'admin.php?page=cb_settings_page#tabs-' . $options_page );
+	} else {
+		$url =  admin_url( 'admin.php?page=cb_settings_page' );
+	}
+
+	$link = sprintf ( '<a href="%s" target="_blank">' . __( 'Settings', 'commons-booking') . '</a>', $url );
+
+	return $link;
 }
 
 }

@@ -559,7 +559,7 @@ public function get_item_count( ) {
 		}
 
 		if ( $result === FALSE ) {
-			$this->message = new WP_Admin_Notice( __( 'Error while trying: ', 'commons-booking') . $string, 'error' );
+			$this->message = new WP_Admin_Notice( __( 'Error: ', 'commons-booking') . $string, 'error' );
 		} elseif ( $result === 0 ) {
 			$this->message = new WP_Admin_Notice( __( 'Nothing to update.', 'commons-booking' ) . $string, 'updated' );
 		} else {
@@ -611,6 +611,15 @@ function validate_timeframe_settings_form( $item ){
 		if (empty($item['date_start'])) $message .= __('Start date is required. ', 'commons-booking');
 		// end date
 		if ( $item['has_end_date'] == 1 && empty( $item['date_end'] ) ) $message .= __('End date is required. ', 'commons-booking' );
+
+		// if codes endabled, check if codes are set up in the backend
+		if (  $item['codes_enabled'] ) {
+			$codes = new CB_Codes;
+			$valid = $codes->validate_enough_codes();
+			if ( ! $valid ) {
+				$message .= sprintf ( __('Insufficient codes. Please add at least 5 codes in %s.', 'commons-booking' ), CB_Gui::link_to_settings_page('codes') );
+			}
+		}
 
     if ( ($message === '') ) return true;
 
