@@ -89,7 +89,7 @@ class CB_Object {
 	 *
 	 * @var object
 	 */
-    public $calendar_range;
+    public $calendar_limit;
 	/**
 	 * Prefix & Table names
 	 *	 */
@@ -125,7 +125,7 @@ class CB_Object {
 		if ( ! ( $this->context ) ) {
 			$this->set_context('timeframe');
 		}
-		$this->calendar_range = CB_Settings::get('calendar', 'range');
+		$this->calendar_limit = CB_Settings::get('calendar', 'limit');
 	}
 	/**
 	 * Return default query parameters merged with user args
@@ -163,6 +163,8 @@ class CB_Object {
 	 * Set default query args
 	 */
 	public function set_default_query_args( ){
+
+		$cal_limit = CB_Settings::get( 'calendar', 'limit');
 
 		$this->default_query_args = array(
 			// scope of the timeframe results, slots are queried accordingly

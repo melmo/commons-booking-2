@@ -111,9 +111,9 @@ class CB_Settings {
 			'slug' => 'calendar',
 			'fields' => array (
 					array(
-						'name'             => __( 'Calendar range', 'commons-booking' ),
-						'desc'             => __( 'Calendar range, comma-seperated', 'commons-booking' ),
-						'id'               => 'range',
+						'name'             => __( 'Calendar limit', 'commons-booking' ),
+						'desc'             => __( 'Calendar limit', 'commons-booking' ),
+						'id'               => 'limit',
 						'type'             => 'text_small',
 						'default'          => '30',
 						'description'			 => __('days into the future are shown on each calendar.')

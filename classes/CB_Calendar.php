@@ -49,7 +49,7 @@ class CB_Calendar extends CB_Object {
 		$this->timeframe_id = $timeframe_id;
 		$this->date_start = $date_start;
 
-		$cal_end_default = CB_Settings::get( 'calendar', 'range' );
+		$cal_end_default = CB_Settings::get( 'calendar', 'limit' );
 
 		// Timeframes may not have an end date, in this case, use +30 days @TODO: Use Setting
 		if ( ! isset ( $date_end ) OR $date_end == '0000-00-00' ) {

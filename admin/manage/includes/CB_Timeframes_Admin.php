@@ -584,7 +584,7 @@ function validate_timeframe_settings_form( $item ){
 			$codes = new CB_Codes;
 			$valid = $codes->validate_enough_codes();
 			if ( ! $valid ) {
-				$message .= sprintf ( __('Insufficient codes. Please add at least 5 codes in %s.', 'commons-booking' ), CB_Gui::link_to_settings_page('codes') );
+				$message .= sprintf ( __('Insufficient codes. Please add at least 5 codes in %s.', 'commons-booking' ), CB_Gui::settings_admin_url('codes') );
 			}
 		}
 
@@ -620,9 +620,9 @@ function maybe_set_end_date( $item ){
 
 		if ( $item['has_end_date'] == 0 ) { // no end date, so use the date setting
 
-			$cal_range = CB_Settings::get( 'calendar', 'range');
+			$cal_limit = CB_Settings::get( 'calendar', 'limit');
 
-			$end_date =  date("Y-m-d", strtotime( "+".$cal_range." days", strtotime( $item['date_start'] ) ) );
+			$end_date =  date("Y-m-d", strtotime( "+".$cal_limit." days", strtotime( $item['date_start'] ) ) );
 		} else {
 			$end_date = $item['date_end'];
 		}
