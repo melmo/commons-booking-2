@@ -35,7 +35,8 @@ For current progress, see the [project](https://github.com/wielebenwir/commons-b
 
 * Goto `wp-content/plugins`
 * Clone (or fork) `$ git clone https://github.com/wielebenwir/commons-booking-2.git`
-* Install dependencies: `$ composer install`
+* Install dependencies: `$ composer install` & `$ npm install`
+* 
 
 ### Install DB tables
 
