@@ -28,7 +28,6 @@ $args = array (
 
 $tfs = $timeframe->get( $args );
 
-var_dump($tfs);
 ?>
 <?php if ( is_array( $tfs )) { ?>
     <?php foreach ( $tfs as $tf ) { ?>
