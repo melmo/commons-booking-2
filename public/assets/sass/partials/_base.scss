@@ -12,9 +12,9 @@
 .align-right { float: right; }
 .align-left { float: left; }
 .cb-small { font-size: 0.8em; }
-.cb-big { font-size: 1.4em; font-weight: bold; color: $highlight-color; margin-bottom: $padding / 2; }
+.cb-big { font-size: 1.2em; font-weight: bold; color: $highlight-color; margin-bottom: $padding / 2; }
 .border { border-top: 1px solid $grey; display: block; }
-.cb-headline { 
+.cb-headline {
   @extend .cb-big;
   a { color: $highlight-color }
 }
@@ -29,10 +29,10 @@
 }
 
 /* all individual elements (timeframes, items, etc) are grouped with cb-box */
-.cb-box { 
-  
+.cb-box {
+
     @extend .padding;
-    overflow: hidden; 
+    overflow: hidden;
     border: 1px solid $border-color;
     @include rounded($radius);
     background: $bg-color;
@@ -79,7 +79,7 @@
     }
     &:only-child {
        @include border-radiuses($radius, $radius, $radius, $radius );
-     
+
     }
     .cb-row-title {
       font-weight: bold;
@@ -221,7 +221,7 @@ a.cb-button, input#wp-submit, input#wp-submit-comment {
   form#cb-comment-form {
   }
   input {
-    margin-top: $padding; 
+    margin-top: $padding;
     float: right;
 
   }

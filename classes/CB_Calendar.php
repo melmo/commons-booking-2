@@ -95,6 +95,8 @@ class CB_Calendar extends CB_Object {
 	/**
 	 * Add meta information to the date: date, name (weekday name), weekday number
 	 *
+	 * @TODO: add holiday
+	 *
 	 * @since 2.0.0
 	 *
 	 * @param string $date
@@ -102,13 +104,13 @@ class CB_Calendar extends CB_Object {
 	 */
   public function add_date_meta( $date ) {
 
-		$weekday = date('N', strtotime( $date ) );
-		$weekname_array = CB_Strings::get_string( 'cal', 'weekday_names' );
+		;
 
 		$this->dates_array[$date]['meta'] = array (
 			'date'		=> $date,
-			'name' 		=> $weekname_array[ $weekday -1 ],
-			'number' 	=> $weekday
+			'name' 		=> date('D', strtotime( $date ) ),
+			'number' 	=> date('N', strtotime( $date ) ),
+			'day'     => date('j', strtotime( $date ) )
 		);
 	}
 }

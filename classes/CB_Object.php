@@ -85,11 +85,11 @@ class CB_Object {
 	 */
     public $context;
 	/**
-	 * gui
+	 * cutoff after x days
 	 *
 	 * @var object
 	 */
-    public $gui;
+    public $calendar_range;
 	/**
 	 * Prefix & Table names
 	 *	 */
@@ -125,6 +125,7 @@ class CB_Object {
 		if ( ! ( $this->context ) ) {
 			$this->set_context('timeframe');
 		}
+		$this->calendar_range = CB_Settings::get('calendar', 'range');
 	}
 	/**
 	 * Return default query parameters merged with user args
@@ -165,9 +166,9 @@ class CB_Object {
 
 		$this->default_query_args = array(
 			// scope of the timeframe results, slots are queried accordingly
-			'scope' 				=> 'current',	// STRING current, past @TODO: this would be convinient for user to have
-			'today'					=> 'today',		// STRING current date parseable with strtotime().
-			'cal_limit' 		=> false, 		// BOOL or INT return only x days of a timeframe (from $today).
+			'scope' 				=> 'current',	// STRING current: retrieve only timeframes that have slots in the next X days (set in settings)
+			'today'					=> 'today',		// STRING current date parseable with strtotime(). @TODO
+			'cal_limit' 		=> '30', 		// INT return only x days of a timeframe (from $today).
 			// order the timeframe results, slots are ordered by slot_order field
       'orderby' 			=> 'date_start',		// STRING order the timeframe results, slots are ordered by slot_order field
       'order' 				=> 'ASC',						// STRING
@@ -452,7 +453,7 @@ class CB_Object {
 				// add additional query args from timeframe
 				$slot_query_args['timeframe_id'] = array_column( $timeframe_results, 'timeframe_id');
 				$slot_query_args['date_start'] = $this->today; //@TODO make variable
-				$slot_query_args['date_end'] = date('Y-m-d', strtotime("+30 days")); //@TODO from settings
+				$slot_query_args['date_end'] = date('Y-m-d', strtotime("+" . $slot_query_args['cal_limit'] . " days"));
 
 				// get the slots
 				$conditions_slots = $this->build_sql_conditions_slots_bookings( $slot_query_args );

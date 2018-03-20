@@ -49,7 +49,7 @@ $tfs = $timeframe->get_timeframes( $args );
 							</span>
 								<?php $timeframe->maybe_message ( $tf->message );	?>
 							</span>
-            <ul class="cb-dates">
+            <ul class="cb-calendar">
                 <?php if ( is_array( $tf->calendar )) { ?>
                     <?php foreach ( $tf->calendar as $date ) { ?>
                         <li>

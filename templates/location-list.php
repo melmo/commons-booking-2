@@ -24,7 +24,7 @@ $tfs = $obj->get_timeframes( array ( 'location_id' => get_the_id(), 'has_slots' 
         <div class="cb-timeframe">
             <h4><?php echo $tf->description; ?> (id: <?php echo $tf->timeframe_id; ?> )</h4>
             <p><?php echo $tf->date_start; ?> - <?php echo $tf->date_end; ?></p>
-            <ul class="cb-dates">
+            <ul class="cb-calendar">
                 <?php if ( is_array( $tf->calendar )) { ?>
                     <?php foreach ( $tf->calendar as $date ) { ?>
                         <li>

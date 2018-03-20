@@ -28,14 +28,14 @@ $args = array (
 
 $tfs = $timeframe->get( $args );
 
-// var_dump($tfs);
+var_dump($tfs);
 ?>
 <?php if ( is_array( $tfs )) { ?>
     <?php foreach ( $tfs as $tf ) { ?>
-        <div class="cb-timeframe" id="timeframe-<?php echo $tf->description; ?>">
+        <div class="cb-timeframe" id="timeframe-<?php echo $tf->timeframe_id; ?>">
 						<span class="cb-location-info">
 							<?php
-								// location info
+								// location info @TODO: move to CB_Gui
 								printf (
 								'<a href="%s">%s</a>: %s - %s',
 								get_permalink( $tf->location_id ),
@@ -47,7 +47,7 @@ $tfs = $timeframe->get( $args );
 							</span>
 							<span class="cb-slot-availability">
 							<?php
-								// Availability
+								// Availability @TODO: move to CB_Gui
 								printf (
 								__( '%s slots booked, %s slots available, %s total', 'commons-booking' ),
 								$tf->availability['booked'],
@@ -58,16 +58,18 @@ $tfs = $timeframe->get( $args );
 							</span>
 								<?php $timeframe->maybe_message ( $tf->message );	?>
 							</span>
-            <ul class="cb-dates">
+            <ul class="cb-calendar">
                 <?php if ( is_array( $tf->calendar )) { ?>
-                    <?php foreach ( $tf->calendar as $date ) { ?>
-                        <li>
-                            <?php echo $date['meta']['name']; ?> - <?php echo $date['meta']['date']; ?>
+										<?php foreach ( $tf->calendar as $date ) { ?>
+												<li class="cb-date weekday_<?php echo $date['meta']['number']; ?>" id="<?php echo $date['meta']['date']; ?>">
+													<span class="cb-M"><?php echo $date['meta']['name']; ?></span>
+                          <span class="cb-j"><?php echo $date['meta']['day']; ?></span>
                             <?php if ( ! empty ( $date['slots'][$tf->timeframe_id] ) && is_array( $date['slots'][$tf->timeframe_id] ) ) {
 															// var_dump($date['slots']); ?>
                                 <ul class="cb-slots">
-                                    <?php foreach ( $date['slots'][$tf->timeframe_id] as $slot ) { ?>
-                                        <li class="cb-slot">
+																		<?php foreach ( $date['slots'][$tf->timeframe_id] as $slot ) { ?>
+																			<?php var_dump($slot); ?>
+                                        <li id="<?php echo $slot['slot_id']; ?>'" class="cb-slot">
 																					<span class="slot-description">Descr: <?php echo $slot['description']; ?></span>
 																					<span class="slot-time-start">slot-time-start: <?php echo $slot['time_start']; ?></span>
 																					<span class="slot-time-end">slot-time-end: <?php echo $slot['time_end']; ?></span>
