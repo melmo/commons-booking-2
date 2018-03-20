@@ -46,8 +46,8 @@ module.exports = function (grunt) {
     watch: {
       compass: {
         files: [
-          'admin/assets/sass/*.scss',
-          'public/assets/sass/*.scss',
+          'admin/assets/sass/**/*.scss',
+          'public/assets/sass/**/*.scss',
         ],
         tasks: [
           'compass:adminDev', 'compass:publicDev',
