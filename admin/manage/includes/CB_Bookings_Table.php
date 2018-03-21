@@ -28,7 +28,7 @@ class CB_Bookings_Table extends WP_List_Table
 
 				$request = $_REQUEST;
 
-    }
+		}
 
     /**
      * [REQUIRED] this is a default column renderer
@@ -227,7 +227,6 @@ class CB_Bookings_Table extends WP_List_Table
 
         // will be used in pagination settings
 				$total_items = $this->Bookings_Admin->get_item_count();
-
 
         // prepare query params, as usual current page, order by and order direction
         $paged = isset($_REQUEST['paged']) ? max(0, intval($_REQUEST['paged']) - 1) : 0;
