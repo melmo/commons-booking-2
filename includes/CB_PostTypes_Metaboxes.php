@@ -47,7 +47,7 @@ class CB_PostTypes_Metaboxes {
 	public function do_timeframe_item_metabox( ) {
 
 		global $post;
-		echo CB_Gui::col_format_timeframe($post->ID);
+		echo CB_Gui::col_format_timeframe( $post->ID );
 		echo CB_Gui::timeframes_admin_url( 'edit' );
 	}
 

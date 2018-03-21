@@ -109,7 +109,12 @@ class CB_PostTypes {
 		) );
 		add_filter( 'pre_get_posts', array( $this, 'filter_search' ) );
 	}
-
+	/**
+	 * Add timeframe column to the admin item list screen
+	 *
+	 * @since 2.0.0
+	 * @uses CB_Gui
+	 */
 	public function admin_col_get_timeframes() {
 		global $post;
 		echo CB_Gui::col_format_timeframe( $post->ID );

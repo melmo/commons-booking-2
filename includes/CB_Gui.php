@@ -387,15 +387,14 @@ public static function col_format_timeframe( $post_id, $echo=false ) {
 
 	$html = '';
 
-	$timeframe_object = new CB_Timeframe;
-
 	$args = array (
 		'item_id' => $post_id, // This template is called by item, so you need to supply the id
 		'order_by' => 'date_start',
 		'order' => 'ASC'
 	);
 
-	$timeframes = $timeframe_object->get( $args );
+	$timeframe_object = new CB_Timeframe( $args );
+	$timeframes = $timeframe_object->get( );
 
 	if ( isset( $timeframes ) && is_array( $timeframes ) ) {
 		foreach ($timeframes as $timeframe) {
