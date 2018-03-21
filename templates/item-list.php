@@ -12,11 +12,10 @@
  */
 ?>
 <?php
-$timeframe = new CB_Timeframe;
 
 $args = array (
 	'item_id' => get_the_id(), // This template is called in the loop, so you need to supply the id
-	//'discard_empty' => TRUE,
+	'discard_empty' => FALSE,
 	// 'has_open_slots' => TRUE,
 	// 'has_bookings' => TRUE,
 	// 'user_id' => 3,
@@ -26,14 +25,19 @@ $args = array (
 	'order' => 'DESC'
 );
 
-$tfs = $timeframe->get( $args );
+$timeframe_object = new CB_Timeframe( $args );
+$timeframes = $timeframe_object->get( );
 
 ?>
-<?php if ( is_array( $tfs )) { ?>
-    <?php foreach ( $tfs as $tf ) { ?>
-        <div class="cb-timeframe" id="timeframe-<?php echo $tf->timeframe_id; ?>">
+<?php if ( is_array( $timeframes )) { ?>
+    <?php foreach ( $timeframes as $tf ) { ?>
+        <div class="cb-timeframe" id="timeframe-<?php echo $tf->timeframe_id; ?>" class="<?php //echo $timeframe_class; ?>">
+						<span class="cb-location-opening-times">
+							<?php echo CB_Gui::list_location_opening_times_html( $tf->location_id ); ?>
 						<span class="cb-location-info">
 							<?php
+								echo CB_Gui::timeframe_format_location_dates( $tf->date_start, $tf->date_end, $tf->has_end_date );
+
 								// location info @TODO: move to CB_Gui
 								printf (
 								'<a href="%s">%s</a>: %s - %s',
@@ -55,7 +59,7 @@ $tfs = $timeframe->get( $args );
 								);
 							?>
 							</span>
-								<?php $timeframe->maybe_message ( $tf->message );	?>
+								<?php $timeframe_object->maybe_message ( $tf->message ); //@TODO: Use CB_Gui	?>
 							</span>
             <ul class="cb-calendar">
                 <?php if ( is_array( $tf->calendar )) { ?>

@@ -10,11 +10,17 @@
  */
 class CB_Timeframe extends CB_Object {
 	/**
-	 * This timeframe
+	 * Timeframe id
 	 *
 	 * @var object
 	 */
 	public $id;
+	/**
+	 * Args
+	 *
+	 * @var object
+	 */
+	public $args;
 	/**
 	 * Settings specific to this timeframe.
 	 *
@@ -28,18 +34,17 @@ class CB_Timeframe extends CB_Object {
 	 *
 	 * @return void
 	 */
-	public function __construct( $id = NULL ) {
+	public function __construct( $args = array(), $context = 'timeframe'  ) {
 
-		if ( $id ) {
-			$this->timeframe_id = $id;
-		}
-
-		$this->timeframes = new CB_Object;
+		$this->args = $args;
+		$this->context = $context;
 
 	}
-	public function get ( $args=array() ) {
-		$tf = $this->timeframes->get_timeframes( $args );
-		return $tf;
+	public function get ( ) {
+
+		$timeframes = $this->get_timeframes( $this->args );
+		return $timeframes;
+
 	}
 
 }

@@ -24,6 +24,18 @@ class CB_Gui {
 	 * @var object
 	 */
     public $strings = array ();
+    /**
+	 * Date format
+	 *
+	 * @var string
+	 */
+    public static $date_format = 'd.m.y';
+    /**
+	 * Datetime format
+	 *
+	 * @var string
+	 */
+    public static $date_time_format = 'j.n.y. - H';
 
 	/**
 	 * Return an instance of this class.
@@ -113,6 +125,18 @@ public static function col_format_post( $id, $title = '') {
 	return $html;
 }
 	/**
+	 * Get date format
+	 *
+	 * @since 2.0.0
+ *
+ * @param string $date
+ * @return mixed $html
+ */
+public static function get_date_format( ) {
+	$date_format = self::$date_format;
+	return $date_format;
+}
+	/**
 	 * Format Dates @TODO: localize
 	 *
 	 * @since 2.0.0
@@ -122,7 +146,7 @@ public static function col_format_post( $id, $title = '') {
  */
 public static function col_format_date( $date ) {
 
-	return date ('d.m.y', strtotime($date) );
+	return date ( self::get_date_format(), strtotime($date) );
 }
 /**
  * Get date/time formatted to use in column
@@ -134,7 +158,7 @@ public static function col_format_date( $date ) {
  */
 public static function col_format_date_time( $date ) {
 
-  return date ('j.n.y. - H', strtotime( $date  )) ;
+  return date ( self::date_time_format, strtotime( $date  )) ;
 
 }
 	/**
@@ -149,8 +173,35 @@ public static function col_format_date_end( $date, $has_end_date ) {
 	if ( ! $has_end_date ) {
 		return '&#8734; ' . __('(automatically extended)', 'commons-booking');
 	} else {
-		return CB_Gui::col_format_date($date);
+		return CB_Gui::col_format_date( $date );
 	}
+}
+	/**
+	 * Frontend format location date info
+	 *
+	 * @since 2.0.0
+ *
+ * @param string $id post id
+ * @uses col_format_post
+ * @return mixed $html
+ */
+public static function timeframe_format_location_dates( $start_date, $end_date, $has_end_date ) {
+
+	$date_string = '';
+
+	if ( ! $has_end_date ) {
+		if ( $start_date > strtotime( self::$date_format, strtotime ( 'today') ) ) { // we are past start date
+			// void
+		} else { // start date not yet reached, so show it
+			$date_string = sprintf ( __('From: ', 'commons-booking'),  CB_Gui::col_format_date( $start_date ) );
+		} // endif  $start_date > strtotime( self::date_format, 'today')
+	} else {
+		$date_string = sprintf ( '%s - %s ',
+			CB_Gui::col_format_date( $start_date ),
+			CB_Gui::col_format_date( $end_date ) );
+	}
+	return $date_string;
+
 }
 
 
@@ -427,9 +478,9 @@ public static function list_location_opening_times_html( $location_id) {
 		} // end foreach
 		$html .= '</ul>';
 	} elseif ( $pickup_mode == 'personal_contact' ) {
-		$html = __('No opening times, users will have to contact the location.');
+		$html = __('No fixed opening times, contact the location after booking.');
 	} else {
-		$html = __('No opening times defined for this location.');
+		$html = __('No fixed opening times defined for this location.');
 	}
 	return $html;
 }

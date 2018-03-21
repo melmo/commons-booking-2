@@ -399,6 +399,7 @@ class CB_Object {
 	}
 	/**
 	 * Get timeframes
+	 *
 	 * @param array $args
 	 * @return array
 	 */
@@ -444,6 +445,8 @@ class CB_Object {
 						$timeframe_calendar->calendar = $this->map_slots_to_cal ( $timeframe_calendar->dates_array, $slot_results_formatted );
 
 						$timeframe_result->calendar = $timeframe_calendar->calendar; // add calendar to the timeframe results object
+
+						$timeframe_result->css_classes = $this->args_array_to_string();
 
 						$this->timeframes_array[] = $timeframe_result; // push into timeframes array
 				}
@@ -712,7 +715,33 @@ class CB_Object {
 		$this->context = $context;
 	}
 	/**
-	 * Get a setting from the options table
+	 * Convert query args array to a string that we can print as css class
+	 *
+	 * @since 2.0.0
+	 *
+	 */
+	public function args_array_to_string( ) {
+
+		$timeframe_class = 'context-' . $this->context .' ';
+		$args = $this->query_args;
+
+			if ( isset ( $args ) && is_array ( $args ) ) {
+				foreach ( $args as $key => $value ) {
+					if ( $value === TRUE ) {
+						$timeframe_class .= $key;
+					} elseif ( $value != '' ) {
+						$timeframe_class .= $key . '-' . $value;
+					}
+					$timeframe_class .= ' ';
+				}
+		}
+		return $timeframe_class;
+	}
+
+
+
+	/**
+	 * Get a setting from the options table @TODO: retire
 	 *
 	 * @since 2.0.0
 	 *
