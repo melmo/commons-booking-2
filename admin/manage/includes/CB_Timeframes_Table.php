@@ -38,12 +38,14 @@ class CB_Timeframes_Table extends WP_List_Table
 	 * @var array
 	 */
 	public $query_args = array (
-				'per_page' => 99,
+				'per_page' => 12,
 				'paged' => TRUE,
 				'offset' => 0,
 				'scope' => '',
 				'orderby' => 'date_start',
-				'order' => 'ASC'
+				'order' => 'ASC',
+				'item_id' => '',
+				'location_id' => ''
 			);
     /**
      * [REQUIRED] You must declare constructor and give some basic params
@@ -55,6 +57,8 @@ class CB_Timeframes_Table extends WP_List_Table
 				$this->Timeframes_Admin = new CB_Timeframes_Admin(); // Table Editing & Admin functions
 				$this->init_timeframes_object(); // init
 				parent::__construct( $this->Timeframes_Admin->names );
+
+				$this->handle_request( $_REQUEST );
 		}
     /**
      * Initialise a new object for the retrieval of timeframes, set the context
@@ -63,6 +67,29 @@ class CB_Timeframes_Table extends WP_List_Table
 				$this->timeframes_array = new CB_Object();
 				$this->timeframes_array->set_context( 'admin-table' );
 		}
+
+    /**
+     * Handle request: query for items, locations, timeframes
+		 *
+		 * @TODO: Pagination not working right now.
+     *
+     * @param array $request
+     */
+    public function handle_request( $request ) {
+
+			if ( isset ( $request['item_id'] ) && cb_post_exists( $request['item_id'] ) ) {
+				$this->query_args['item_id'] = $request['item_id'];
+			}
+			if ( isset ( $request['location_id'] ) && cb_post_exists( $request['location_id'] ) ) {
+				$this->query_args['location_id'] = $request['location_id'];
+			}
+			if ( isset ( $request['timeframe_id'] ) && cb_timeframe_exists( $request['timeframe_id'] ) ) {
+				$this->query_args['timeframe_id'] = $request['timeframe_id'];
+			}
+			if ( isset ( $request['paged'] ) ) {
+				$this->query_args['paged'] = $request['paged'];
+			}
+    }
 
     /**
      * default column renderer
@@ -276,7 +303,7 @@ class CB_Timeframes_Table extends WP_List_Table
 
 			$this->items = json_decode( json_encode( $timeframes_object ), true); // convert object  to array
 
-			// [REQUIRED] configure pagination
+			// [REQUIRED] configure pagination @TODO: pagination fails.
 			$this->set_pagination_args(array(
 					'total_items' => $this->total_rows, // total items defined above
 					'per_page' => $this->query_args['per_page'], // per page constant defined at top of method

@@ -189,13 +189,13 @@ public static function timeframe_format_location_dates( $start_date, $end_date, 
 
 	$date_string = '';
 
-	if ( ! $has_end_date ) {
-		if ( $start_date > strtotime( self::$date_format, strtotime ( 'today') ) ) { // we are past start date
+	if ( $has_end_date == 0 ) { // infinite timeframe
+		if (  strtotime( 'today' ) > strtotime ( $start_date ) ) { // we are past start date - no need to show it
 			// void
 		} else { // start date not yet reached, so show it
-			$date_string = sprintf ( __('From: ', 'commons-booking'),  CB_Gui::col_format_date( $start_date ) );
+			$date_string = sprintf ( __('From: %s', 'commons-booking'),  CB_Gui::col_format_date( $start_date ) );
 		} // endif  $start_date > strtotime( self::date_format, 'today')
-	} else {
+	} else { // end date set, so show Start & End dates
 		$date_string = sprintf ( '%s - %s ',
 			CB_Gui::col_format_date( $start_date ),
 			CB_Gui::col_format_date( $end_date ) );
@@ -397,23 +397,28 @@ public static function col_format_timeframe( $post_id, $echo=false ) {
 	$timeframes = $timeframe_object->get( );
 
 	if ( isset( $timeframes ) && is_array( $timeframes ) ) {
+
 		foreach ($timeframes as $timeframe) {
+
 			$date_start = self::col_format_date( $timeframe->date_start);
 			$date_end = self::col_format_date_end( $timeframe->date_end, $timeframe->has_end_date);
 			$availability = self::col_format_availability( $timeframe->availability);
-			$edit_link =  self::timeframes_admin_url( 'edit', 'view', $post_id );
+			$edit_link =  self::timeframes_admin_url(
+				array ( 'timeframe_id' => $timeframe->timeframe_id ) );
 			$location = get_the_title( $timeframe->location_id );
+
 			$html .= sprintf( '<strong>%s - %s</strong> %s<br>%s<br>%s<hr>',$date_start, $date_end, $edit_link, $location, $availability );
-		}
+		} // endforeach
+
 	} else {
+
 		$html .=  __( 'No timeframes configured.', 'commons-booking' );
-		$html .= ' ' . self::timeframes_admin_url( 'edit', 'table', $post_id );
-	}
-	if ( ! $echo ) {
+
+	} // end if isset timeframes
+
+	$html .= ' ' . self::timeframes_admin_url( array ( 'item_id' => $post_id ) );
+
 	return $html;
-	} else {
-		echo $html;
-	}
 }
 /**
  * List slot templates
@@ -503,34 +508,53 @@ public static function settings_admin_url( $options_page = '' ) {
 	return $link;
 }
 /**
- * Return timeframes admin url(s)
+ * Return timeframe admin url(s)
  *
  * @TODO enable targets: table, edit(with id), view, add new. does not make sense right now.
  *
+ * @param string $target view, create, edit, list
+ * @param array $args
+ *
  * @return mixed $html
  */
-public static function timeframes_admin_url( $target='table', $item_id = '' ) {
+public static function timeframes_admin_url( $args=array(), $target='', $title='' ) {
 
-	$page = 'cb_timeframes_edit';
-	$item_edit = '';
-	if ( $item_id ) {
-		$item_edit = '&item_id=' . $item_id;
+	$base_url = 'admin.php?page='; // url to to backend
+	$base_slug = 'cb_timeframes_edit'; // timeframes edit slug
+	$target_slug = '';
+
+	$link_title = __( 'Add or edit', 'commons-booking' );
+
+	if ( isset( $args ) && is_array ( $args ) ) {
+		if ( isset ( $args['timeframe_id'] ) ) { 	// timeframe_id, timeframe exists, so view
+
+			$target_slug = '&timeframe_id=' . $args['timeframe_id'] . '&view=1';
+			$link_title = __('View timeframe', 'commons-booking');
+
+		} elseif ( isset ( $args['item_id'] ) OR isset ( $args['location_id'] ) ) { // no timeframe id, but item/location id, so either create or list
+			$item_id = isset ( $args['item_id'] ) ? $args['item_id'] : '';
+			$location_id = isset ( $args['location_id'] ) ? $args['location_id'] : '';
+			$item_location_slug = sprintf ( '&item_id=%d&location_id=%d', $item_id, $location_id );
+
+			if ( $target == 'table' ) { // goto a filtered timeframe_table view
+
+				$base_slug = 'cb_timeframes_table';
+				$target_slug = $item_location_slug;
+				$link_title = __('View timeframes', 'commons-booking');
+
+
+			} else { // goto timeframe settings to create a new timeframe with  item / location pre-filled
+
+				$target_slug = $item_location_slug;
+				$link_title = __('Add timeframe', 'commons-booking');
+
+			}
+		}
 	}
-	// choose page
-	if ( $target == 'edit' ) {
-		$page = 'cb_timeframes_edit&edit=1';
-		$title = __('Edit', 'commons-booking');
-	} elseif ( $target == 'view') {
-		$page = 'cb_timeframes_edit'; //@TODO: we need the timeframe id here
-		$title = __('View', 'commons-booking');
-	} elseif ( $target == 'table' ) {
-		$page = 'cb_timeframes_table';
-		$title = __('Overview', 'commons-booking');
-	}
 
-	$url = admin_url( 'admin.php?page=' . $page . $item_edit );
-
-	$link = sprintf ( '<a href="%s">' .$title . '</a>', $url );
+	if ( ! empty ( $title ) ) { $link_title = $title; }
+	$url = admin_url( $base_url . $base_slug . $target_slug );
+	$link = sprintf ( '<a href="%s">' .$link_title . '</a>', $url );
 
 	return $link;
 }

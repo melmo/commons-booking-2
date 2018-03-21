@@ -37,18 +37,17 @@ class CB_PostTypes_Metaboxes {
 		/**
 		 * Metabox: We are using WP internal metabox instead of cmb2 here, since we just render the timeframes and do not save any stuff
 		 */
-		add_meta_box( 'timeframe_meta_box', __( 'Timeframes', 'commons-booking' ), array( $this, 'do_timeframe_item_metabox'), 'cb_item' );
+		add_meta_box( 'timeframe_meta_box', __( 'Timeframes', 'commons-booking' ), array( $this, 'do_post_timeframe_metabox'), 'cb_item' );
 	}
 	/**
 	 * Wrapper for CB_Gui in timeframe meta box
 	 *
 	 * @since 2.0.0
 	 */
-	public function do_timeframe_item_metabox( ) {
+	public function do_post_timeframe_metabox( ) {
 
 		global $post;
 		echo CB_Gui::col_format_timeframe( $post->ID );
-		echo CB_Gui::timeframes_admin_url( 'edit' );
 	}
 
 	/**

@@ -281,3 +281,25 @@ function cb_filter_dates_by_opening_times( $date_start, $date_end, $opening_time
 		return $matches;
 	}
 }
+/**
+ * Determines if a post, identified by the specified ID, exist
+ * within the WordPress database.
+ *
+ * @param    int    $id    The ID of the post to check
+ * @return   bool          True if the post exists; otherwise, false.
+ * @since    2.0.0
+ */
+function cb_post_exists( $id ) {
+  return is_string( get_post_status( $id ) );
+}
+/**
+ * Determines if a post, identified by the specified ID, exist
+ * within the WordPress database. @TODO
+ *
+ * @param    int    $id    The ID of the timeframe to check
+ * @return   bool          True if the post exists; otherwise, false.
+ * @since    2.0.0
+ */
+function cb_timeframe_exists( $id ) {
+  return TRUE;
+}
