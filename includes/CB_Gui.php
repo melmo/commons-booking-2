@@ -510,7 +510,7 @@ public static function list_location_opening_times_html( $location_id) {
 }
 
 /**
- * Return settings url
+ * Return settings url html
  *
  * @param string $options_page
  * @return mixed $html
@@ -526,6 +526,46 @@ public static function settings_admin_url( $options_page = '' ) {
 	$link = sprintf ( '<a href="%s" target="_blank">' . __( 'Settings', 'commons-booking') . '</a>', $url );
 
 	return $link;
+}
+/**
+ * Return timeframe classes string for use in template
+ *
+ * @param object $timeframe
+ * @return mixed $html
+ */
+public static function timeframe_classes( $timeframe  ) {
+
+	$classes = '';
+
+	return $classes;
+}
+/**
+ * Return date classes string for use in template
+ *
+ * @param object $timeframe
+ * @return mixed $html
+ */
+public static function date_classes( $date  ) {
+
+	$classes = '';
+
+	return $classes;
+}
+/**
+ * Return html attributes for slots
+ *
+ * @param object $timeframe
+ * @return mixed $html
+ */
+public static function slot_attributes( $slot  ) {
+
+	$html = '';
+	$html .= sprintf ( ' data-start="%s"', $slot['time_start']);
+	$html .= sprintf ( ' data-end="%s"', $slot['time_end']);
+	$html .= sprintf ( ' data-description="%s"', sanitize_title_with_dashes( $slot['description'] ));
+	$html .= sprintf ( ' data-state="%s"', $slot['state'] ) ;
+
+	return $html;
 }
 /**
  * Return timeframe admin url(s)

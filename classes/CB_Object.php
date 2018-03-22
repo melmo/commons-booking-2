@@ -356,6 +356,8 @@ class CB_Object {
 			$slots_table . '.time_end',
 			$slots_table . '.description',
 			$slots_table . '.booking_code',
+			$slots_table . '.admin_overwrite',
+			$slots_table . '.admin_overwrite_allow',
 			$bookings_table . '.booking_status',
 			$bookings_table . '.user_id',
 			$bookings_table . '.booking_time',
@@ -441,6 +443,7 @@ class CB_Object {
 					// get the slots
 					$conditions_slots = $this->build_sql_conditions_slots_bookings( $slot_query_args ); // prepare sql conditions
 					$slot_results = $this->do_sql_slots( $conditions_slots ); // get the results
+					$slot_results = $this->add_slot_state( $slot_results ); // add slot state ('allow-booking', etc)
 					$slot_results_formatted = $this->array_format_slots ( $slot_results, TRUE ); // format results array
 
 					// set the current objects´ availability count
@@ -473,7 +476,7 @@ class CB_Object {
 				// get the slots
 				$conditions_slots = $this->build_sql_conditions_slots_bookings( $slot_query_args );
 				$slot_results = $this->do_sql_slots( $conditions_slots );
-
+				$slot_results = $this->add_slot_state( $slot_results ); // add slot state ('allow-booking', etc)
 				// format the array
 				$slot_results_formatted = $this->array_format_slots ( $slot_results, TRUE );
 
@@ -507,6 +510,7 @@ class CB_Object {
 					// get the slots
 					$conditions_slots = $this->build_sql_conditions_slots_bookings( $slot_query_args ); // prepare sql conditions
 					$slot_results = $this->do_sql_slots( $conditions_slots ); // get the results
+					$slot_results = $this->add_slot_state( $slot_results ); // add slot state ('allow-booking', etc)
 					$slot_results_formatted = $this->array_format_slots ( $slot_results, TRUE ); // format results array
 
 					// set the current objects´ availability count
@@ -655,7 +659,45 @@ class CB_Object {
 		}
 		return $slots_formatted;
 	}
+	public function add_slot_state( $slots ) {
 
+		$return = array();
+
+		foreach ( $slots as $slot ) {
+				$slot['state'] = $this->calculate_slot_state( $slot );
+				array_push ( $return,  $slot );
+		}
+		return $return;
+	}
+	 /**
+	 * Get the slot status as 'blocked', 'allow-booking-inner', 'allow-booking'
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param string
+	 *
+	 */
+	public function calculate_slot_state( $slot ) {
+
+		$closed = ( $slot['holiday_closed'] == 1 OR $slot['location_closed'] == 1 ) ? TRUE : FALSE;
+
+		$setting_allow_inner_booking = TRUE; // @TODO
+
+		$admin_overwrite_allow = ( isset ( $slot['admin_overwrite']) && $slot['admin_overwrite']  == 1 && $slot['admin_overwrite_allow'] == 1) ? TRUE : FALSE;
+		$admin_overwrite_deny = ( isset ( $slot['admin_overwrite'] ) && $slot['admin_overwrite'] == 1 && $slot['admin_overwrite_allow'] == 0) ? TRUE : FALSE;
+
+		$booked = $slot['booking_status'] == 'booked' ? TRUE : FALSE;
+
+		if ( $booked OR $admin_overwrite_deny ) { // is booked or admin-overwritten to blocked
+			return 'blocked';
+		} elseif ( $closed && $setting_allow_inner_booking ) { // is closed & setting allows booking over closed days
+			return 'allow-booking-inner';
+		} elseif ( $admin_overwrite_allow ) {
+			return 'allow-booking';
+		} else {
+			return 'allow-booking';
+		}
+	}
 
 	/**
 	 * Map the slots array to the dates array, filter,  apply filters

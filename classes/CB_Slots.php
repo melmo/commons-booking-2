@@ -303,7 +303,6 @@ class CB_Slots {
 				}
 			}
 		}
-
 		return $insert_array;
 	}
 	/**
