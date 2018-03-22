@@ -57,7 +57,7 @@
 }
 
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/fleg\/WorkBench\/3\%20DEV\/Apache\/commons-booking-2\/wp-content\/plugins\/commons-booking-2\/public\/assets\/sass\/partials\/_base\.scss}line{font-family:\0000314}}
-.cb-small, .cb-user-bar a.cb-button, .cb-user-bar .tooltipster-box li a, .tooltipster-box li .cb-user-bar a, ul.cb-calendar li.cb-date .cb-M {
+.cb-small, .cb-user-bar a.cb-button, .cb-user-bar .tooltipster-box li a, .tooltipster-box li .cb-user-bar a, ul.cb-calendar li.cb-date .cb-M, ul.cb-calendar li.cb-date .cb-D {
   font-size: 0.8em;
 }
 
@@ -272,7 +272,7 @@ a.cb-button:hover, .tooltipster-box li a:hover, input#wp-submit:hover, input#wp-
   color: #fff;
 }
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/fleg\/WorkBench\/3\%20DEV\/Apache\/commons-booking-2\/wp-content\/plugins\/commons-booking-2\/public\/assets\/sass\/partials\/_base\.scss}line{font-family:\00003151}}
-a.cb-button.cb-small, .cb-user-bar a.cb-button, .cb-user-bar .tooltipster-box li a, .tooltipster-box li .cb-user-bar a, .tooltipster-box li a.cb-small, .tooltipster-box ul.cb-calendar li.cb-date a.cb-M, ul.cb-calendar .tooltipster-box li.cb-date a.cb-M, ul.cb-calendar li.cb-date a.cb-button.cb-M, input#wp-submit.cb-small, ul.cb-calendar li.cb-date input#wp-submit.cb-M, input#wp-submit-comment.cb-small, ul.cb-calendar li.cb-date input#wp-submit-comment.cb-M {
+a.cb-button.cb-small, .cb-user-bar a.cb-button, .cb-user-bar .tooltipster-box li a, .tooltipster-box li .cb-user-bar a, .tooltipster-box li a.cb-small, .tooltipster-box ul.cb-calendar li.cb-date a.cb-M, ul.cb-calendar .tooltipster-box li.cb-date a.cb-M, .tooltipster-box ul.cb-calendar li.cb-date a.cb-D, ul.cb-calendar .tooltipster-box li.cb-date a.cb-D, ul.cb-calendar li.cb-date a.cb-button.cb-M, ul.cb-calendar li.cb-date a.cb-button.cb-D, input#wp-submit.cb-small, ul.cb-calendar li.cb-date input#wp-submit.cb-M, ul.cb-calendar li.cb-date input#wp-submit.cb-D, input#wp-submit-comment.cb-small, ul.cb-calendar li.cb-date input#wp-submit-comment.cb-M, ul.cb-calendar li.cb-date input#wp-submit-comment.cb-D {
   background: #3356A4;
   border: 1px solid #E1E1E1;
 }
@@ -467,7 +467,7 @@ ul.cb-calendar li.cb-date .cb-j.not-bookable {
   color: #E1E1E1;
 }
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/fleg\/WorkBench\/3\%20DEV\/Apache\/commons-booking-2\/wp-content\/plugins\/commons-booking-2\/public\/assets\/sass\/partials\/_calendar\.scss}line{font-family:\00003106}}
-ul.cb-calendar li.cb-date .cb-M {
+ul.cb-calendar li.cb-date .cb-M, ul.cb-calendar li.cb-date .cb-D {
   /* day name (mon, tue, ...) */
   color: #E1E1E1;
 }

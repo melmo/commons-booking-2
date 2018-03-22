@@ -103,7 +103,7 @@ span.cb-item-dot { // dot representing the items
             }
           }
 
-          .cb-M { /* day name (mon, tue, ...) */
+          .cb-M, .cb-D { /* day name (mon, tue, ...) */
             @extend .cb-small;
             color: $grey;
           }

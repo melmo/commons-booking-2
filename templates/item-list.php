@@ -38,9 +38,8 @@ $timeframes = $timeframe_object->get( );
               <?php if ( is_array( $tf->calendar )) { ?>
 								<?php foreach ( $tf->calendar as $cal_date => $date ) { ?>
 									<li class="cb-date weekday_<?php echo date ( 'w', strtotime( $cal_date ) );  ?>" id="<?php echo $tf->timeframe_id. '-' . $cal_date; ?>">
-                    <span class="cb-D"><?php echo date ( 'D', strtotime( $cal_date ) );  ?></span>
+									  <span class="cb-M"><?php echo date ( 'M', strtotime( $cal_date ) );  ?></span>
                     <span class="cb-j"><?php echo date ( 'j', strtotime( $cal_date ) );  ?></span>
-                    <span class="cb-M"><?php echo date ( 'M', strtotime( $cal_date ) );  ?></span>
 										<span class="cb-holiday"><?php // holiday names will be printed here ?>
                       <?php if ( ! empty ( $date['slots'][$tf->timeframe_id] ) && is_array( $date['slots'][$tf->timeframe_id] ) ) {	?>
                         <ul class="cb-slots">
