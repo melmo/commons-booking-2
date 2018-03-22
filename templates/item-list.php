@@ -14,8 +14,8 @@
  $args = array (
 	'item_id' => get_the_id(), // This template is called in the loop, so you need to supply the id
 	'discard_empty' => FALSE,
-	'order_by' => 'date_end',
-	'order' => 'DESC'
+	'order_by' => 'date_start',
+	'order' => 'ASC'
 );
 $timeframe_object = new CB_Timeframe( $args );
 $timeframes = $timeframe_object->get( );

@@ -12,64 +12,48 @@
  */
 ?>
 <?php
-$timeframe = new CB_Timeframe;
-
-$args = array (
-	'item_id' => get_the_id(), // This template is called on a single item page, so use the id
+ $args = array (
+	'item_id' => get_the_id(), // This template is called in the loop, so you need to supply the id
+	'orderby' => 'date_start',
+	'cal_limit' => 2,
+	'order' => 'ASC'
 );
-
-$tfs = $timeframe->get_timeframes( $args );
+$timeframe_object = new CB_Timeframe( $args );
+$timeframes = $timeframe_object->get( );
 ?>
-<?php if ( is_array( $tfs )) { ?>
-    <?php foreach ( $tfs as $tf ) { ?>
-		<?php //var_dump($tf); ?>
-        <div class="cb-timeframe" id="timeframe-<?php echo $tf->description; ?>">
-						<span class="cb-location-info">
-							<?php
-								// location info
-								printf (
-								'<a href="%s">%s</a>: %s - %s',
-								get_permalink( $tf->location_id ),
-								get_the_title( $tf->location_id ),
-								date_i18n( get_option( 'date_format' ), strtotime ( $tf->date_start ) ),
-								date_i18n( get_option( 'date_format' ),  strtotime ( $tf->date_end ) )
-								);
-							?>
-							</span>
-							<span class="cb-slot-availability">
-							<?php
-								// Availability
-								printf (
-								__( '%s slots booked, %s slots available, %s total', 'commons-booking' ),
-								$tf->availability['booked'],
-								$tf->availability['available'],
-								$tf->availability['total']
-								);
-							?>
-							</span>
-								<?php $timeframe->maybe_message ( $tf->message );	?>
-							</span>
+<?php if ( is_array( $timeframes )) { ?>
+
+    <?php foreach ( $timeframes as $tf ) { ?>
+			<?php // timeframe  ?>
+        <div id="timeframe-<?php echo $tf->timeframe_id; ?>" class="cb-timeframe <?php echo CB_Gui::timeframe_classes(  $tf ); ?>">
+					<div class="cb-location">
+							<h3 class="cb-location-title"><?php echo CB_Gui::post_link( $tf->location_id ); ?></h3>
+							<span class="cb-location-dates"><?php echo CB_Gui::timeframe_format_location_dates( $tf->date_start, $tf->date_end, $tf->has_end_date ); ?></span>
+							<span class="cb-location-opening-times"><?php echo CB_Gui::list_location_opening_times_html( $tf->location_id ); ?></span>
+					</div> <? // end div.cb-location ?>
+					<span class="cb-slot-availability"><?php echo CB_Gui::col_format_availability( $tf->availability ); ?></span>
+						<?php $timeframe_object->maybe_message ( $tf->message ); //@TODO: Use CB_Gui	?>
+					</span>
+					<?php // calendar ?>
             <ul class="cb-calendar">
-                <?php if ( is_array( $tf->calendar )) { ?>
-                    <?php foreach ( $tf->calendar as $date ) { ?>
-                        <li>
-                            <?php echo $date['meta']['name']; ?> - <?php echo $date['meta']['date']; ?>
-                            <?php if ( ! empty ( $date['slots'] ) && is_array( $date['slots'] ) ) { ?>
-                                <ul class="cb-slots">
-                                    <?php foreach ( $date['slots'][$tf->timeframe_id] as $slot ) { ?>
-                                        <li class="cb-slot">
-																					<span class="slot-description">Descr: <?php echo $slot['description']; ?></span>
-																					<span class="slot-time-start">slot-time-start: <?php echo $slot['time_start']; ?></span>
-																					<span class="slot-time-end">slot-time-end: <?php echo $slot['time_end']; ?></span>
-																					<span class="slot-booking-status">slot-booking-status: <?php echo $slot['booking_status']; ?></span>
-																					</li>
-                                    <?php } // endforeach $slots ?>
-                                </ul>
-                            <?php } // if ( is_array( $date['slots'] ) ) { ?>
-                        </li>
+              <?php if ( is_array( $tf->calendar )) { ?>
+								<?php foreach ( $tf->calendar as $cal_date => $date ) { ?>
+									<li class="cb-date weekday_<?php echo date ( 'w', strtotime( $cal_date ) );  ?>" id="<?php echo $tf->timeframe_id. '-' . $cal_date; ?>">
+									  <span class="cb-M"><?php echo date ( 'M', strtotime( $cal_date ) );  ?></span>
+                    <span class="cb-j"><?php echo date ( 'j', strtotime( $cal_date ) );  ?></span>
+										<span class="cb-holiday"><?php // holiday names will be printed here ?>
+                      <?php if ( ! empty ( $date['slots'][$tf->timeframe_id] ) && is_array( $date['slots'][$tf->timeframe_id] ) ) {	?>
+                        <ul class="cb-slots">
+													<?php foreach ( $date['slots'][$tf->timeframe_id] as $slot ) { ?>
+															<li id="<?php echo $slot['slot_id']; ?>" class="cb-slot" alt="<?php echo esc_html( $slot['description'] ); ?>" <?php echo CB_Gui::slot_attributes( $slot ); ?>>
+															</li>
+                            <?php } // endforeach $slots ?>
+                        	</ul>
+                        <?php } // if ( is_array( $date['slots'] ) ) { ?>
+                      </li><? // end li.cb-date ?>
                     <?php } // endforeach $cal ?>
                 <?php } //if ( is_array( $tf->calendar ))  ?>
-            </ul>
-        </div>
+            </ul><? // end ul.cb-calendar ?>
+        </div> <? // end div.cb-timeframe ?>
     <?php } // endforeach $tfs ?>
 <?php } //if ( is_array( $tfs )) ?>

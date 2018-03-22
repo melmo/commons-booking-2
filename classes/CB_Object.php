@@ -138,10 +138,10 @@ class CB_Object {
 		//Return default query if nothing passed
 		if ( empty( $args ) ) {
 			return $this->default_query_args;
-        } else {
-					$query = array_merge( $this->default_query_args, $args );
-        }
-		return apply_filters('cb_object_merge_query_args', $query );
+    } else {
+			$query = array_replace( $this->default_query_args, $args );
+    }
+		return $query;
 
 	}
 	/**
