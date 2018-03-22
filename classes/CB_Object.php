@@ -197,8 +197,8 @@ class CB_Object {
 			'city'					=> false, 		// STRING	only retrieve timeframes mapped to a location in city @TODO
 			// availability filters
 			'has_bookings'  => false, 	// BOOL 	retrieve days with slots that are booked
-			'has_open_slots'=> false, 	// BOOL 	retrieve days with slots that can be booked
-			'discard_empty' => false,		// BOOL		days without matching slots will not be retrieved - use in combination with has_bookings or has_open_slots
+			'has_bookable_slots'=> false, 	// BOOL 	retrieve days with slots that can be booked
+			'discard_empty' => false,		// BOOL		days without matching slots will not be retrieved - use in combination with has_bookings or has_bookable_slots
 		);
 	}
 	/**
@@ -231,7 +231,7 @@ class CB_Object {
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.booking_enabled',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.has_end_date',
 			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.exclude_location_closed',
-			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.holidays_enabled'
+			$wpdb->prefix . CB_TIMEFRAMES_TABLE . '.exclude_holiday_closed'
 		);
 
 		$sql_conditions['SELECT'] = $sql_fields_timeframe;
@@ -350,6 +350,8 @@ class CB_Object {
 			$slots_table . '.slot_id',
 			$slots_table . '.timeframe_id',
 			$slots_table . '.date',
+			$slots_table . '.holiday_closed',
+			$slots_table . '.location_closed',
 			$slots_table . '.time_start',
 			$slots_table . '.time_end',
 			$slots_table . '.description',
@@ -392,8 +394,16 @@ class CB_Object {
 			$sql_conditions_slots_bookings['WHERE'][] = sprintf(' %s.booking_id IS NOT NULL AND %s.booking_status = "BOOKED"', $bookings_table, $bookings_table);
 		}
 		// Filter: Retrieve only available slots
-		if ( $query_args['has_open_slots'] ) {
-			$sql_conditions_slots_bookings['WHERE'][] = sprintf(' %s.booking_id IS NULL OR %s.booking_status != "BOOKED"', $bookings_table, $bookings_table);
+		if ( $query_args['has_bookable_slots'] ) {
+			$sql_conditions_slots_bookings['WHERE'][] = sprintf('
+			 ( %s.booking_id IS NULL OR %s.booking_status != "booked" )
+				 AND
+			 (
+				 ( %s.location_closed != 1 AND %s.holiday_closed != 1 )
+				 OR
+				 ( %s.admin_overwrite = 1 AND %s.admin_overwrite_allow = 1 )
+			 )
+			 ', $bookings_table, $bookings_table, $slots_table, $slots_table, $slots_table, $slots_table);
 		}
 		return $sql_conditions_slots_bookings;
 	}
@@ -457,7 +467,7 @@ class CB_Object {
 
 				// add additional query args from timeframe
 				$slot_query_args['timeframe_id'] = array_column( $timeframe_results, 'timeframe_id');
-				$slot_query_args['date_start'] = $this->today; //@TODO make variable
+				$slot_query_args['date_start'] = $this->today;
 				$slot_query_args['date_end'] = date('Y-m-d', strtotime("+" . $slot_query_args['cal_limit'] . " days"));
 
 				// get the slots
@@ -479,7 +489,7 @@ class CB_Object {
 					$this->calendar->message = __('No slots found', 'commons-booking');
 				}
 
-				// merge calendar (days array) with slots array @TODO: Apply filters
+				// merge calendar (days array) with slots array
 				$this->calendar->calendar = $this->map_slots_to_cal( $this->calendar->dates_array, $slot_results_formatted );
 
 				// return an calendar object with an array of days and  all matching timeframes mapped to it
@@ -634,16 +644,16 @@ class CB_Object {
 	 */
 	public function array_format_slots( $slots, $grouped_by_timeframe = TRUE ) {
 
-		$reformatted = array();
+		$slots_formatted = array();
 
 		foreach ( $slots as $key => $val ) {
 			if ( $grouped_by_timeframe ) { // group the slots array by timeframe id
-			$reformatted[$val['date']]['slots'][$val['timeframe_id']][$val['slot_id']] = $val;
+			$slots_formatted[$val['date']]['slots'][$val['timeframe_id']][$val['slot_id']] = $val;
 			} else { // do not group the slots by timeframe
-			$reformatted[$val['date']]['slots'][$val['slot_id']] = $val;
+			$slots_formatted[$val['date']]['slots'][$val['slot_id']] = $val;
 			}
 		}
-		return $reformatted;
+		return $slots_formatted;
 	}
 
 
@@ -736,27 +746,6 @@ class CB_Object {
 				}
 		}
 		return $timeframe_class;
-	}
-
-
-
-	/**
-	 * Get a setting from the options table @TODO: retire
-	 *
-	 * @since 2.0.0
-	 *
- 	 * @param string $option_key_short short name for the option
- 	 * @param string $field_id name of the field
-	 * @return string the option
-	 */
-	public static function get_setting( $option_key_short, $field_id ) {
-
-		$option_key = 'commons-booking-settings-' . $option_key_short;
-		$serialized = get_option ( $option_key ); // all options in this section, serialized
-
-		if ( $serialized && key_exists( $field_id, $serialized ) ) {
-			return $serialized[$field_id];
-		}
 	}
 	/**
 	 * Return an instance of this class.

@@ -102,7 +102,7 @@ class CB_Timeframes_Admin  {
 			'codes_enabled' => 0,
 			'calendar_enabled' => 0,
 			'exclude_location_closed' => 0,
-			'holidays_enabled' => 0,
+			'exclude_holiday_closed' => 0,
 			'has_end_date' => 0,
 			'item_id' => '',
 			'location_id' => '',
@@ -226,6 +226,9 @@ public function get_item_count( ) {
 					);
 					$item['exclude_location_closed'] = $this->prepare_checkbox_value(
 						$item['exclude_location_closed']
+					);
+					$item['exclude_holiday_closed'] = $this->prepare_checkbox_value(
+						$item['exclude_holiday_closed']
 					);
 					$item['codes_enabled'] = $this->prepare_checkbox_value(
 						$item['codes_enabled']
@@ -423,7 +426,7 @@ public function get_item_count( ) {
 					'codes_enabled' => $item['codes_enabled'],
 					'calendar_enabled' => $item['calendar_enabled'],
 					'exclude_location_closed' => $item['exclude_location_closed'],
-					'holidays_enabled' => $item['holidays_enabled'],
+					'exclude_holiday_closed' => $item['exclude_holiday_closed'],
 					'has_end_date' => $item['has_end_date'],
 					'item_id' => $item['item_id'],
 					'location_id' => $item['location_id'],
@@ -439,7 +442,7 @@ public function get_item_count( ) {
 						'%d',	// codes_enabled
 						'%d',	// calendar_enabled
 						'%d',	// exclude_location_closed
-						'%d',	// holidays_enabled
+						'%d',	// exclude_holiday_closed
 						'%d',	// has_end_date
 						'%d',	// location_id
 						'%s',	// date_start
@@ -475,7 +478,7 @@ public function get_item_count( ) {
 					'codes_enabled' => $item['codes_enabled'],
 					'calendar_enabled' => $item['calendar_enabled'],
 					'exclude_location_closed' => $item['exclude_location_closed'],
-					'holidays_enabled' => $item['holidays_enabled'],
+					'exclude_holiday_closed' => $item['exclude_holiday_closed'],
 					'has_end_date' => $item['has_end_date'],
 					'item_id' => $item['item_id'],
 					'location_id' => $item['location_id'],
@@ -493,7 +496,7 @@ public function get_item_count( ) {
 						'%d',	// codes_enabled
 						'%d',	// calendar_enabled
 						'%d',	// exclude_location_closed
-						'%d',	// holidays_enabled
+						'%d',	// exclude_holiday_closed
 						'%d',	// has_end_date
 						'%d',	// item_id
 						'%d',	// location_id

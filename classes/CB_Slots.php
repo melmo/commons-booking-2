@@ -41,7 +41,13 @@ class CB_Slots {
 	 *
 	 * @var object
 	 */
-	public $date_array = array();
+	public $dates_array = array();
+	/**
+	 * Array of date meta. Holds location closed days, holidays
+	 *
+	 * @var object
+	 */
+	public $dates_meta_array = array();
 	/**
 	 * Array of dates to ignore when creating slots
 	 *
@@ -54,6 +60,18 @@ class CB_Slots {
 	 * @var bool
 	 */
 	public $include_codes = FALSE;
+	/**
+	 * Closed days of the location within timeframe
+	 *
+	 * @var array
+	 */
+	public $location_closed_days = array();
+	/**
+	 * Holidays within timeframe
+	 *
+	 * @var array
+	 */
+	public $holiday_closed_days = array();
 	/**
 	 * Constructor
 	 */
@@ -203,9 +221,10 @@ class CB_Slots {
 
 	}
 	/**
-	 * Return if slots already defined
+	 * Create an array of dates from start to end date
 	 *
-	 * @param int $timeframe_id
+	 * @param string $start_date
+	 * @param string $end_date
 	 */
 	public function set_date_range( $start_date, $end_date ) {
 
@@ -266,23 +285,46 @@ class CB_Slots {
 
 		$insert_array = array();
 
-		foreach ( $dates_array_filtered as $date ) {
-			foreach ( $this->template_array as $templates ) {
-				foreach ( $templates as $template ) {
+		foreach ( $dates_array_filtered as $date ) { // loop through dates
+			foreach ( $this->template_array as $templates ) { // loop through template_array (is always 1)
+				foreach ( $templates as $template ) { // loop through slots
 					$insert_array[] = array (
 						'timeframe_id' => $this->timeframe_id,
-						'template_order' =>$template['order'],
 						'date' => $date,
+						'booking_code' => $this->maybe_return_booking_code(),
+						'location_closed' => $this->is_location_closed( $date ),
+						'holiday_closed' => $this->is_holiday_closed( $date),
+						// @TODO replace below with 'slot_template_id' = X,
+						'template_order' =>$template['order'],
 						'time_start' => $template['time_start'],
 						'time_end' => $template['time_end'],
 						'description' => $template['description'],
-						'booking_code' => $this->maybe_return_booking_code(),
 					);
 				}
 			}
 		}
 
 		return $insert_array;
+	}
+	/**
+	 * Check if in holiday closed days array
+	 *
+	 * @param string $date
+	 * @return bool
+	 */
+	private function is_holiday_closed( $date ) {
+		$bool = in_array( $date, $this->holiday_closed_days ) ? 1 : 0;
+		return $bool;
+	}
+	/**
+	 * Check if in location closed days array
+	 *
+	 * @return string $code
+	 *
+	 */
+	private function is_location_closed( $date ) {
+		$bool = in_array( $date, $this->location_closed_days ) ? 1 : 0;
+		return $bool;
 	}
 
 	/**
@@ -303,8 +345,14 @@ class CB_Slots {
 		return $code;
 
 	}
-
-	public function insert_slots_sql( $insert_array ) {
+	/**
+	 * Insert slots into db
+	 *
+	 * @uses CB_Codes
+	 * @return string $code
+	 *
+	 */
+	private function insert_slots_sql( $insert_array ) {
 
 		$result = 1;
 		if ( !empty ( $insert_array ) ) { // no slots to add
@@ -322,13 +370,13 @@ class CB_Slots {
 	/**
 	 * Create slots for a specific timeframe
 	 *
-	 * Wrapper function that does a lot
-	 *
-	 * 1. decide if slots will be re-generated (delete all slots)
-	 * 2. add all existing dates
+	 * 1. set the date range
+	 * 2. decide if slots will be re-generated (delete all slots)
+	 * 3. add all existing dates
 	 * 3. get location opening times
 	 * 4. apply opening times of location (closed days)
 	 * 5. @TODO apply exclude list of holiday-provider (holidays)
+	 * 6. generate slots
 	 *
 	 * @uses CB_Location
 	 *
@@ -362,10 +410,14 @@ class CB_Slots {
 				$opening_times = $location->get_opening_times();
 				$pickup_mode = $location->get_pickup_mode();
 
+				if ( $timeframe['exclude_location_closed'] == 1 && $pickup_mode == 'opening_times' ) {
 
-				if ( $timeframe['exclude_location_closed'] == 1 && $pickup_mode == 'opening_times'   ) {
-					$filtered_dates = cb_filter_dates_by_opening_times ( $timeframe['date_start'], $timeframe['date_end'], $opening_times, TRUE );
-					$this->add_to_date_filter ( $filtered_dates ); // add these date to ignore list
+					$this->location_closed_days = cb_filter_dates_by_opening_times ( $timeframe['date_start'], $timeframe['date_end'], $opening_times, TRUE );
+
+				}
+				// @TODO: holiday closed days
+				if ( $timeframe['exclude_holiday_closed'] == 1 ) {
+					$this->holiday_closed_days = array(); //@TODO
 				}
 
 				// generate codes if set.
@@ -374,6 +426,5 @@ class CB_Slots {
 				$sql_slots_result = $this->generate_slots( );
 
 				return $sql_slots_result;
-
 	}
 }
