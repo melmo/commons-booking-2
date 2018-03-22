@@ -204,6 +204,26 @@ public static function timeframe_format_location_dates( $start_date, $end_date, 
 
 }
 
+	/**
+	 * Frontend format wp post link
+	 *
+	 * @since 2.0.0
+ *
+ * @param string $id post id
+ * @uses col_format_post
+ * @return mixed $html
+ */
+public static function post_link( $post_id ) {
+
+	$html = '';
+	$title = get_the_title( $post_id );
+	$url = get_the_permalink ( $post_id );
+	$html = sprintf( '<a href="%s">%s</a>', $url, $title  );
+
+	return $html ;
+
+}
+
 
 	/**
 	 * Display a front-facing message
