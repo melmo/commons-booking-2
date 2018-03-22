@@ -327,7 +327,8 @@ class CB_Slots {
 	 * 1. decide if slots will be re-generated (delete all slots)
 	 * 2. add all existing dates
 	 * 3. get location opening times
-	 * 4. apply exclude list of location
+	 * 4. apply opening times of location (closed days)
+	 * 5. @TODO apply exclude list of holiday-provider (holidays)
 	 *
 	 * @uses CB_Location
 	 *
@@ -354,7 +355,7 @@ class CB_Slots {
 				// handle slots already in db: get exising dates
 				$existing_dates = $this->get_slot_dates_array();
 
-				$this->add_to_date_filter ( $existing_dates ); // add these date to ignore list
+				$this->add_to_date_filter ( $existing_dates ); // add these date to ignore list, we are ignoring days that have already slots attached.
 
 				// handle location opening times checkbox
 				$location = new CB_Location ( $timeframe['location_id'] );

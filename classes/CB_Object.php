@@ -168,7 +168,7 @@ class CB_Object {
 
 		$this->default_query_args = array(
 			// scope of the timeframe results, slots are queried accordingly
-			'scope' 				=> 'current',	// STRING current: retrieve only timeframes that have slots in the next X days (set in settings)
+			'scope' 				=> 'current',	// STRING current: retrieve only timeframes that have slots in the next X days (configured in settings)
 			'today'					=> 'today',		// STRING current date parseable with strtotime(). @TODO
 			'cal_limit' 		=> '30', 		// INT return only x days of a timeframe (from $today).
 			// order the timeframe results, slots are ordered by slot_order field
@@ -198,7 +198,7 @@ class CB_Object {
 			// availability filters
 			'has_bookings'  => false, 	// BOOL 	retrieve days with slots that are booked
 			'has_open_slots'=> false, 	// BOOL 	retrieve days with slots that can be booked
-			'discard_empty' => false,		// BOOL		days without matching slots will not be retrieved - use in combination with has_bookings or has_bookings
+			'discard_empty' => false,		// BOOL		days without matching slots will not be retrieved - use in combination with has_bookings or has_open_slots
 		);
 	}
 	/**
