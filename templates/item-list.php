@@ -14,8 +14,7 @@
  $args = array (
 	'item_id' => get_the_id(), // This template is called in the loop, so you need to supply the id
 	'discard_empty' => FALSE,
-	'order_by' => 'date_start',
-	'order' => 'ASC'
+	'cal_limit' => 5,
 );
 $timeframe_object = new CB_Timeframe( $args );
 $timeframes = $timeframe_object->get( );
@@ -42,7 +41,7 @@ $timeframes = $timeframe_object->get( );
                     <span class="cb-j"><?php echo date ( 'j', strtotime( $cal_date ) );  ?></span>
 										<span class="cb-holiday"><?php // holiday names will be printed here ?>
                       <?php if ( ! empty ( $date['slots'][$tf->timeframe_id] ) && is_array( $date['slots'][$tf->timeframe_id] ) ) {	?>
-                        <ul class="cb-slots">
+                        <ul class="cb-slots"></span>
 													<?php foreach ( $date['slots'][$tf->timeframe_id] as $slot ) { ?>
 															<li id="<?php echo $slot['slot_id']; ?>" class="cb-slot" alt="<?php echo esc_html( $slot['description'] ); ?>" <?php echo CB_Gui::slot_attributes( $slot ); ?>>
 															</li>
