@@ -67,6 +67,12 @@ class CB_Object {
 	 */
   public $query_args;
 	/**
+	 * Query args from settings.
+	 *
+	 * @var array
+	 */
+  public $settings_query_args;
+	/**
 	 * merged query args
 	 *
 	 * @var array
@@ -84,12 +90,6 @@ class CB_Object {
 	 * @var array
 	 */
     public $context;
-	/**
-	 * cutoff after x days
-	 *
-	 * @var object
-	 */
-    public $calendar_limit;
 	/**
 	 * Prefix & Table names
 	 *	 */
@@ -115,33 +115,31 @@ class CB_Object {
 	/**
 	 * Init base variables
 	 *
-   * Setup db table names
-	 * Set today
+	 * @since 2.0.0
 	 */
 	public function do_setup( ) {
 
 		$this->set_default_query_args();
+		$this->set_settings_query_args();
 
 		if ( ! ( $this->context ) ) {
 			$this->set_context('timeframe');
 		}
-		$this->calendar_limit = CB_Settings::get('calendar', 'limit');
 	}
 	/**
-	 * Return default query parameters merged with user args
+	 * Return default query parameters merged with settings args & user args
 	 *
-	 * @param array $array
+	 * @param array $args
 	 * @return array merged query params
 	 */
 	public function merge_query_args( $args ){
 
-		//Return default query if nothing passed
-		if ( empty( $args ) ) {
-			return $this->default_query_args;
-    } else {
-			$query = array_replace( $this->default_query_args, $args );
-    }
-		return $query;
+		// merge defaults with settings
+		$combined_settings = shortcode_atts( $this->default_query_args, $this->settings_query_args );
+		// merge this with user args
+		$combined_userquery = shortcode_atts( $combined_settings, $args );
+
+		return $combined_userquery;
 
 	}
 	/**
@@ -163,8 +161,6 @@ class CB_Object {
 	 * Set default query args
 	 */
 	public function set_default_query_args( ){
-
-		$cal_limit = CB_Settings::get( 'calendar', 'limit');
 
 		$this->default_query_args = array(
 			// scope of the timeframe results, slots are queried accordingly
@@ -199,6 +195,19 @@ class CB_Object {
 			'has_bookings'  => false, 	// BOOL 	retrieve days with slots that are booked
 			'has_bookable_slots'=> false, 	// BOOL 	retrieve days with slots that can be booked
 			'discard_empty' => false,		// BOOL		days without matching slots will not be retrieved - use in combination with has_bookings or has_bookable_slots
+		);
+	}
+	/**
+	 * Get configuration from settings
+	 *
+	 * @uses CB_Settings
+	 *
+	 * @since 2.0.0
+	 */
+	public function set_settings_query_args( ){
+
+		$this->settings_query_args = array(
+			'cal_limit' 		=> CB_Settings::get('calendar', 'limit')		// INT return only x days of a timeframe (from $today).
 		);
 	}
 	/**
@@ -242,6 +251,10 @@ class CB_Object {
 		} elseif ( $args['scope'] == 'past') {
 			$sql_conditions['WHERE'][] = sprintf('date_end <= CAST("%s" AS DATE)', $this->$today);
 		}
+		$sql_conditions['WHERE'][] = sprintf('date_end <= CAST("%s" AS DATE)', $this->end_date );
+
+		var_dump ($this->end_date);
+
 		// select by id: timeframe
 		if ( $args['timeframe_id'] && is_numeric( $args['timeframe_id'] ) ) {
 			$sql_conditions['WHERE'][] = sprintf(' timeframe_id = %d', $args['timeframe_id'] );
@@ -369,6 +382,8 @@ class CB_Object {
 
 		$sql_conditions_slots_bookings['SELECT'] = $sql_fields_slots;
 
+		var_dump ( $args );
+
 		// Select by timeframe -> this is created by previous function
 		if ( $timeframe_args['timeframe_id'] && is_array( $timeframe_args['timeframe_id'] ) ) {
 			$timeframe_ids = implode (',', $timeframe_args['timeframe_id'] );
@@ -421,6 +436,9 @@ class CB_Object {
 
 		$this->query_args = $this->merge_query_args( $args ); // user supplied arguments and defaults
 
+		$this->end_date = date ( 'Y-m-d', strtotime( "+" . $this->query_args['cal_limit'] . " days") );
+
+
 		$conditions_timeframes = $this->build_sql_conditions_timeframes();
 		$timeframe_results = $this->do_sql_timeframes( $conditions_timeframes );
 
@@ -438,7 +456,7 @@ class CB_Object {
 					// set query args by parent timeframe
 					$slot_query_args['timeframe_id'] =  (array) $timeframe_result->timeframe_id;
 					$slot_query_args['date_start'] =  $this->today;
-					$slot_query_args['date_end'] =  $timeframe_result->date_end;
+					$slot_query_args['date_end'] =  date( 'Y-m-d', strtotime( "+" . $this->query_args['cal_limit'] . " days"));
 
 					// get the slots
 					$conditions_slots = $this->build_sql_conditions_slots_bookings( $slot_query_args ); // prepare sql conditions

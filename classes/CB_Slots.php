@@ -140,10 +140,10 @@ class CB_Slots {
 			$where = sprintf ('%s.timeframe_id = %s',
 				$this->slots_table,
 				$this->timeframe_id
-	);
+		);
 
 		$sql =(
-		"SELECT {$select}
+			"SELECT {$select}
 			FROM {$this->slots_table}
 			LEFT JOIN {$this->slots_bookings_relation_table}
 			ON ({$this->slots_table}.slot_id={$this->slots_bookings_relation_table}.slot_id)
@@ -154,6 +154,7 @@ class CB_Slots {
 			ORDER BY date
 			");
 
+		var_dump($sql);
 		return $sql;
 	}
 	/**
