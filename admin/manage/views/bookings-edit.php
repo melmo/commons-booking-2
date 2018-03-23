@@ -42,7 +42,6 @@
 		} else {
 			echo ( __('Booking not found', 'commons-booking' ) );
 		}
-		// var_dump($item);
 
     ?>
 <div class="wrap">

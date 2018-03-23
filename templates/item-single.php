@@ -14,6 +14,7 @@
 <?php
  $args = array (
 	'item_id' => get_the_id(), // This template is called in the loop, so you need to supply the id
+	'cal_limit' => 30,
 );
 $timeframe_object = new CB_Timeframe( $args );
 $timeframes = $timeframe_object->get( );

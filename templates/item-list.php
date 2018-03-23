@@ -16,8 +16,8 @@
 	'discard_empty' => FALSE,
 	'cal_limit' => 5,
 );
-$timeframe_object = new CB_Timeframe( $args );
-$timeframes = $timeframe_object->get( );
+$timeframe_object = new CB_Timeframe( );
+$timeframes = $timeframe_object->get( $args );
 ?>
 <?php if ( is_array( $timeframes )) { ?>
 

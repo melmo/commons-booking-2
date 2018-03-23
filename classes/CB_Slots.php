@@ -154,7 +154,6 @@ class CB_Slots {
 			ORDER BY date
 			");
 
-		var_dump($sql);
 		return $sql;
 	}
 	/**

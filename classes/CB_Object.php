@@ -382,8 +382,6 @@ class CB_Object {
 
 		$sql_conditions_slots_bookings['SELECT'] = $sql_fields_slots;
 
-		var_dump ( $args );
-
 		// Select by timeframe -> this is created by previous function
 		if ( $timeframe_args['timeframe_id'] && is_array( $timeframe_args['timeframe_id'] ) ) {
 			$timeframe_ids = implode (',', $timeframe_args['timeframe_id'] );
