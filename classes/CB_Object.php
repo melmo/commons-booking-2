@@ -79,11 +79,17 @@ class CB_Object {
 	 */
     // var $calendar_filter = FALSE;
 	/**
-	 * weekday names
+	 * today
 	 *
 	 * @var array
 	 */
     public $today;
+	/**
+	 * today
+	 *
+	 * @var array
+	 */
+    public $end_date;
 	/**
 	 * context
 	 *
@@ -252,8 +258,6 @@ class CB_Object {
 			$sql_conditions['WHERE'][] = sprintf('date_end <= CAST("%s" AS DATE)', $this->$today);
 		}
 		$sql_conditions['WHERE'][] = sprintf('date_end <= CAST("%s" AS DATE)', $this->end_date );
-
-		var_dump ($this->end_date);
 
 		// select by id: timeframe
 		if ( $args['timeframe_id'] && is_numeric( $args['timeframe_id'] ) ) {
