@@ -230,6 +230,47 @@ class CB_Settings {
 		return $settings_codes;
 	}
 	/**
+	 * Strings (for possible overwrite in the backend
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return array
+	 */
+	public static function get_settings_template_cb_strings() {
+
+		$strings_array = CB_Strings::get();
+		$fields_array = array();
+
+		// reformat array to fit our cmb2 settings fields
+		foreach ( $strings_array as $category => $fields) {
+			// add title field
+			$fields_array[] = array(
+						'name'  => $category,
+						'id'    => $category . '-title',
+						'type'  => 'title',
+			);
+			foreach ($fields as $field_name => $field_value ) {
+
+				$fields_array[] = array(
+							'name'             => $field_name,
+							'id'               => $category . '_' . $field_name,
+							'type'             => 'textarea_small',
+							'default'					 => $field_value
+				);
+			} // end foreach fields
+
+		} // end foreach strings_array
+
+		$settings_template_cb_strings = array(
+			'name' => __( 'Strings', 'commons-booking' ),
+			'slug' => 'strings',
+			'show_in_plugin_settings' => true,
+			'fields' => $fields_array
+		);
+
+		return $settings_template_cb_strings;
+	}
+	/**
 	 * Locations meta box: opening times template
 	 *
 	 * @since 2.0.0
@@ -473,6 +514,7 @@ class CB_Settings {
 			'location-opening-times' => self::get_settings_template_location_opening_times(),
 			'location-pickup-mode' => self::get_settings_template_location_pickup_mode(),
 			'location-personal-contact-info' => self::get_settings_template_location_personal_contact_info(),
+			'strings' => self::get_settings_template_cb_strings(),
 		);
 
 		}

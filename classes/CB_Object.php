@@ -551,6 +551,7 @@ class CB_Object {
 
 		} else { // no timeframes found
 
+			echo CB_strings::get('timeframes', 'not-defined');
 			// return CB_Strings::throw_error( __FILE__,' no timeframes!' ); //@TODO: This will be shown to a front-end user. No dev "error",  use CB_guistrings (also, todo).
 		}
 	}

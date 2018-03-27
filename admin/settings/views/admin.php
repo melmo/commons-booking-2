@@ -25,6 +25,7 @@
 		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-calendar.php' );
 		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-bookings.php' );
 		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-codes.php' );
+		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-strings.php' );
 		require_once( plugin_dir_path( __FILE__ ) . 'page-settings-importexport.php' );
 		?>
 		</div>
