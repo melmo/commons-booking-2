@@ -547,7 +547,40 @@ class CB_Object {
 
 				return $this->timeframes_array; // return an array of timeframes with their respective calendars
 
-			}// end if ( $this->context == 'admin_table' )
+			} elseif ( $this->context = 'api' ) { // api context @TODO format data for use in api
+
+				// add additional query args from timeframe
+				$slot_query_args['timeframe_id'] = array_column( $timeframe_results, 'timeframe_id');
+				$slot_query_args['date_start'] = $this->today;
+				$slot_query_args['date_end'] = date('Y-m-d', strtotime("+" . $slot_query_args['cal_limit'] . " days"));
+
+				// get the slots
+				$conditions_slots = $this->build_sql_conditions_slots_bookings( $slot_query_args );
+				$slot_results = $this->do_sql_slots( $conditions_slots );
+				$slot_results = $this->add_slot_state( $slot_results ); // add slot state ('allow-booking', etc)
+				// format the array
+
+				$slot_results_formatted = $this->array_format_slots ( $slot_results, TRUE );
+
+				// Create new calendar object with an array of dates
+				$this->calendar = new CB_Calendar( FALSE, $slot_query_args['date_start'], $slot_query_args['date_end'] );
+
+				// set the current objects´ availability count:
+				$this->calendar->availability = $this->set_timeframe_availability( $slot_results_formatted );
+
+				// set the message
+				$this->calendar->message = '';
+				if ( empty ( $slot_results_formatted ) ) {
+					$this->calendar->message = __('No slots found', 'commons-booking');
+				}
+
+				// merge calendar (days array) with slots array
+				$this->calendar->calendar = $this->map_slots_to_cal( $this->calendar->dates_array, $slot_results_formatted );
+
+				// return an calendar object with an array of days and  all matching timeframes mapped to it
+				return $this->calendar;
+
+			}
 
 		} else { // no timeframes found
 

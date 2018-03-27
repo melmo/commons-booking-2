@@ -64,6 +64,8 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 }
 require_once( CB_PLUGIN_ROOT . 'includes/CB_Strings.php' );
 require_once( CB_PLUGIN_ROOT . 'includes/CB_FakePage.php' );
+require_once( CB_PLUGIN_ROOT . 'includes/CB_API.php' );
+// require_once( CB_PLUGIN_ROOT . 'includes/CB_Shortcodes.php' );
 
 
 if ( is_admin() ) {
