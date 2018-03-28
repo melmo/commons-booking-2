@@ -131,7 +131,6 @@ class CB_Bookings_Admin  {
 			{$this->slots_table}.date,
 			{$this->slots_table}.time_start,
 			{$this->slots_table}.time_end,
-			{$this->slots_table}.status AS slot_status,
 			{$this->slots_table}.description AS slot_description,
 			{$this->slots_table}.template_order AS slot_order,
 			{$this->slots_table}.timeframe_id,
