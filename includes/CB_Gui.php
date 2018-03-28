@@ -236,7 +236,7 @@ public static function post_link( $post_id ) {
 	 *
 	 * @return string
 	 */
-	public function maybe_do_message( $string, $category='notice' ) {
+	public static function maybe_do_message( $string, $category='notice' ) {
 
 		$message = '';
 		if ( ! empty ( $string ) ) {
@@ -508,6 +508,22 @@ public static function list_location_opening_times_html( $location_id) {
 	}
 	return $html;
 }
+/**
+ * Return item/location description from metabox
+ *
+ * @param string $options_page
+ * @return mixed $html
+ *
+ * @usage CB_Gui::cb_post_excerpt();
+ */
+public static function cb_post_excerpt() {
+
+	global $post;
+	$id = $post->ID;
+	$meta = get_post_meta( $post->ID, 'cb-post-excerpt', true );
+	return $meta;
+
+}
 
 /**
  * Return settings url html
@@ -594,7 +610,7 @@ public static function timeframes_admin_url( $args=array(), $target='', $title='
 		} elseif ( isset ( $args['item_id'] ) OR isset ( $args['location_id'] ) ) { // no timeframe id, but item/location id, so either create or list
 			$item_id = isset ( $args['item_id'] ) ? $args['item_id'] : '';
 			$location_id = isset ( $args['location_id'] ) ? $args['location_id'] : '';
-			$item_location_slug = sprintf ( '&item_id=%d&location_id=%d', $item_id, $location_id );
+			$item_location_slug = sprintf ( '&edit=1&item_id=%d&location_id=%d', $item_id, $location_id );
 
 			if ( $target == 'table' ) { // goto a filtered timeframe_table view
 
@@ -614,7 +630,7 @@ public static function timeframes_admin_url( $args=array(), $target='', $title='
 
 	if ( ! empty ( $title ) ) { $link_title = $title; }
 	$url = admin_url( $base_url . $base_slug . $target_slug );
-	$link = sprintf ( '<a href="%s">' .$link_title . '</a>', $url );
+	$link = sprintf ( '<a href="%s" style="float:right">' .$link_title . '</a>', $url );
 
 	return $link;
 }
