@@ -491,7 +491,7 @@ class CB_Object {
 				// add additional query args from timeframe
 				$slot_query_args['timeframe_id'] = array_column( $timeframe_results, 'timeframe_id');
 				$slot_query_args['date_start'] = $this->today;
-				$slot_query_args['date_end'] = date('Y-m-d', strtotime("+" . $slot_query_args['cal_limit'] . " days"));
+				$slot_query_args['date_end'] = date('Y-m-d', strtotime("+" . $this->query_args['cal_limit'] . " days"));
 
 				// get the slots
 				$conditions_slots = $this->build_sql_conditions_slots_bookings( $slot_query_args );
