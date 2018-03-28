@@ -50,7 +50,7 @@ class CB_Enqueue {
 		wp_enqueue_script( CB_TEXTDOMAIN . '-plugin-script', plugins_url( 'public/assets/js/public.js', CB_PLUGIN_ABSOLUTE ), array( 'jquery' ), CB_VERSION );
 	}
 	/**
-	 * Templates: Enable formatting of cb_items and cb_locations.
+	 * Templates for cb_items and cb_locations.
 	 *
 	 * @since 2.0.0
 	 *
@@ -62,14 +62,26 @@ class CB_Enqueue {
 	public static function cb_template_chooser( $content ) {
 		// items
 		if ( is_post_type_archive( 'cb_item' ) && in_the_loop() ) {
-			return wpbp_get_template_part( CB_TEXTDOMAIN, 'item', 'list', true );
+			$args = array ( 'item_id' => get_the_id() );
+			$timeframe_object = new CB_Timeframe( $args );
+			$CB_Timeframes = $timeframe_object->get( );
+			cb_get_template_part(  CB_TEXTDOMAIN, 'item', 'list', $CB_Timeframes );
 		} elseif ( is_singular( 'cb_item' ) && in_the_loop() ) {
-			return wpbp_get_template_part( CB_TEXTDOMAIN, 'item', 'single', true );
+			$args = array ( 'item_id' => get_the_id() );
+			$timeframe_object = new CB_Timeframe( $args );
+			$CB_Timeframes = $timeframe_object->get( );
+			cb_get_template_part(  CB_TEXTDOMAIN, 'item', 'single', $CB_Timeframes );
 		// locations
 		} elseif ( is_post_type_archive( 'cb_location' ) && in_the_loop() ) {
-			return wpbp_get_template_part( CB_TEXTDOMAIN, 'location', 'list', true );
+			$args = array ( 'location_id' => get_the_id() );
+			$timeframe_object = new CB_Timeframe( $args );
+			$CB_Timeframes = $timeframe_object->get( );
+			cb_get_template_part(  CB_TEXTDOMAIN, 'location', 'list', $CB_Timeframes );
 		} elseif ( is_singular( 'cb_location') && in_the_loop() ) {
-			return wpbp_get_template_part( CB_TEXTDOMAIN, 'location', 'single', true );
+			$args = array ( 'location_id' => get_the_id() );
+			$timeframe_object = new CB_Timeframe( $args );
+			$CB_Timeframes = $timeframe_object->get( );
+			cb_get_template_part(  CB_TEXTDOMAIN, 'location', 'single', $CB_Timeframes );
 		} else {
 			return $content;
 		}

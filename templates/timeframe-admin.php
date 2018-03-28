@@ -1,6 +1,6 @@
 <?php
 /**
- * Single timeframes
+ * single timeframe in admin @TODO
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
@@ -34,14 +34,14 @@
                       <?php if ( ! empty ( $date['slots'][$tf->timeframe_id] ) && is_array( $date['slots'][$tf->timeframe_id] ) ) {	?></span>
                         <ul class="cb-slots"></span>
 													<?php foreach ( $date['slots'][$tf->timeframe_id] as $slot ) { ?>
-														<li id="<?php echo $slot['slot_id']; ?>" class="cb-slot" alt="<?php echo esc_html( $slot['description'] ); ?>" <?php echo CB_Gui::slot_attributes( $slot ); ?>>
-														</li>
-                          <?php } // endforeach $slots ?>
-                        </ul>
-                      <?php } // if ( is_array( $date['slots'] ) ) { ?>
-                    </li><? // end li.cb-date ?>
-                <?php } // endforeach $cal ?>
-              <?php } //if ( is_array( $tf->calendar ))  ?>
+															<li id="<?php echo $slot['slot_id']; ?>" class="cb-slot" alt="<?php echo esc_html( $slot['description'] ); ?>" <?php echo CB_Gui::slot_attributes( $slot ); ?>>
+															</li>
+                            <?php } // endforeach $slots ?>
+                        	</ul>
+                        <?php } // if ( is_array( $date['slots'] ) ) { ?>
+                      </li><? // end li.cb-date ?>
+                    <?php } // endforeach $cal ?>
+                <?php } //if ( is_array( $tf->calendar ))  ?>
             </ul><? // end ul.cb-calendar ?>
         </div> <? // end div.cb-timeframe ?>
     <?php } // endforeach $tfs ?>

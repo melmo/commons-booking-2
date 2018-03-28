@@ -1,6 +1,6 @@
 <?php
 /**
- * Items in archives (lists) template
+ * Items in archives, list timeframes below item excerpt.
  *
  * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
@@ -10,17 +10,10 @@
  *
  * @see       CB_Enqueue::cb_template_chooser()
  */
-
- $args = array (
-	'item_id' => get_the_id(), // This template is called in the loop, so you need to supply the id
-	'discard_empty' => FALSE,
-	'cal_limit' => 5,
-);
-$timeframe_object = new CB_Timeframe( );
-$timeframes = $timeframe_object->get( $args );
 ?>
-<?php if ( is_array( $timeframes )) { ?>
-
+<?php echo CB_Gui::cb_post_excerpt(); // echo description Metabox  ?>
+<?php	$timeframes = $template_args;
+	if ( is_array( $timeframes )) { ?>
     <?php foreach ( $timeframes as $tf ) { ?>
 			<?php // timeframe  ?>
         <div id="timeframe-<?php echo $tf->timeframe_id; ?>" class="cb-timeframe <?php echo CB_Gui::timeframe_classes(  $tf ); ?>">
@@ -30,8 +23,7 @@ $timeframes = $timeframe_object->get( $args );
 							<span class="cb-location-opening-times"><?php echo CB_Gui::list_location_opening_times_html( $tf->location_id ); ?></span>
 					</div> <? // end div.cb-location ?>
 					<span class="cb-slot-availability"><?php echo CB_Gui::col_format_availability( $tf->availability ); ?></span>
-						<?php $timeframe_object->maybe_message ( $tf->message ); //@TODO: Use CB_Gui	?>
-					</span>
+					<?php CB_Gui::maybe_do_message ( $tf->message );	?>
 					<?php // calendar ?>
             <ul class="cb-calendar">
               <?php if ( is_array( $tf->calendar )) { ?>
@@ -40,17 +32,17 @@ $timeframes = $timeframe_object->get( $args );
 									  <span class="cb-M"><?php echo date ( 'M', strtotime( $cal_date ) );  ?></span>
                     <span class="cb-j"><?php echo date ( 'j', strtotime( $cal_date ) );  ?></span>
 										<span class="cb-holiday"><?php // holiday names will be printed here ?>
-                      <?php if ( ! empty ( $date['slots'][$tf->timeframe_id] ) && is_array( $date['slots'][$tf->timeframe_id] ) ) {	?>
+                      <?php if ( ! empty ( $date['slots'][$tf->timeframe_id] ) && is_array( $date['slots'][$tf->timeframe_id] ) ) {	?></span>
                         <ul class="cb-slots"></span>
 													<?php foreach ( $date['slots'][$tf->timeframe_id] as $slot ) { ?>
-															<li id="<?php echo $slot['slot_id']; ?>" class="cb-slot" alt="<?php echo esc_html( $slot['description'] ); ?>" <?php echo CB_Gui::slot_attributes( $slot ); ?>>
-															</li>
-                            <?php } // endforeach $slots ?>
-                        	</ul>
-                        <?php } // if ( is_array( $date['slots'] ) ) { ?>
-                      </li><? // end li.cb-date ?>
-                    <?php } // endforeach $cal ?>
-                <?php } //if ( is_array( $tf->calendar ))  ?>
+														<li id="<?php echo $slot['slot_id']; ?>" class="cb-slot" alt="<?php echo esc_html( $slot['description'] ); ?>" <?php echo CB_Gui::slot_attributes( $slot ); ?>>
+														</li>
+                          <?php } // endforeach $slots ?>
+                        </ul>
+                      <?php } // if ( is_array( $date['slots'] ) ) { ?>
+                    </li><? // end li.cb-date ?>
+                <?php } // endforeach $cal ?>
+              <?php } //if ( is_array( $tf->calendar ))  ?>
             </ul><? // end ul.cb-calendar ?>
         </div> <? // end div.cb-timeframe ?>
     <?php } // endforeach $tfs ?>
