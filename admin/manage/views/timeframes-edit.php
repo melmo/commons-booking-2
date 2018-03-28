@@ -307,11 +307,12 @@ function render_timeframe_view_meta_box( $item ) {
 </table>
 @TODO: render calendar here.
 <?php
-
 	$args = array ( 'timeframe_id' => $item['timeframe_id'] );
-	$CB = new CB_Object;
-	$CB->set_context('calendar');
-	$cal = $CB->get_timeframes( $args );
+	$timeframe_object = new CB_Timeframe( $args );
+	$CB_Timeframes = $timeframe_object->get( );
+	cb_get_template_part(  CB_TEXTDOMAIN, 'timeframe', 'admin', $CB_Timeframes );
+
+
 
 ?>
 <?php

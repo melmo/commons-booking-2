@@ -116,7 +116,7 @@ class CB_Timeframes_Admin  {
 		);
 		$this->timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
 
-		$this->screen = 'timeframe_settings'; // start screen
+		$this->screen = 'view'; // start screen
 
 	}
 	/**
@@ -286,11 +286,13 @@ public function get_item_count( ) {
 		}
 
 		// setup the screens
-		// default view is edit (timeframe_settings)
+		// default view is view (timeframe_settings)
 		if ( isset( $request['view'] ) && isset ( $request['timeframe_id'] ) ) {
 			$this->screen = 'view';
 		} elseif ( isset( $request['generate_slots']) && $request['generate_slots'] == 1 ) {
 			$this->screen = 'generate_slots';
+		} elseif ( isset( $request['edit']) && $request['edit'] == 1 ) {
+			$this->screen = 'timeframe_settings';
 		}
 
 	}
