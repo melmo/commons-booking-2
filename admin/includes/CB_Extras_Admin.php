@@ -25,9 +25,6 @@ class CB_Extras_Admin {
 
 		$this->check_wp_environment(); // check plugin environment and notify the user if things are not properly defined.
 
-		/*
-		 * Load CronPlus
-		 */
 		$cron = new CB_Cron();
 
 		$args = array(
@@ -37,8 +34,13 @@ class CB_Extras_Admin {
 			'cb' => $cron->extend_timeframes(),
 			'plugin_root_file' => 'commons-booking.php'
 		);
+
 		$cronplus = new CronPlus( $args );
 		$cronplus->schedule_event();
+
+		if ( WP_DEBUG ) { // add a build version entry in the top menu
+			add_action('admin_bar_menu', array ( $this, 'show_build_info'), 100);
+		}
 
 		$plugin = Commons_Booking::get_instance();
 		$this->cpts = $plugin->get_cpts();
@@ -66,6 +68,23 @@ class CB_Extras_Admin {
 		$query_args[ 'post_type' ] = array_merge( $query_args[ 'post_type' ], $this->cpts );
 		return $query_args;
 	}
+	 /**
+	 * Show dev build date in admin toolbar
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return void
+	 */
+	public function show_build_info($admin_bar){
+			$admin_bar->add_menu( array(
+				'id'    => 'cb-build',
+				'title' => 'CB' . CB_VERSION . '-' . CB_DEV_BUILD,
+				'href'  => '#',
+				'meta'  => array(
+					'title' => CB_DEV_BUILD,
+				),
+			));
+		}
 			/**
 	 * Bubble Notification for pending cpt<br>
 	 * NOTE: add in $post_types your cpts<br>
