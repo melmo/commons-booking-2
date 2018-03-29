@@ -409,12 +409,13 @@ public function get_item_count( ) {
 
 	}
 	/**
-	 * Save row in the bookings databse
+	 * Save row in the timeframes databse
 	 *
 	 * @since 2.0.0
 	 *
 	 * @param array $item
 	 * @uses set_message
+	 * @uses $wpdb
 	 * @return bool $result
 	 */
 	public function add_row( $item ) {
@@ -461,12 +462,13 @@ public function get_item_count( ) {
 		return ($result);
 	}
 	/**
-	 * Update row in the bookings database
+	 * Update row in the timeframes database
 	 *
 	 * @since 2.0.0
 	 *
 	 * @param $item
 	 * @uses set_message
+	 * @uses $wpdb
 	 * @return bool $result
 	 */
 	public function update_row( $item ) {
