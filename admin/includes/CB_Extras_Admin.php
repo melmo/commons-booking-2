@@ -28,11 +28,13 @@ class CB_Extras_Admin {
 		/*
 		 * Load CronPlus
 		 */
+		$cron = new CB_Cron();
+
 		$args = array(
 			'recurrence' => 'hourly',
 			'schedule' => 'schedule',
-			'name' => 'cronplusexample',
-			// 'cb' => 'cronplus_example_cb',
+			'name' => 'extend_timeframes',
+			'cb' => $cron->extend_timeframes(),
 			'plugin_root_file' => 'commons-booking.php'
 		);
 		$cronplus = new CronPlus( $args );

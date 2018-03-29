@@ -55,6 +55,10 @@ class Commons_Booking_Admin {
 		 */
 		require_once( CB_PLUGIN_ROOT . 'admin/includes/CB_Pointers.php' );
 		/*
+		 * Cron
+		 */
+		require_once( CB_PLUGIN_ROOT . 'admin/includes/CB_Cron.php' );
+		/*
 		* All the extras functions
 		*/
 		require_once( CB_PLUGIN_ROOT . 'admin/includes/CB_Extras_Admin.php' );

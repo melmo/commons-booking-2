@@ -379,13 +379,15 @@ class CB_Slots {
 	 *
 	 * @uses CB_Location
 	 *
-	 * @param $timeframe
+	 * @param array $timeframe
 	 * @param $request
 	 *
 	 * @return int $result
 	 *
 	 */
-	public function re_generate_slots_function( $timeframe, $request ) {
+	public function re_generate_slots_function( $timeframe, $request = array() ) {
+
+			$timeframe =  (is_object ( $timeframe ) ) ? cb_obj_to_array( $timeframe ) : $timeframe;
 
 				$this->set_date_range ($timeframe['date_start'], $timeframe['date_end'] );
 

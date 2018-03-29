@@ -197,6 +197,8 @@ class CB_Object {
 			'slot_id'				=> false,			// INT 		query by id of the slot
 			// geo
 			'city'					=> false, 		// STRING	only retrieve timeframes mapped to a location in city @TODO
+			// settings filters
+			'has_end_date'  => '', 		// string
 			// availability filters
 			'has_bookings'  => false, 	// BOOL 	retrieve days with slots that are booked
 			'has_bookable_slots'=> false, 	// BOOL 	retrieve days with slots that can be booked
@@ -257,7 +259,6 @@ class CB_Object {
 		} elseif ( $args['scope'] == 'past') {
 			$sql_conditions['WHERE'][] = sprintf('date_end <= CAST("%s" AS DATE)', $this->$today);
 		}
-		$sql_conditions['WHERE'][] = sprintf('date_end <= CAST("%s" AS DATE)', $this->end_date );
 
 		// select by id: timeframe
 		if ( $args['timeframe_id'] && is_numeric( $args['timeframe_id'] ) ) {
@@ -270,6 +271,10 @@ class CB_Object {
 		// select by id: item
 		if ( $args['item_id'] && is_numeric( $args['item_id'] ) ) {
 			$sql_conditions['WHERE'][] = sprintf(' item_id = %d', $args['item_id'] );
+		}
+
+		if ( isset ( $args['has_end_date'] ) && ! empty ( $args['has_end_date'] ) ) {
+			$sql_conditions['WHERE'][] = sprintf( ' has_end_date = %d ', $args['has_end_date'] );
 		}
 
 		// select by item taxonomy @TODO: seems buggy.
@@ -584,7 +589,7 @@ class CB_Object {
 
 		} else { // no timeframes found
 
-			echo CB_strings::get('timeframes', 'not-defined');
+			// echo CB_strings::get('timeframes', 'not-defined');
 			// return CB_Strings::throw_error( __FILE__,' no timeframes!' ); //@TODO: This will be shown to a front-end user. No dev "error",  use CB_guistrings (also, todo).
 		}
 	}
@@ -892,7 +897,7 @@ class CB_Object {
 	 */
 	public function maybe_message( $message ){
 		$gui = CB_Gui::get_instance();
-		echo $gui->maybe_do_message( $message );
+		// echo $gui->maybe_do_message( $message );
 	}
 
 }
