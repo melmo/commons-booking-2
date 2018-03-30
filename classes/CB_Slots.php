@@ -164,8 +164,10 @@ class CB_Slots {
 	 */
 	public function generate_slots( ) {
 
+		// load slot template group
 		$this->template_array = $this->get_slot_template_group( $this->template_group_id );
 
+		// filter dates
 		$dates_filtered_array = $this->apply_date_filter();
 
 		$sql = $this->prepare_slots_insert_array( $dates_filtered_array );
@@ -236,7 +238,7 @@ class CB_Slots {
 	 *
 	 * @param array $array
 	 */
-	public function add_to_date_filter( $array = array() ) {
+	public function add_to_ignored_days( $array = array() ) {
 
 		$this->filter_date_array = array_merge ( $this->filter_date_array, (array) $array );
 
@@ -371,10 +373,10 @@ class CB_Slots {
 	 *
 	 * 1. set the date range
 	 * 2. decide if slots will be re-generated (delete all slots)
-	 * 3. add all existing dates
+	 * 3. find all existing slots
 	 * 3. get location opening times
-	 * 4. apply opening times of location (closed days)
-	 * 5. @TODO apply exclude list of holiday-provider (holidays)
+	 * 4. get opening times of location (closed days) and add to holidays array
+	 * 5. get holidays and add to holidays array
 	 * 6. generate slots
 	 *
 	 * @uses CB_Location
@@ -404,21 +406,23 @@ class CB_Slots {
 				// handle slots already in db: get exising dates
 				$existing_dates = $this->get_slot_dates_array();
 
-				$this->add_to_date_filter ( $existing_dates ); // add these date to ignore list, we are ignoring days that have already slots attached.
+				$this->add_to_ignored_days ( $existing_dates ); // add these date to ignore list, we are ignoring days that have already slots attached.
 
 				// handle location opening times checkbox
 				$location = new CB_Location ( $timeframe['location_id'] );
 				$opening_times = $location->get_opening_times();
 				$pickup_mode = $location->get_pickup_mode();
 
+				// set location closed days
 				if ( $timeframe['exclude_location_closed'] == 1 && $pickup_mode == 'opening_times' ) {
-
 					$this->location_closed_days = cb_filter_dates_by_opening_times ( $timeframe['date_start'], $timeframe['date_end'], $opening_times, TRUE );
 
 				}
-				// @TODO: holiday closed days
+				// set holiday closed days
 				if ( $timeframe['exclude_holiday_closed'] == 1 ) {
-					$this->holiday_closed_days = array(); //@TODO
+					$years = array ( date ('Y', strtotime( $timeframe['date_start'] ) ),  date('Y', strtotime ( $timeframe['date_end'] ) )  ); // @TODO: assuming here that a timeframe does not stretch more than one year.
+					$holidays = CB_Holidays::get_holidays_list( $years );
+					$this->holiday_closed_days = array_keys( $holidays );
 				}
 
 				// generate codes if set.

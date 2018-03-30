@@ -127,7 +127,7 @@ function render_timeframe_settings_meta_box( $item ) {
             <label for="exclude_location_closed"><?php _e('Exclude closed days of the location', 'commons-booking')?></label>
         </td>
         <td valign="top" colspan="1">
-						<input id="exclude_holiday_closed" name="exclude_holiday_closed" type="checkbox" value="<?php // echo ($item['exclude_holiday_closed'])?>" class="checkbox">
+						<input id="exclude_holiday_closed" name="exclude_holiday_closed" type="checkbox" value="exclude_holiday_closed" <?php if ( $item['exclude_holiday_closed'] ) { echo "CHECKED"; }; ?>  class="checkbox">
             <label for="exclude_holiday_closed"><?php _e('Exclude holidays', 'commons-booking')?></label>
         </td>
     </tr>
@@ -183,7 +183,7 @@ function render_timeframe_generate_slots_meta_box( $item ) {
 						<li><?php printf ( __('<strong>Start date</strong>: %s', 'commons-booking'), CB_Gui::col_format_date( $item['date_start'] ) ); ?></li>
 						<li><?php // end date
 					if ( $item['has_end_date'] != 1 ) {
-						printf ( __('<strong>End date</strong>: No end date. Users will be able to book %d days in advance. (Edit in %s)', 'commons-booking'), CB_Settings::get( 'calendar', 'limit'), CB_Gui::settings_admin_url( 'calendar' ) ); //@TODO get from settings
+						printf ( __('<strong>End date</strong>: No end date. Users will be able to book %d days in advance (%s).', 'commons-booking'), CB_Settings::get( 'calendar', 'limit'), CB_Gui::settings_admin_url( 'calendar' ) ); //@TODO get from settings
 					} else {
 						printf ( __('<strong<End date</strong>: %s', 'commons-booking'), CB_Gui::col_format_date( $item['date_end'] ) );
 					}
@@ -192,12 +192,29 @@ function render_timeframe_generate_slots_meta_box( $item ) {
 						echo __('<strong>Slots</strong>: The following slot(s) will be created for each day: ', 'commons-booking');
 						echo CB_Gui::list_slot_templates_html( $item['slot_template_group_id']);
 					?></li>
-					<li><?php // location opening times
-
-					printf( __('Opening times (%s): ', 'commons-booking'),
+					<?php //location opening times
+					if ($item['exclude_location_closed']) { ?>
+					<li>
+					<?php
+					printf( __('Opening days of the Location (%s): ', 'commons-booking'),
 						CB_Gui::col_format_post( $item['location_id'], __( 'Edit', 'commons-booking' ) ) );
 						echo CB_Gui::list_location_opening_times_html( $item['location_id']);
 					?>
+					</li>
+					<?php } // end if location opening times ?>
+					<?php // holidays
+					if ($item['exclude_holiday_closed']) { ?>
+					<li>
+					<?php
+					$holiday_provider = CB_Settings::get('calendar', 'holiday_provider');
+						if ( ! empty ( $holiday_provider ) ) {
+							 printf ( __('Holidays in %s will be closed from booking (%s).', 'commons-booking' ), $holiday_provider, CB_Gui::settings_admin_url( 'calendar' ) );
+						} else {
+							printf ( __('No holiday provider selected (Configure in %s).', 'commons-booking'), CB_Gui::settings_admin_url( 'calendar' ) );
+						}
+					?>
+					<li>
+					<?php } // end if location opening times ?>
 					</ul>
 				</td>
 			</tr>

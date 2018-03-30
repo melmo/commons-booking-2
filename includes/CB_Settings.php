@@ -116,8 +116,16 @@ class CB_Settings {
 						'id'               => 'limit',
 						'type'             => 'text_small',
 						'default'          => '30',
-						'description'			 => __('days into the future are shown on each calendar.')
-				)
+						'description'			 => __('Limit calendars to X future days.')
+					),
+					array(
+						'name'             => __( 'Holidays', 'commons-booking' ),
+						'desc'             => __( 'Select country to show local holidays in the calendar and block those holidays from pickup/return.', 'commons-booking' ),
+						'id'               => 'holiday_provider',
+						'type'             => 'select',
+						'show_option_none' => true,
+						'options' 				 => CB_Holidays::get_providers()
+					)
 			)
 		);
 		return $settings_calendar;

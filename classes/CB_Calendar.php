@@ -86,31 +86,29 @@ class CB_Calendar extends CB_Object {
   public function create_days_array( ) {
 
 		$dates_array = cb_dateRange( $this->date_start, $this->date_end );
-
 		foreach ($dates_array as $date) {
-			$this->add_date_meta( $date );
+			$this->add_holiday( $date );
 		}
 
 	}
 	/**
-	 * Add meta information to the date: date, name (weekday name), weekday number
-	 *
-	 * @TODO: add holiday
+	 * Return holiday
 	 *
 	 * @since 2.0.0
 	 *
 	 * @param string $date
 	 *
 	 */
-  public function add_date_meta( $date ) {
+  public function add_holiday( $date ) {
 
-		;
+		$year = date( 'Y', strtotime( $date ) );
+		$holidays = CB_Holidays::get_holidays_list( array( $year ) );
 
-		$this->dates_array[$date]['meta'] = array (
-			'date'		=> $date,
-			'name' 		=> date('D', strtotime( $date ) ),
-			'number' 	=> date('N', strtotime( $date ) ),
-			'day'     => date('j', strtotime( $date ) )
-		);
+		if ( key_exists( $date, $holidays) ) {
+			$this->dates_array[$date]['holiday'] = $holidays[$date];
+		} else {
+			$this->dates_array[$date]['holiday'] = '';
+		}
 	}
+
 }
