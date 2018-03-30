@@ -476,7 +476,7 @@ public static function list_slot_templates_html( $slot_template_group_id, $list_
  * @param array $location_id
  * @return mixed $html
  */
-public static function list_location_opening_times_html( $location_id) {
+public static function list_location_opening_times_html( $location_id ) {
 	$location = new CB_Location ( $location_id );
 	$opening_times = $location->get_opening_times();
 	$pickup_mode = $location->get_pickup_mode();

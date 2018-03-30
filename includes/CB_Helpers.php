@@ -258,6 +258,7 @@ function cb_checkbox_bool( $value ) {
  * @param  string $date_start
  * @param  string $date_end
  * @param  array $opening_times
+ * @param bool $inverse
  * @return array $matching dates
  */
 function cb_filter_dates_by_opening_times( $date_start, $date_end, $opening_times, $inverse = FALSE ) {
