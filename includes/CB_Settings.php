@@ -27,6 +27,18 @@ class CB_Settings {
 	 */
 	protected static $plugin_settings;
 	/**
+	 * Settings groups, 1 group is a metabox
+	 *
+	 * @var array
+	 */
+	protected static $settings_groups;
+	/**
+	 * Admin menu tabs
+	 *
+	 * @var array
+	 */
+	protected static $admin_settings_tabs;
+	/**
 	 * Return an instance of this class.
 	 *
 	 * @since 2.0.0
@@ -57,8 +69,26 @@ class CB_Settings {
 	 * @return void
 	 */
 	public static function initialize() {
-			self::apply_settings_templates();
+
+		// self::add_settings_tab( 'general', __( 'General', 'commons-booking' ) );
+		// self::add_settings_tab( 'pages', __( 'Pages', 'commons-booking' ) );
+		// self::add_settings_tab( 'bookings', __( 'Bookings', 'commons-booking' ) );
+
+		self::apply_settings_templates();
+
+
 		}
+	/**
+	 * Booking settings template
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return array
+	 */
+	public static function init_settings() {
+
+	}
+
 	/**
 	 * Booking settings template
 	 *
@@ -71,6 +101,7 @@ class CB_Settings {
 		$settings_bookings = array(
 			'name' => __( 'Bookings', 'commons-booking' ),
 			'slug' => 'bookings',
+			'tab'  => 'bookings',
 			'fields' => array (
 					array (
 						'name'             => __( 'Maximum slots', 'commons-booking' ),
@@ -109,6 +140,7 @@ class CB_Settings {
 		$settings_calendar = array(
 			'name' => __( 'Calendar', 'commons-booking' ),
 			'slug' => 'calendar',
+			'tab'  => 'bookings',
 			'fields' => array (
 					array(
 						'name'             => __( 'Calendar limit', 'commons-booking' ),
@@ -226,7 +258,6 @@ class CB_Settings {
 			'slug' => 'codes',
 			'fields' => array (
 					array(
-						'before_row'       => __('Booking Codes', 'commons-booking' ), // Headline
 						'name'             => __( 'Codes', 'commons-booking' ),
 						'desc'             => __( 'Booking codes, comma-seperated', 'commons-booking' ),
 						'id'               => 'codes-pool',
@@ -514,6 +545,7 @@ class CB_Settings {
 	 */
 	public static function apply_settings_templates() {
 
+		// all settings groups (including those only used at wp post meta boxes)
 		self::$plugin_settings = array (
 			'pages' => self::get_settings_template_pages(),
 			'bookings' => self::get_settings_template_bookings(),
@@ -525,7 +557,85 @@ class CB_Settings {
 			'strings' => self::get_settings_template_cb_strings(),
 		);
 
+		// admin pages, multiple groups per tab
+		self::$admin_settings_tabs = array (
+			'intro' => array(
+				'title' => __( 'Welcome', 'commons-booking' ),
+				'description' => __( 'Welcome to CB', 'commons-booking' ),
+				'groups' => array()
+			),
+			'bookings' => array(
+				'title' => __( 'Bookings', 'commons-booking' ),
+				'description' => __( 'General Booking settings', 'commons-booking' ),
+				'groups' => array (
+					'bookings', 'calendar', 'codes'
+				)
+			),
+			'locations' => array(
+				'title' => __( 'Locations', 'commons-booking' ),
+				'description' => __( 'None yet', 'commons-booking' ),
+				'groups' => array()
+			),
+
+		);
+
+	}
+	/**
+	 * Render the admin settings
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param string $tab
+	 */
+	public static function do_admin_settings( ) {
+
+		$tabs = self::$admin_settings_tabs;
+
+		foreach ( $tabs as $tab => $value ) { ?>
+				<div id="tabs-<?php echo $tab ; ?>" class="wrap">
+			<?
+			echo $value['description'];
+
+			foreach ( $value['groups'] as $group ) { // render all metaboxes
+				self::do_settings_group( $group );
+			}
+			?>
+					</div>
+     <?php
 		}
+
+	}
+
+	/**
+	 * Render a settings group
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param string $group_id
+	 */
+	public static function do_settings_group( $slug ) {
+		?>
+			<div class="metabox-holder">
+				<div class="postbox">
+					<div class="inside">
+						<?php
+							$cmb_bookings = new_cmb2_box(
+								array(
+									'id' => CB_TEXTDOMAIN  . '_options-' . $slug,
+									'show_on' => array(
+										'key' => 'options-page',
+										'value' => array( 'commons-booking' ), ),
+									'show_names' => true,
+									'fields' => self::get_settings_group_fields( $slug )
+								) );
+
+						cmb2_metabox_form( CB_TEXTDOMAIN  . '_options-' . $slug, CB_TEXTDOMAIN  . '-settings-' . $slug );
+						?>
+					</div>
+				</div>
+			</div>
+<?
+	}
 	/**
 	 * Get settings admin tabs
 	 *
@@ -533,19 +643,15 @@ class CB_Settings {
 	 *
 	 * @return mixed $html
 	 */
-	public static function get_admin_tabs( ) {
+	public static function do_admin_tabs( ) {
 
 		$html = '';
-		foreach ( self::$plugin_settings as $tab ) {
-			if ( isset ( $tab['show_in_plugin_settings'] ) && $tab['show_in_plugin_settings']  === false ) {
-				// this setting is for post metaboxes only
-			} else {
-				$title = $tab['name'];
-				$slug = $tab['slug'];
+		foreach ( self::$admin_settings_tabs as $key => $value ) {
+				$title = $value['title'];
+				$slug = $key;
 				$html .= '<li><a href="#tabs-' . $slug . '">' . $title . '</a></li>';
-			}
 		}
-		return apply_filters( 'cb_get_admin_tabs', $html );
+		return apply_filters( 'cb_do_admin_tabs', $html );
 	}
 	/**
 	 * Get settings admin box
@@ -555,6 +661,18 @@ class CB_Settings {
 	 * @return array $metabox
 	 */
 	public static function get_admin_metabox( $slug ) {
+
+		return self::$plugin_settings[$slug]['fields'];
+
+	}
+	/**
+	 * Get settings admin box
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return array $metabox
+	 */
+	public static function get_settings_group_fields( $slug ) {
 
 		return self::$plugin_settings[$slug]['fields'];
 
