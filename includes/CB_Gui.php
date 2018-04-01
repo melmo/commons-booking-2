@@ -509,6 +509,27 @@ public static function list_location_opening_times_html( $location_id ) {
 	return $html;
 }
 /**
+ * Location in timeframes
+ *
+ * @param object $location
+ * @return mixed $html
+ *
+ */
+public static function location_short( $location ) {
+
+		$html = '
+		<div class="cb-location">
+		<h3 class="cb-location-title">' . CB_Gui::post_link( $location->location_id ) . '</h3>
+		<span class="cb-location-dates">' . CB_Gui::timeframe_format_location_dates( $location->date_start, $location->date_end, $location->has_end_date ) . '</span>
+		<span class="cb-location-opening-times">' . CB_Gui::list_location_opening_times_html( $location->location_id ) . '</span>
+		</div>
+		';
+
+		return $html;
+}
+
+
+/**
  * Return item/location description from metabox
  *
  * @param string $options_page

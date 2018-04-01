@@ -55,11 +55,11 @@ class CB_Object {
 	 */
 	// public $timeframes_array = array();
 	/**
-	 * array holding the timeframe objects // context: calendar
+	 * Defaults
 	 *
 	 * @var array
 	 */
-	// public $calendar;
+	public $default_query_args;
 	/**
 	 * Merged query args.
 	 *
@@ -503,13 +503,13 @@ class CB_Object {
 				$slot_results = $this->do_sql_slots( $conditions_slots );
 				$slot_results = $this->add_slot_state( $slot_results ); // add slot state ('allow-booking', etc)
 				// format the array
-				$slot_results_formatted = $this->array_format_slots ( $slot_results, TRUE );
+				$slot_results_formatted = $this->array_format_slots ( $slot_results, FALSE );
 
 				// Create new calendar object with an array of dates
 				$this->calendar = new CB_Calendar( FALSE, $slot_query_args['date_start'], $slot_query_args['date_end'] );
 
-				// set the current objects´ availability count:
-				$this->calendar->availability = $this->set_timeframe_availability( $slot_results_formatted );
+				// set the current objects´ availability count: @TODO
+				// $this->calendar->availability = $this->set_timeframe_availability( $slot_results_formatted );
 
 				// set the message
 				$this->calendar->message = '';
@@ -713,7 +713,7 @@ class CB_Object {
 			if ( $grouped_by_timeframe ) { // group the slots array by timeframe id
 			$slots_formatted[$val['date']]['slots'][$val['timeframe_id']][$val['slot_id']] = $val;
 			} else { // do not group the slots by timeframe
-			$slots_formatted[$val['date']]['slots'][$val['slot_id']] = $val;
+			$slots_formatted[$val['date']]['slots'][] = $val;
 			}
 		}
 		return $slots_formatted;
@@ -781,6 +781,7 @@ class CB_Object {
 	}
 	/**
 	 * Count slots as booked/available
+	 * @TODO: not working for calendar right now, since the function loops 2 times to deep
 	 *
 	 * @since 2.0.0
 	 *

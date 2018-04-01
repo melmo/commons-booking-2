@@ -20,7 +20,7 @@ class CB_Timeframe extends CB_Object {
 	 *
 	 * @var object
 	 */
-	public $args;
+	public $default_query_args;
 	/**
 	 * Settings specific to this timeframe.
 	 *
@@ -40,6 +40,13 @@ class CB_Timeframe extends CB_Object {
 		$this->context = $context;
 
 	}
+	/**
+	 * Get timeframes
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return object $timeframes
+	 */
 	public function get ( ) {
 
 		$timeframes = $this->get_timeframes( $this->args );
