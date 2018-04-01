@@ -573,6 +573,15 @@ class CB_Settings {
 				)
 			)
 		);
+		self::add_settings_tab( 'formats',
+			array(
+				'title' => __( 'Formats', 'commons-booking' ),
+				'description' => __( 'Formatting of gui, custom strings, mail etc', 'commons-booking' ),
+				'groups' => array (
+					'strings'
+				)
+			)
+		);
 
 	}
 	/**
