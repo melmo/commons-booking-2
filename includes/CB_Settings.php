@@ -557,26 +557,21 @@ class CB_Settings {
 			'strings' => self::get_settings_template_cb_strings(),
 		);
 
-		// admin pages, multiple groups per tab
-		self::$admin_settings_tabs = array (
-			'intro' => array(
+		self::add_settings_tab( 'intro',
+			array(
 				'title' => __( 'Welcome', 'commons-booking' ),
 				'description' => __( 'Welcome to CB', 'commons-booking' ),
 				'groups' => array()
-			),
-			'bookings' => array(
+			)
+		);
+		self::add_settings_tab( 'bookings',
+			array(
 				'title' => __( 'Bookings', 'commons-booking' ),
 				'description' => __( 'General Booking settings', 'commons-booking' ),
 				'groups' => array (
 					'bookings', 'calendar', 'codes'
 				)
-			),
-			'locations' => array(
-				'title' => __( 'Locations', 'commons-booking' ),
-				'description' => __( 'None yet', 'commons-booking' ),
-				'groups' => array()
-			),
-
+			)
 		);
 
 	}
@@ -593,7 +588,7 @@ class CB_Settings {
 
 		foreach ( $tabs as $tab => $value ) { ?>
 				<div id="tabs-<?php echo $tab ; ?>" class="wrap">
-			<?
+			<?php
 			echo $value['description'];
 
 			foreach ( $value['groups'] as $group ) { // render all metaboxes
@@ -605,7 +600,6 @@ class CB_Settings {
 		}
 
 	}
-
 	/**
 	 * Render a settings group
 	 *
@@ -637,6 +631,18 @@ class CB_Settings {
 <?
 	}
 	/**
+	 * Add a settings tab
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param array $args
+	 */
+	public static function add_settings_tab( $slug, $tab = array() ) {
+
+		self::$admin_settings_tabs[$slug] = $tab;
+
+	}
+	/**
 	 * Get settings admin tabs
 	 *
 	 * @since 2.0.0
@@ -647,9 +653,8 @@ class CB_Settings {
 
 		$html = '';
 		foreach ( self::$admin_settings_tabs as $key => $value ) {
-				$title = $value['title'];
 				$slug = $key;
-				$html .= '<li><a href="#tabs-' . $slug . '">' . $title . '</a></li>';
+				$html .= '<li><a href="#tabs-' . $slug . '">' . $value['title'] . '</a></li>';
 		}
 		return apply_filters( 'cb_do_admin_tabs', $html );
 	}
