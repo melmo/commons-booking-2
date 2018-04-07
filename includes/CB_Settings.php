@@ -637,7 +637,7 @@ class CB_Settings {
 					</div>
 				</div>
 			</div>
-<?
+<?php
 	}
 	/**
 	 * Add a settings tab
