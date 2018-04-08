@@ -111,16 +111,19 @@ span.cb-item-dot { // dot representing the items
 
           ul.cb-slots { // container for the calendar day items ( dots )
 
+            position: absolute;
+            height: auto;
+            width: auto;
+            top:60%;
+            height: 40%;
+            width: 100%;
+            display: block;
+            z-index: 98;
+            text-align:center;
+
             li.cb-slot { // 1 item, for calendar-full only (showing only 1 item;
 
-              position: absolute;
-              height: auto;
-              width: auto;
-              top:0;
-              height: 100%;
-              width: 100%;
-              display: block;
-              z-index: 98;
+              display: inline-block;              
 
               @include transition(all .3s ease);
 
@@ -150,26 +153,16 @@ span.cb-item-dot { // dot representing the items
                 background: $blue;
               }
 
-              span.cb-item-dot {
-              }
 
-
-              &.closed {
-                color: $grey;
-                span.cb-item-dot {
-                  background-color: $grey !important;
-                  border: 1px solid transparent !important;
-                }
-              }
-
-              &.bookable { // selectable dates
+              &[data-state="allow-booking"] { // selectable dates
                 cursor: pointer;
                 color: $action-color;
                 span.cb-item-dot {
                   border-color: transparent !important;
+                  background-color: $action-color;
                 }
               }
-              &.not-bookable {
+              &[data-state="blocked"] {
                 span.cb-item-dot {
                   display: none;
                   background-color: #FFFFFF;
@@ -249,6 +242,29 @@ span.cb-item-dot { // dot representing the items
       &.weekday_7 {margin-left: $cellwidth * 6; }
     }
 
+  }
+
+  ul.cb-calendar-grouped {
+    li.cb-date {
+      ul.cb-slots {
+        li.cb-slot {
+          &[data-state="allow-booking-inner"] {
+            display: none;
+            span.cb-item-dot {
+              background-color: #FFFFFF;
+            }
+          }
+
+        }
+        li.cb-slot-extra {
+          display: none;
+        } 
+        li.cb-slot-count {
+          display: inline-block;
+        }
+      }
+
+    }
   }
 
   .tooltipster-base {

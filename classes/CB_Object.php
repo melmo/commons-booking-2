@@ -266,7 +266,7 @@ class CB_Object {
 		} else if ($args['timeframe_id'] && is_array( $args['timeframe_id'] )) {
 			$sql_conditions['WHERE'][] = sprintf(' timeframe_id IN (%s)', implode(',',$args['timeframe_id']) );
 		}
-		
+
 		// select by id: location
 		if ( $args['location_id'] && is_numeric( $args['location_id'] ) ) {
 			$sql_conditions['WHERE'][] = sprintf(' location_id = %d', $args['location_id'] );
@@ -529,6 +529,7 @@ class CB_Object {
 				$this->calendar->calendar = $this->map_slots_to_cal( $this->calendar->dates_array, $slot_results_formatted );
 
 				// return an calendar object with an array of days and  all matching timeframes mapped to it
+				$this->calendar->timeframe_id = $slot_query_args['timeframe_id'] ;
 				return $this->calendar;
 
 			} elseif ( $this->context = 'admin_table' ){
