@@ -22,6 +22,24 @@ class CB_Shortcodes extends CB_Object {
 	 * @param array $atts
 	 */
 	public function calendar_shortcode ( $atts ) {
+		/*
+		These fields pass in a single value or a list of comma separated values. They need to be converted to an array before merging with the default args.
+		*/
+
+		$array_atts_fields = array(
+			'timeframe_id',
+			'owner_id',
+			'location_id',
+			'item_id',
+			'location_cat',
+			'item_cat'
+		);
+
+		foreach($array_atts_fields as $field) {
+			if (isset($atts[$field])) {
+				$atts[$field] = explode(',', $atts[$field]);
+			}
+		}
 
 		$args = shortcode_atts( $this->default_query_args, $atts, 'cb_calendar' );
 
