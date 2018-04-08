@@ -9,9 +9,9 @@
  * @link      http://commonsbooking.wielebenwir.de
  *
  * @see       CB_Enqueue::cb_template_chooser()
- */
-?>
-<?php	$cal = $template_args;
+ *
+*/
+$cal = $template_args;
 	if ( !empty ( $cal )) { ?>
 		<?php // calendar ?>
 		<div class="cb-calendar">
@@ -37,4 +37,4 @@
 				<?php } //if ( is_array( $cal['calendar'] ))  ?>
 			</ul><?php // end ul.cb-calendar ?>
 	</div> <?php // end div.cb-calendar ?>
-<?php } //if ( is_array( $calendar )) ?>
+<?php } //if ( is_array( $calendar )) 	?>

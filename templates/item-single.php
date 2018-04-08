@@ -20,8 +20,13 @@
 					<?php echo CB_Gui::location_short( $tf ) ; ?>
 					<span class="cb-slot-availability"><?php echo CB_Gui::col_format_availability( $tf->availability ); ?></span>
 					<?php CB_Gui::maybe_do_message ( $tf->message );	?>
-					<?php // calendar ?>
-            <ul class="cb-calendar">
+					<?php // calendar
+
+            // Suggest to replace the calendar with the shortcode for ease of maintenance
+            // Do we still want calendars per timeframe?
+            echo do_shortcode('[cb_calendar timeframe_id="' . $tf->timeframe_id .'"]');  ?>
+
+            <!--<ul class="cb-calendar">
               <?php if ( is_array( $tf->calendar )) { ?>
 								<?php foreach ( $tf->calendar as $cal_date => $date ) { ?>
 									<li class="cb-date weekday_<?php echo date ( 'w', strtotime( $cal_date ) );  ?>" id="<?php echo $tf->timeframe_id. '-' . $cal_date; ?>">
@@ -32,7 +37,6 @@
                         <ul class="cb-slots"></span>
 													<?php foreach ( $date['slots'][$tf->timeframe_id] as $slot ) { ?>
 														<li id="<?php echo $slot['slot_id']; ?>" class="cb-slot" alt="<?php echo esc_html( $slot['description'] ); ?>" <?php echo CB_Gui::slot_attributes( $slot ); ?>>
-														<!-- checkbox or similar here -->
 														</li>
                           <?php } // endforeach $slots ?>
                         </ul>
@@ -40,7 +44,7 @@
                     </li><? // end li.cb-date ?>
                 <?php } // endforeach $cal ?>
               <?php } //if ( is_array( $tf->calendar ))  ?>
-            </ul><? // end ul.cb-calendar ?>
+            </ul><? // end ul.cb-calendar ?>-->
         </div> <? // end div.cb-timeframe ?>
     <?php } // endforeach $tfs ?>
 <?php } //if ( is_array( $tfs )) ?>

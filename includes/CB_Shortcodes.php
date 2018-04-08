@@ -27,12 +27,12 @@ class CB_Shortcodes extends CB_Object {
 		*/
 
 		$array_atts_fields = array(
-			'timeframe_id',
-			'owner_id',
-			'location_id',
-			'item_id',
-			'location_cat',
-			'item_cat'
+			'timeframe_id', // DONE in CB_Object
+			//'owner_id', // Does this make sense as an array? There can only be one owner
+			'location_id', // DONE in CB_Object
+			'item_id', // DONE in CB_Object
+			//'location_cat', // Didn't touch SQL in CB_Object, it's complicated
+			//'item_cat' // Didn't touch SQL in CB_Object, it's complicated
 		);
 
 		foreach($array_atts_fields as $field) {
