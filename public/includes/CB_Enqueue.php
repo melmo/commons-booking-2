@@ -51,7 +51,7 @@ class CB_Enqueue {
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
-		wp_enqueue_script( CB_TEXTDOMAIN . '-plugin-script', plugins_url( 'public/assets/js/public.js', CB_PLUGIN_ABSOLUTE ), array( 'jquery' ), CB_VERSION );
+		wp_enqueue_script( CB_TEXTDOMAIN . '-plugin-script', plugins_url( 'public/assets/js/public.min.js', CB_PLUGIN_ABSOLUTE ), array( 'jquery' ), CB_VERSION );
 	}
 	/**
 	 * Templates for cb_items and cb_locations.

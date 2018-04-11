@@ -15,7 +15,7 @@
 @import "partials/_mixins";
 
 /* Bootstrap 4: Helper mixins for responsive layouts */
-@import "vendor/bootstrap/_breakpoints";
+@import "../../../node_modules/bootstrap/scss/mixins/_breakpoints";
 
 /* Base styles */
 @import "partials/_base";

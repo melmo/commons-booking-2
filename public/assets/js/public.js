@@ -6,9 +6,9 @@
 
 		$(document).ready(function(){
 
-			window.cb = {};
+			window.cb2 = {}; // global commons booking object
 
-			cb.calendarStyles = function() {
+			cb2.calendarStyles = function() { // manage style of calendar by calendar size, not window width
 
 				if ($('.cb-calendar-grouped').length < 1) {
 					return;
@@ -22,9 +22,11 @@
 
 			};
 
-			cb.calendarStyles();
+			cb2.calendarStyles();
 
-			$(window).on('resize',cb.calendarStyles);
+			$(window).on('resize',cb2.calendarStyles);
+
+			tippy('.cb-date'); // need to polyfill MutationObserver for IE10 if planning to use dynamicTitle
 
 		});
 
