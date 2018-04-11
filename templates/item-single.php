@@ -25,26 +25,6 @@
             // Suggest to replace the calendar with the shortcode for ease of maintenance
             // Do we still want calendars per timeframe?
             echo do_shortcode('[cb_calendar timeframe_id="' . $tf->timeframe_id .'"]');  ?>
-
-            <!--<ul class="cb-calendar">
-              <?php if ( is_array( $tf->calendar )) { ?>
-								<?php foreach ( $tf->calendar as $cal_date => $date ) { ?>
-									<li class="cb-date weekday_<?php echo date ( 'w', strtotime( $cal_date ) );  ?>" id="<?php echo $tf->timeframe_id. '-' . $cal_date; ?>">
-									  <span class="cb-holiday"><?php echo $date['holiday']; ?></span>
-										<span class="cb-M"><?php echo date ( 'M', strtotime( $cal_date ) );  ?></span>
-                    <span class="cb-j"><?php echo date ( 'j', strtotime( $cal_date ) );  ?></span>
-                      <?php if ( ! empty ( $date['slots'][$tf->timeframe_id] ) && is_array( $date['slots'][$tf->timeframe_id] ) ) {	?></span>
-                        <ul class="cb-slots"></span>
-													<?php foreach ( $date['slots'][$tf->timeframe_id] as $slot ) { ?>
-														<li id="<?php echo $slot['slot_id']; ?>" class="cb-slot" alt="<?php echo esc_html( $slot['description'] ); ?>" <?php echo CB_Gui::slot_attributes( $slot ); ?>>
-														</li>
-                          <?php } // endforeach $slots ?>
-                        </ul>
-                      <?php } // if ( is_array( $date['slots'] ) ) { ?>
-                    </li><? // end li.cb-date ?>
-                <?php } // endforeach $cal ?>
-              <?php } //if ( is_array( $tf->calendar ))  ?>
-            </ul><? // end ul.cb-calendar ?>-->
         </div> <? // end div.cb-timeframe ?>
     <?php } // endforeach $tfs ?>
-<?php } //if ( is_array( $tfs )) ?>
+<?php } //if ( is_array( $tfs )) 

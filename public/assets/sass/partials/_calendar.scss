@@ -248,22 +248,35 @@ span.cb-item-dot { // dot representing the items
     li.cb-date {
       ul.cb-slots {
         li.cb-slot {
-          &[data-state="allow-booking-inner"] {
-            display: none;
-            span.cb-item-dot {
-              background-color: #FFFFFF;
-            }
+          display: none;        
+        }
+        li.cb-slot[data-state="allow-booking"] {
+          &:nth-child(1) {
+            display: inline-block;
           }
 
         }
-        li.cb-slot-extra {
-          display: none;
-        } 
         li.cb-slot-count {
-          display: inline-block;
+          display: none;
         }
       }
+    }
+  }
 
+  ul.cb-calendar-grouped-large {
+    li.cb-date {
+      ul.cb-slots {
+        li.cb-slot[data-state="allow-booking"] {
+          &:nth-child(1),&:nth-child(2),&:nth-child(3) {
+            display: inline-block;
+          }
+
+        }
+        li.cb-slot-count {
+          display: inline-block;
+          font-size:14px;
+        }
+      }
     }
   }
 

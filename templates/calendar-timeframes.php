@@ -31,12 +31,7 @@ $cal = $template_args;
 									<ul class="cb-slots">
 										<?php $available_slot_count = 0 ;?>
 										<?php foreach ( $date['slots'] as $slot ) { ?>
-											<?php 
-											$cb_slot_class = "";
-											if ($available_slot_count > 2) {
-												$cb_slot_class = "cb-slot-extra";
-											}
-											?>
+											
 											<li id="<?php echo $slot['slot_id']; ?>" class="cb-slot <?php echo $cb_slot_class;?>" alt="<?php echo esc_html( $slot['description'] ); ?>" <?php echo CB_Gui::slot_attributes( $slot ); ?>>
 												<span class="cb-item-dot"></span>
 												<!-- checkbox or similar here -->
