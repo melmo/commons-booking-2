@@ -23,7 +23,7 @@ $cal = $template_args;
 			<ul class="cb-calendar <?php echo $cb_calendar_class; ?>">
 				<?php if ( is_array( $cal['calendar'] )) { ?>
 					<?php foreach ( $cal['calendar'] as $cal_date => $date ) { ?>
-						<li class="cb-date weekday_<?php echo date ( 'w', strtotime( $cal_date ) );  ?>" id="<?php echo $cal_date; ?>">
+						<li class="cb-date weekday_<?php echo date ( 'w', strtotime( $cal_date ) );  ?>" id="<?php echo $cal_date; ?>" title="<?php echo date ( 'M j', strtotime( $cal_date ) );  ?>">
 							<span class="cb-holiday"><?php echo $date['holiday']; ?></span>
 							<span class="cb-M"><?php echo date ( 'M', strtotime( $cal_date ) );  ?></span>
 							<span class="cb-j"><?php echo date ( 'j', strtotime( $cal_date ) );  ?></span>
@@ -31,13 +31,8 @@ $cal = $template_args;
 									<ul class="cb-slots">
 										<?php $available_slot_count = 0 ;?>
 										<?php foreach ( $date['slots'] as $slot ) { ?>
-											<?php 
-											$cb_slot_class = "";
-											if ($available_slot_count > 2) {
-												$cb_slot_class = "cb-slot-extra";
-											}
-											?>
-											<li id="<?php echo $slot['slot_id']; ?>" class="cb-slot <?php echo $cb_slot_class;?>" alt="<?php echo esc_html( $slot['description'] ); ?>" <?php echo CB_Gui::slot_attributes( $slot ); ?>>
+											
+											<li id="<?php echo $slot['slot_id']; ?>" class="cb-slot <?php echo $cb_slot_class;?>" alt="<?php echo esc_html( $slot['description'] ); ?>" <?php echo CB_Gui::slot_attributes( $slot ); ?> >
 												<span class="cb-item-dot"></span>
 												<!-- checkbox or similar here -->
 											</li>

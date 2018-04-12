@@ -5,7 +5,14 @@
 	"author": "Florian Egermann <florian@macht-medien.de>",
 	"devDependencies": {
 		"grunt": "*",
+		"grunt-contrib-compass": "*",
 		"grunt-contrib-watch": "*",
-		"grunt-contrib-compass": "*"
+		"matchdep": "^2.0.0"
+	},
+	"dependencies": {
+		"bootstrap": "^4.1.0",
+		"grunt-contrib-jshint": "^1.1.0",
+		"grunt-contrib-uglify": "^3.3.0",
+		"tippy.js": "^2.5.0"
 	}
 }
