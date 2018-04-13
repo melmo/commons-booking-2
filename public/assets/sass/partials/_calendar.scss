@@ -92,6 +92,11 @@ span.cb-item-dot { // dot representing the items
           float: left;
           text-align: center;
 
+          &[data-tippy] {
+            cursor: pointer;
+
+          }
+
           .cb-j { /* date */
             @extend .cb-big;
 						display: block;
@@ -155,7 +160,6 @@ span.cb-item-dot { // dot representing the items
 
 
               &[data-state="allow-booking"] { // selectable dates
-                cursor: pointer;
                 color: $action-color;
                 span.cb-item-dot {
                   border-color: transparent !important;
@@ -279,20 +283,53 @@ span.cb-item-dot { // dot representing the items
       }
     }
   }
-
-  .tooltipster-base {
-    .tooltipster-box {
-      .tooltipster-content{
-        font-size: 12px !important;
+  /*
+  Tooltips
+  */
+  .cb-calendar-theme {
+    &.tippy-tooltip {
+      box-shadow: 0px 0px 15px rgba(0,0,0,.2);
+      background-color: $white;
+      color:$dark-grey;
+    }  
+    .tippy-content {
+      text-align: left;
+      ul {
+        list-style-type: none;
+        padding: 0;
+        margin:0 0 10px 0;
         li {
-          line-height: auto;
-          margin: 0;
-          padding: 0;
-          display: block;
-          height: auto;
-          clear: both;
-          list-style: none;
+          padding:0;
+          margin:10px 0 0 0;
+        }
+        img {
+          display: inline-block;
+          max-width: 40px;
+          max-height:40px;
+          height:auto;
+          width:auto;
+          margin:0 10px 0 0;
+        }
+        a {
+          display: inline-block;
+          top: -10px;
+          position: relative;
         }
       }
+    }  
+  }
+
+  .cb-calendar-grouped {
+    .tippy-popper[x-placement^=top] .tippy-arrow {
+        border-top: 7px solid $white;
+    }
+    .tippy-popper[x-placement^=bottom] .tippy-arrow {
+        border-bottom: 7px solid $white;
+    }
+    .tippy-popper[x-placement^=right] .tippy-arrow {
+        border-right: 7px solid $white;
+    }
+    .tippy-popper[x-placement^=left] .tippy-arrow {
+        border-left: 7px solid $white;
     }
   }

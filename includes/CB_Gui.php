@@ -601,6 +601,12 @@ public static function slot_attributes( $slot  ) {
 	$html .= sprintf ( ' data-end="%s"', $slot['time_end']);
 	$html .= sprintf ( ' data-description="%s"', sanitize_title_with_dashes( $slot['description'] ));
 	$html .= sprintf ( ' data-state="%s"', $slot['state'] ) ;
+	$html .= sprintf ( ' data-location="%s"', $slot['location_id'] ) ;
+	$html .= sprintf ( ' data-item="%s"', $slot['item_id'] ) ;
+
+	$html .= sprintf ( ' data-item-title="%s"', get_the_title($slot['item_id'] )) ;
+	$html .= sprintf ( ' data-item-thumbnail="%s"', get_the_post_thumbnail_url($slot['item_id'] )) ;
+	$html .= sprintf ( ' data-item-url="%s"', get_permalink($slot['item_id'] )) ;
 
 	return $html;
 }

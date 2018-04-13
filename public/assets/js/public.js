@@ -22,11 +22,59 @@
 
 			};
 
-			cb2.calendarStyles();
+			cb2.calendarTooltips = function() {
 
-			$(window).on('resize',cb2.calendarStyles);
+				if ($('.cb-calendar-grouped').length < 1) {
+					return;
+				}
 
-			tippy('.cb-date'); // need to polyfill MutationObserver for IE10 if planning to use dynamicTitle
+				$('.cb-slot[data-state="allow-booking"] ').parents('li.cb-date').each(function(i, elem) {
+					var template = document.createElement('div');
+					template.id = $(elem).attr('id');
+					var html = '<div><ul>';
+
+					$(elem).find('[data-state="allow-booking"]').each(function(j, slot) {
+						html += '<li>';
+						if ($(slot).attr('data-item-thumbnail')) {
+							html += '<img src="' + $(slot).attr('data-item-thumbnail') + '">';
+						}
+						html += '<a href="' + $(slot).attr('data-item-thumbnail') + '">';
+						html += $(slot).attr('data-item-title');
+						html += '</a></li>';
+					});
+
+					html += '</ul></div>';
+
+					template.innerHTML = html;
+					
+					tippy('#' + template.id, {
+						appendTo : document.querySelector('.cb-calendar-grouped'),
+						arrow : true,
+						html: template,
+						interactive : true,
+						theme: 'cb-calendar',
+						trigger: 'click'
+					}); // need to polyfill MutationObserver for IE10 if planning to use dynamicTitle
+
+				});
+				
+				
+
+			};
+
+			cb2.init = function() {
+				cb2.calendarStyles();
+				cb2.calendarTooltips();
+			};
+
+			cb2.resize = function() {
+				cb2.calendarStyles();
+			};
+
+			cb2.init();
+
+			$(window).on('resize',cb2.resize);
+
 
 		});
 
