@@ -23,7 +23,7 @@ if ( !defined( 'WPINC' ) ) {
 	die;
 }
 define( 'CB_VERSION', '2.0.0' );
-define( 'CB_DEV_BUILD', '290318-1512' );
+define( 'CB_DEV_BUILD', '180417' );
 define( 'CB_TEXTDOMAIN', 'commons-booking-2' );
 define( 'CB_NAME', 'Commons Booking' );
 define( 'CB_PLUGIN_ROOT', plugin_dir_path( __FILE__ ) );
