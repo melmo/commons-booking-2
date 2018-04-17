@@ -461,7 +461,7 @@ class CB_Object {
 
 			$slot_query_args = array(); // array to hold our slot query args
 
-			if ( $this->context == 'timeframe' ) { // loop through timeframes, map slots to each timeframe´s calendar
+			if ( $this->context = 'timeframe' ) { // loop through timeframes, map slots to each timeframe´s calendar
 
 				foreach ( $timeframe_results as $timeframe_result ) {
 
@@ -499,7 +499,7 @@ class CB_Object {
 
 				return $this->timeframes_array; // return an array of timeframes with their respective calendars
 
-			} elseif ( $this->context == 'calendar' ) { // one calendar, slots mapped to dates
+			} elseif ( $this->context = 'calendar' ) { // one calendar, slots mapped to dates
 
 				// add additional query args from timeframe
 				$slot_query_args['timeframe_id'] = array_column( $timeframe_results, 'timeframe_id');
@@ -532,7 +532,7 @@ class CB_Object {
 				$this->calendar->timeframe_id = $slot_query_args['timeframe_id'] ;
 				return $this->calendar;
 
-			} elseif ( $this->context == 'admin_table' ){
+			} elseif ( $this->context = 'admin_table' ){
 
 				foreach ( $timeframe_results as $timeframe_result ) {
 
@@ -561,7 +561,7 @@ class CB_Object {
 
 				return $this->timeframes_array; // return an array of timeframes with their respective calendars
 
-			} elseif ( $this->context == 'api' ) { // api context @TODO format data for use in api
+			} elseif ( $this->context = 'api' ) { // api context @TODO format data for use in api
 
 				// add additional query args from timeframe
 				$slot_query_args['timeframe_id'] = array_column( $timeframe_results, 'timeframe_id');
