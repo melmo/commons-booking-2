@@ -310,6 +310,30 @@ class CB_Settings {
 		return $settings_template_cb_strings;
 	}
 	/**
+	 * Geo Code Service
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return array
+	 */
+	public static function get_settings_template_map_geocode() {
+
+		$settings_map_geocode = array(
+			'name' => __( 'Map Geocode', 'commons-booking' ),
+			'slug' => 'map_geocode',
+			'fields' => array (
+				array(
+					'name'             => __( 'API Key', 'commons-booking' ),
+					'desc'             => __( 'Get your api key at..., comma-seperated', 'commons-booking' ),
+					'id'               => 'api-key',
+					'type'             => 'text',
+					'default'          => '',
+				)
+			)
+		);
+		return $settings_map_geocode;
+	}
+	/**
 	 * Locations meta box: opening times template
 	 *
 	 * @since 2.0.0
@@ -554,6 +578,7 @@ class CB_Settings {
 			'location-opening-times' => self::get_settings_template_location_opening_times(),
 			'location-pickup-mode' => self::get_settings_template_location_pickup_mode(),
 			'location-personal-contact-info' => self::get_settings_template_location_personal_contact_info(),
+			'map_geocode' => self::get_settings_template_map_geocode(),
 			'strings' => self::get_settings_template_cb_strings(),
 		);
 
@@ -573,6 +598,15 @@ class CB_Settings {
 				)
 			)
 		);
+		self::add_settings_tab( 'maps',
+			array(
+				'title' => __( 'Maps', 'commons-booking' ),
+				'description' => __( 'Map settings', 'commons-booking' ),
+				'groups' => array (
+					'map_geocode'
+				)
+			)
+		);
 		self::add_settings_tab( 'formats',
 			array(
 				'title' => __( 'Formats', 'commons-booking' ),
@@ -582,14 +616,12 @@ class CB_Settings {
 				)
 			)
 		);
-
 	}
 	/**
 	 * Render the admin settings
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param string $tab
 	 */
 	public static function do_admin_settings( ) {
 
@@ -600,7 +632,7 @@ class CB_Settings {
 			<?php
 			echo $value['description'];
 
-			foreach ( $value['groups'] as $group ) { // render all metaboxes
+			foreach ( $value['groups'] as $group ) { // render the settings groups
 				self::do_settings_group( $group );
 			}
 			?>
