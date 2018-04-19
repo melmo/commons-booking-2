@@ -290,7 +290,6 @@ class CB_Timeframes_Table extends WP_List_Table
 			$hidden = array();
 			$sortable = $this->timeframes_array->get_timeframes_sortable_columns();
 
-		  var_dump($sortable);
 			// here we configure table headers, defined in our methods
 			$this->_column_headers = array($columns, $hidden, $sortable);
 
