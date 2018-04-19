@@ -126,7 +126,7 @@ class CB_Timeframes_Admin  {
 	*/
 	public function init_timeframes_object() {
 			$this->timeframes_array = new CB_Object();
-			$this->timeframes_array->set_context( 'admin-table' );
+			$this->timeframes_array->set_context( 'timeframe' );
 	}
 	/**
 	 * Get the timeframes id from the request array
@@ -164,6 +164,7 @@ class CB_Timeframes_Admin  {
 				'scope' => '', // ignore dates
 		 );
 			$timeframe = $this->timeframes_array->get_timeframes( $args );
+			console($this->timeframes_array);
 
 			$array = cb_obj_to_array( $timeframe );
 			return $array[0];
