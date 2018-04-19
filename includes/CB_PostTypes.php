@@ -46,8 +46,8 @@ class CB_PostTypes {
 	 */
 	public function load_cpts() {
 		// See: https://github.com/johnbillion/extended-cpts/wiki
-		// Create Custom Post Type CB_Item
-		$CB_Item = register_extended_post_type( 'cb_item', array(
+		// Create Custom Post Type CB_Items
+		$CB_Items = register_extended_post_type( 'cb_item', array(
 			# Add as sub-menu to CB Dashboard
 			'show_in_nav_menus' => TRUE,
 			'show_in_menu' => 'cb_dashboard_page',
@@ -82,12 +82,12 @@ class CB_PostTypes {
 			'capability_type' => array( 'demo', 'demoes' ), //@TODO: Roles
 				) );
 		// Create Items category https://github.com/johnbillion/extended-taxos
-		$CB_Item->add_taxonomy( 'item-category', array(
+		$CB_Items->add_taxonomy( 'item-category', array(
 			'hierarchical' => true,
 			'show_ui' => true,
 		) );
-		// Create Custom Post Type CB_Location
-		$CB_Location = register_extended_post_type( 'cb_location', array(
+		// Create Custom Post Type CB_Locations
+		$CB_Locations = register_extended_post_type( 'cb_location', array(
 			# Add as sub-menu to CB Dashboard
 			'show_in_nav_menus' => TRUE,
 			'show_in_menu' => 'cb_dashboard_page',
@@ -103,7 +103,7 @@ class CB_PostTypes {
 			'capability_type' => array( 'demo', 'demoes' ), //@TODO: Roles
 				) );
 		// Create Items category https://github.com/johnbillion/extended-taxos
-		$CB_Location->add_taxonomy( 'location-category', array(
+		$CB_Locations->add_taxonomy( 'location-category', array(
 			'hierarchical' => true,
 			'show_ui' => true,
 		) );

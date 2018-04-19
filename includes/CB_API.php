@@ -66,15 +66,15 @@ public function process_endpoint( $request ) {
 
 }
 /**
- * Get timeframes via CB_Timeframe
+ * Get timeframes via CB_Timeframes
  *
  * @since 2.0.0
  *
- * @uses CB_Timeframe
+ * @uses CB_Timeframes
  */
 public function get_timeframes() {
 
-	$timeframes_object = new CB_Timeframe();
+	$timeframes_object = new CB_Timeframes();
 	$timeframes_object->set_context( 'api' ); // see: CB_Object:550 -- i would still need to update the query function to your specs.
 
 	$timeframes = $timeframes_object->get( $this->query_args );

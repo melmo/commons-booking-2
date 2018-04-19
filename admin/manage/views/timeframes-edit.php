@@ -325,7 +325,7 @@ function render_timeframe_view_meta_box( $item ) {
 @TODO: render calendar here.
 <?php
 	$args = array ( 'timeframe_id' => $item['timeframe_id'] );
-	$timeframe_object = new CB_Timeframe( $args );
+	$timeframe_object = new CB_Timeframes( $args );
 	$CB_Timeframes = $timeframe_object->get( );
 	cb_get_template_part(  CB_TEXTDOMAIN, 'timeframe', 'admin', $CB_Timeframes );
 

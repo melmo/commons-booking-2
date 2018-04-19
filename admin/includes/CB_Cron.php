@@ -31,7 +31,7 @@ class CB_Cron {
 		// 1. get timeframes that have no end date
 		$timeframe_args = array ( 'has_end_date' => 0, 'scope' => '' );
 
-		$timeframes_object = new CB_Timeframe( $timeframe_args );
+		$timeframes_object = new CB_Timeframes( $timeframe_args );
 		$timeframes = $timeframes_object->get();
 
 
