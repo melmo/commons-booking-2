@@ -7,11 +7,24 @@
  * @link      http://www.wielebenwir.de
  * @copyright 2015 wielebenwir
  */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/fleg\/WorkBench\/3\%20DEV\/Apache\/commons-booking-2\/wp-content\/plugins\/commons-booking-2\/admin\/assets\/sass\/admin\.scss}line{font-family:\0000311}}
 .cb-form-danger {
-  color: red; }
+  color: red;
+}
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/fleg\/WorkBench\/3\%20DEV\/Apache\/commons-booking-2\/wp-content\/plugins\/commons-booking-2\/admin\/assets\/sass\/admin\.scss}line{font-family:\0000316}}
 #cb_admin_metabox .form-field-header {
-  font-weight: bold; }
+  font-weight: bold;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/fleg\/WorkBench\/3\%20DEV\/Apache\/commons-booking-2\/wp-content\/plugins\/commons-booking-2\/admin\/assets\/sass\/admin\.scss}line{font-family:\0000321}}
 #cb_admin_metabox #timeframe_form_meta_box ul.opening_hours_list li ul, #cb_admin_metabox #timeframe_form_meta_box ul.opening_hours_list li ul li {
   display: inline;
-  padding: 5px; }
+  padding: 5px;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/fleg\/WorkBench\/3\%20DEV\/Apache\/commons-booking-2\/wp-content\/plugins\/commons-booking-2\/admin\/assets\/sass\/admin\.scss}line{font-family:\0000330}}
+.row-alternate {
+  background-color: #F1F1F1;
+}
+
+/*# sourceMappingURL=admin.css.map */
