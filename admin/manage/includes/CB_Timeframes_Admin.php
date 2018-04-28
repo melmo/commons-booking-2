@@ -83,6 +83,7 @@ class CB_Timeframes_Admin  {
 
 	public $timeframe_id;
 	public $timeframe;
+	public $timeframe_options;
 	public $timeframe_slots = array();
 
 	// DB Tables
@@ -117,6 +118,15 @@ class CB_Timeframes_Admin  {
 		$this->timeframes_table = $wpdb->prefix . CB_TIMEFRAMES_TABLE;
 
 		$this->screen = 'view'; // start screen
+
+		$this->timeframe_options = new CB_Timeframe_Options( );
+
+
+		// add filters for timeframe options custom saving/retrival function
+		add_filter('cmb2_override_meta_value', array( $this->timeframe_options, 'get_timeframe_option_for_form'), 10, 4);
+		add_filter('cmb2_override_meta_save', array( $this->timeframe_options, 'save_timeframe_option'), 10, 2);
+		add_filter('cmb2_override_meta_remove', array( $this->timeframe_options, 'save_timeframe_option'), 10, 2);
+
 
 	}
 	/**
@@ -261,6 +271,10 @@ public function get_item_count( ) {
 		}
 
 		$this->timeframe = $this->get_single_timeframe( $this->timeframe_id );
+		$this->timeframe_options->set_timeframe_id( $this->timeframe_id );
+
+		$options = $this->timeframe_options->get_timeframe_options();
+		// var_dump ($options);
 
 		// setup the meta box
 		$this->setup_metaboxes( );
@@ -335,11 +349,12 @@ public function get_item_count( ) {
 
 			case 'timeframe_settings':
 				// Metabox: Timeframe settings (Screen 1)
-				add_meta_box('timeframe_form_meta_box', __('Timeframe settings', 'commons-booking') , 'render_timeframe_settings_meta_box' , 'timeframe', 'normal', 'default');
+				add_meta_box('timeframe_form_meta_box', __('Basic settings', 'commons-booking') , 'render_timeframe_settings_meta_box' , 'timeframe', 'normal', 'default');
 
 				$form_fields_redirect_action = '<input type="hidden" name="cb_form_action" value="save_timeframe">';
 				$form_fields_hidden = sprintf ('<input type="hidden" name="modified" value="%s">',
 				date("Y-m-d H:i:s") );
+
 				$form_buttons = sprintf ('
 					<button type="submit" value="submit" id="submit" class="button-primary" name="submit">%s</button>',
 				__('Save and continue >>', 'commons-booking' ) );
@@ -361,6 +376,10 @@ public function get_item_count( ) {
 			case 'view':
 				// Metabox: Timeframe detail (Screen 3)
 				add_meta_box('timeframe_form_meta_box', __('Timeframe information', 'commons-booking') , 'render_timeframe_view_meta_box' , 'timeframe', 'normal', 'default');
+
+				CB_Settings::do_settings_group('bookings');
+
+
 				break;
 		}
 	}

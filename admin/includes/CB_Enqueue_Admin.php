@@ -36,6 +36,8 @@ class CB_Enqueue_Admin {
 		// Load admin style sheet and JavaScript.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+		// @TODO not working
+		add_filter( 'cmb2_sanitize_toggle', array( $this, 'cmb2_sanitize_checkbox' ), 20, 2 );
 	}
 
 		/**
@@ -183,7 +185,19 @@ class CB_Enqueue_Admin {
 				), $links
 		);
 	}
-
+/**
+ * Fixed checkbox issue with default is true.
+ *
+ * @param  mixed $override_value Sanitization/Validation override value to return.
+ * @param  mixed $value          The value to be saved to this field.
+ * @return mixed
+ */
+function cmb2_sanitize_checkbox( $override_value, $value ) {
+    // Return 0 instead of false if null value given. This hack for
+		// checkbox or checkbox-like can be setting true as default value.
+		var_dump($value);
+    return is_null( $value ) ? 0 : $value;
+	}
 }
 $cb_enqueue_admin = new CB_Enqueue_Admin();
 $cb_enqueue_admin->initialize();
