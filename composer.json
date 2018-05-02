@@ -20,7 +20,8 @@
         "rubengc\/cmb2-tabs": "*",
         "johnbillion\/extended-cpts": "4.2",
 				"julien731\/wp-dismissible-notices-handler": "1.0.0",
-				"azuyalabs\/yasumi": "1.8.0"
+				"azuyalabs\/yasumi": "1.8.0",
+        "opencage/geocode": "dev-master"
     },
     "repositories": [
         {

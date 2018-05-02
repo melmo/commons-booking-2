@@ -151,6 +151,25 @@ class CB_PostTypes_Metaboxes {
 			'cmb_styles' => false, // false to disable the CMB stylesheet
 			'fields'				=> $fields_location_opening_times
 		) );
+
+		/**
+		 * Metabox: Opening times (conditional)
+		 */
+		$fields_location_address = CB_Settings::get_admin_metabox( 'location-address');
+
+		/**
+		 * Initiate the metabox
+		 */
+		$cmb = new_cmb2_box( array(
+			'id'            => 'location-address',
+			'title'         => __( 'Location Address', 'commons-booking' ),
+			'object_types'  => array( 'cb_location', ), // Post type
+			'context'       => 'normal',
+			'priority'      => 'high',
+			'show_names'    => true, // Show field names on the left
+			'cmb_styles' => false, // false to disable the CMB stylesheet
+			'fields'				=> $fields_location_address
+		) );
 	}
 
 }

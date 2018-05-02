@@ -324,7 +324,7 @@ class CB_Settings {
 			'fields' => array (
 				array(
 					'name'             => __( 'API Key', 'commons-booking' ),
-					'desc'             => __( 'Get your api key at..., comma-seperated', 'commons-booking' ),
+					'desc'             => __( 'Get your API key at https://geocoder.opencagedata.com/users/sign_up, comma-separated', 'commons-booking' ),
 					'id'               => 'api-key',
 					'type'             => 'text',
 					'default'          => '',
@@ -374,7 +374,7 @@ class CB_Settings {
 						'classes'					 => 'mon-hidden'
 					),
 					array(
-						'before_row'       => __('tuesday', 'commons-booking' ), // Headline
+						'before_row'       => __('Tuesday', 'commons-booking' ), // Headline
 						'name'             => __( 'Open on tuesdays', 'commons-booking' ),
 						'id'               => 'location-open-tue',
 						'type'             => 'checkbox',
@@ -394,7 +394,7 @@ class CB_Settings {
 						'classes'					 => 'tue-hidden'
 					),
 					array(
-						'before_row'       => __('wednesday', 'commons-booking' ), // Headline
+						'before_row'       => __('Wednesday', 'commons-booking' ), // Headline
 						'name'             => __( 'Open on wednesdays', 'commons-booking' ),
 						'id'               => 'location-open-wed',
 						'type'             => 'checkbox',
@@ -414,7 +414,7 @@ class CB_Settings {
 						'classes'					 => 'wed-hidden'
 					),
 					array(
-						'before_row'       => __('thursday', 'commons-booking' ), // Headline
+						'before_row'       => __('Thursday', 'commons-booking' ), // Headline
 						'name'             => __( 'Open on thursdays', 'commons-booking' ),
 						'id'               => 'location-open-thu',
 						'type'             => 'checkbox',
@@ -434,7 +434,7 @@ class CB_Settings {
 						'classes'					 => 'thu-hidden'
 					),
 					array(
-						'before_row'       => __('friday', 'commons-booking' ), // Headline
+						'before_row'       => __('Friday', 'commons-booking' ), // Headline
 						'name'             => __( 'Open on fridays', 'commons-booking' ),
 						'id'               => 'location-open-fri',
 						'type'             => 'checkbox',
@@ -454,7 +454,7 @@ class CB_Settings {
 						'classes'					 => 'fri-hidden'
 					),
 					array(
-						'before_row'       => __('saturday', 'commons-booking' ), // Headline
+						'before_row'       => __('Saturday', 'commons-booking' ), // Headline
 						'name'             => __( 'Open on saturdays', 'commons-booking' ),
 						'id'               => 'location-open-sat',
 						'type'             => 'checkbox',
@@ -474,7 +474,7 @@ class CB_Settings {
 						'classes'					 => 'sat-hidden'
 					),
 					array(
-						'before_row'       => __('sunday', 'commons-booking' ), // Headline
+						'before_row'       => __('Sunday', 'commons-booking' ), // Headline
 						'name'             => __( 'Open on sundays', 'commons-booking' ),
 						'id'               => 'location-open-sun',
 						'type'             => 'checkbox',
@@ -498,6 +498,59 @@ class CB_Settings {
 		return $settings_template_location_opening_times;
 	}
 	/**
+	 * Locations meta box: address
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return array
+	 */
+	public static function get_settings_template_location_address() {
+
+		$settings_template_location_address = array(
+			'name' => __( 'Address', 'commons-booking' ),
+			'slug' => 'locations',
+			'show_in_plugin_settings' => false,
+			'fields' => array (
+				array(
+						'name'          => __( 'Address Line 1', 'commons-booking' ),
+						'id'            => 'location-address-line1',
+						'type'          => 'text'
+				),
+				array(
+						'name'          => __( 'Address Line 2 (Optional)', 'commons-booking' ),
+						'id'            => 'location-address-line2',
+						'type'          => 'text'
+				),
+				array(
+						'name'          => __( 'State', 'commons-booking' ),
+						'id'            => 'location-address-state',
+						'type'          => 'text'
+				),
+				array(
+						'name'          => __( 'Postcode', 'commons-booking' ),
+						'id'            => 'location-address-postcode',
+						'type'          => 'text'
+				),
+				array(
+						'name'          => __( 'Country', 'commons-booking' ),
+						'id'            => 'location-address-country',
+						'type'          => 'text'
+				),
+				array(
+						'name'          => __( 'Latitude', 'commons-booking' ),
+						'id'            => 'location-address-latitude',
+						'type'          => 'hidden'
+				),
+				array(
+						'name'          => __( 'Longitude', 'commons-booking' ),
+						'id'            => 'location-address-longitude',
+						'type'          => 'hidden'
+				),
+			)
+		);
+		return $settings_template_location_address;
+	}
+	/**
 	 * Locations meta box: choose pickup mode template
 	 *
 	 * @since 2.0.0
@@ -512,13 +565,13 @@ class CB_Settings {
 			'show_in_plugin_settings' => false,
 			'fields' => array (
 				array(
-						'name'             => __( 'Pickup mode', 'commons-booking' ),
-						'id'               => 'location-pickup-mode',
-						'type'             => 'radio_inline',
-						'options' 				 => array(
-																	'personal_contact'   => __( 'Contact the location for pickup', 'commons-booking' ),
-																	'opening_times' 		 => __( 'Fixed opening times for pickup', 'commons-booking' ),
-																	),
+						'name'          => __( 'Pickup mode', 'commons-booking' ),
+						'id'            => 'location-pickup-mode',
+						'type'          => 'radio_inline',
+						'options' 		=> array(
+											'personal_contact'   => __( 'Contact the location for pickup', 'commons-booking' ),
+											'opening_times' 		 => __( 'Fixed opening times for pickup', 'commons-booking' ),
+											),
 						'default' => 'personal_contact',
 				),
 			)
@@ -577,6 +630,7 @@ class CB_Settings {
 			'codes' => self::get_settings_template_codes(),
 			'location-opening-times' => self::get_settings_template_location_opening_times(),
 			'location-pickup-mode' => self::get_settings_template_location_pickup_mode(),
+			'location-address' => self::get_settings_template_location_address(),
 			'location-personal-contact-info' => self::get_settings_template_location_personal_contact_info(),
 			'map_geocode' => self::get_settings_template_map_geocode(),
 			'strings' => self::get_settings_template_cb_strings(),
