@@ -164,7 +164,7 @@ class CB_Timeframes_Admin  {
 				'scope' => '', // ignore dates
 		 );
 			$timeframe = $this->timeframes_array->get_timeframes( $args );
-			console($this->timeframes_array);
+			// console($this->timeframes_array);
 
 			$array = cb_obj_to_array( $timeframe );
 			return $array[0];
