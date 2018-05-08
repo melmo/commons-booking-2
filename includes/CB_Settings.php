@@ -39,6 +39,18 @@ class CB_Settings {
 	 */
 	protected static $admin_settings_tabs;
 	/**
+	 * Settings groups used in timeframe options
+	 *
+	 * @var array
+	 */
+	protected static $timeframe_options;
+	/**
+	 * Settings slug
+	 *
+	 * @var array
+	 */
+	protected static $settings_slug = CB_TEXTDOMAIN . '-settings-';
+	/**
 	 * Return an instance of this class.
 	 *
 	 * @since 2.0.0
@@ -75,6 +87,8 @@ class CB_Settings {
 		// self::add_settings_tab( 'bookings', __( 'Bookings', 'commons-booking' ) );
 
 		self::apply_settings_templates();
+		self::apply_settings_tabs();
+		self::apply_timeframe_options();
 
 
 		}
@@ -101,7 +115,6 @@ class CB_Settings {
 		$settings_bookings = array(
 			'name' => __( 'Bookings', 'commons-booking' ),
 			'slug' => 'bookings',
-			'tab'  => 'bookings',
 			'fields' => array (
 					array (
 						'name'             => __( 'Maximum slots', 'commons-booking' ),
@@ -140,7 +153,6 @@ class CB_Settings {
 		$settings_calendar = array(
 			'name' => __( 'Calendar', 'commons-booking' ),
 			'slug' => 'calendar',
-			'tab'  => 'bookings',
 			'fields' => array (
 					array(
 						'name'             => __( 'Calendar limit', 'commons-booking' ),
@@ -581,6 +593,16 @@ class CB_Settings {
 			'map_geocode' => self::get_settings_template_map_geocode(),
 			'strings' => self::get_settings_template_cb_strings(),
 		);
+	}
+
+	/**
+	 * Add Plugin Settings Menu Tabs
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return void
+	 */
+	public static function apply_settings_tabs() {
 
 		self::add_settings_tab( 'intro',
 			array(
@@ -616,6 +638,43 @@ class CB_Settings {
 				)
 			)
 		);
+	}
+	/**
+	 * Setup the metaboxes that can be overriden by Timeframe_Options
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return void
+	 */
+	public static function apply_timeframe_options() {
+
+		self::$timeframe_options = array (
+			'bookings'
+		);
+	}
+	/**
+	 * Return field names and values as key/value pair
+	 * The options that are available as timeframe options
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return array
+	 */
+	public static function get_timeframe_option_group_fields() {
+
+		$fields = array();
+
+		foreach ( self::$timeframe_options as $option ) {
+
+			$group = self::get_settings_group_fields( $option );
+
+			foreach ( $group as $group_fields ) {
+				$field = $group_fields['id'];
+				$val = self::get( $option, $field );
+				$fields[$field] = $val;
+			}
+		}
+		return $fields;
 	}
 	/**
 	 * Render the admin settings
@@ -664,7 +723,7 @@ class CB_Settings {
 									'fields' => self::get_settings_group_fields( $slug )
 								) );
 
-						cmb2_metabox_form( CB_TEXTDOMAIN  . '_options-' . $slug, CB_TEXTDOMAIN  . '-settings-' . $slug );
+						cmb2_metabox_form( CB_TEXTDOMAIN  . '_options-' . $slug, self::$settings_slug . $slug );
 						?>
 					</div>
 				</div>
@@ -723,6 +782,18 @@ class CB_Settings {
 		return self::$plugin_settings[$slug]['fields'];
 
 	}
+	/**
+	 * Get settings slug, prefix for storing/retrieving options from the wp_options table
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return string $slug
+	 */
+	public static function get_plugin_settings_slug( ) {
+
+		return self::$settings_slug;
+
+	}
 
 
 	/**
@@ -738,7 +809,7 @@ class CB_Settings {
 	 */
 	public static function get( $options_page, $option = FALSE, $checkbox = FALSE ) {
 
-		$options_page_name = CB_TEXTDOMAIN . '-settings-' . $options_page;
+		$options_page_name = self::$settings_slug . $options_page;
 
 		$options_array = get_option( $options_page_name );
 

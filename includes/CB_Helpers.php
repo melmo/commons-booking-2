@@ -302,5 +302,29 @@ function cb_post_exists( $id ) {
  * @since    2.0.0
  */
 function cb_timeframe_exists( $id ) {
-  return TRUE;
+
+	if ( isset( $id ) && ( ! empty ( $id ) ) ) {
+		return TRUE;
+
+	} else {
+
+		return FALSE;
+	}
+
+}
+/**
+ * Return the formatted settings field name including prefix
+ *
+ * @param    string   $group    the settings group
+ * @return   string   $field_name  Name of the settings field
+ * @since    2.0.0
+ */
+function cb_get_settings_field_name_prefixed( $group, $field_name ) {
+
+	$plugin_slug = CB_Settings::get_plugin_settings_slug();
+
+	$field_name_prefixed = $plugin_slug . $group . '-' . $field_name;
+
+	return $field_name_prefixed;
+
 }

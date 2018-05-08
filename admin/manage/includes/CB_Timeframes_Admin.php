@@ -24,7 +24,7 @@ class CB_Timeframes_Admin  {
 	 */
 	public $slots_array;
 	/**
-	 * Current screen ('timeframe_settings', 'generate_slots', 'view')
+	 * Current screen ('timeframe_calendar', 'generate_slots', 'view')
 	 *
 	 * @var string
 	 */
@@ -66,7 +66,7 @@ class CB_Timeframes_Admin  {
 	 * @var array
 	 */
 	public $screens_array = array (
-		'timeframe_settings',
+		'timeframe_calendar',
 		'generate_slots',
 		'view'
 	);
@@ -123,7 +123,7 @@ class CB_Timeframes_Admin  {
 
 
 		// add filters for timeframe options custom saving/retrival function
-		add_filter('cmb2_override_meta_value', array( $this->timeframe_options, 'get_timeframe_option_for_form'), 10, 4);
+		add_filter('cmb2_override_meta_value', array( $this->timeframe_options, 'get_timeframe_option_cmb2_form'), 10, 4);
 		add_filter('cmb2_override_meta_save', array( $this->timeframe_options, 'save_timeframe_option'), 10, 2);
 		add_filter('cmb2_override_meta_remove', array( $this->timeframe_options, 'save_timeframe_option'), 10, 2);
 
@@ -221,7 +221,7 @@ public function get_item_count( ) {
 
 			if ( isset($request['cb_form_action'] ) && $request['cb_form_action'] == 'save_timeframe' ) { // we saving the settings
 
-				$this->item_valid = $this->validate_timeframe_settings_form( $item );
+				$this->item_valid = $this->validate_timeframe_calendar_form( $item );
 
 				if ( $this->item_valid === true) { // validation passed
 
@@ -273,7 +273,7 @@ public function get_item_count( ) {
 		$this->timeframe = $this->get_single_timeframe( $this->timeframe_id );
 		$this->timeframe_options->set_timeframe_id( $this->timeframe_id );
 
-		$options = $this->timeframe_options->get_timeframe_options();
+		$options = $this->timeframe_options->get_timeframe_options( $this->timeframe_id );
 		// var_dump ($options);
 
 		// setup the meta box
@@ -301,13 +301,15 @@ public function get_item_count( ) {
 		}
 
 		// setup the screens
-		// default view is view (timeframe_settings)
+		// default view is "view" (timeframe_calendar)
 		if ( isset( $request['view'] ) && isset ( $request['timeframe_id'] ) ) {
 			$this->screen = 'view';
 		} elseif ( isset( $request['generate_slots']) && $request['generate_slots'] == 1 ) {
 			$this->screen = 'generate_slots';
 		} elseif ( isset( $request['edit']) && $request['edit'] == 1 ) {
-			$this->screen = 'timeframe_settings';
+			$this->screen = 'timeframe_calendar';
+		} elseif ( isset( $request['timeframe_options'] ) ) {
+			$this->screen = 'timeframe_options';
 		}
 
 	}
@@ -347,9 +349,9 @@ public function get_item_count( ) {
 
 		switch ( $this->screen ) {
 
-			case 'timeframe_settings':
+			case 'timeframe_calendar':
 				// Metabox: Timeframe settings (Screen 1)
-				add_meta_box('timeframe_form_meta_box', __('Basic settings', 'commons-booking') , 'render_timeframe_settings_meta_box' , 'timeframe', 'normal', 'default');
+				add_meta_box('timeframe_form_meta_box', __('General settings', 'commons-booking') , 'render_timeframe_calendar_meta_box' , 'timeframe', 'normal', 'default');
 
 				$form_fields_redirect_action = '<input type="hidden" name="cb_form_action" value="save_timeframe">';
 				$form_fields_hidden = sprintf ('<input type="hidden" name="modified" value="%s">',
@@ -377,8 +379,11 @@ public function get_item_count( ) {
 				// Metabox: Timeframe detail (Screen 3)
 				add_meta_box('timeframe_form_meta_box', __('Timeframe information', 'commons-booking') , 'render_timeframe_view_meta_box' , 'timeframe', 'normal', 'default');
 
-				CB_Settings::do_settings_group('bookings');
+				break;
 
+			case 'timeframe_options':
+
+				add_meta_box('timeframe_options_meta_box', __('Advanced options: Overwrite plugin settings for this timeframe.', 'commons-booking') , 'render_timeframe_options_meta_box' , 'timeframe', 'normal', 'default');
 
 				break;
 		}
@@ -405,7 +410,7 @@ public function get_item_count( ) {
 	 *
 	 * @return mixed $title
 	 */
-	public function do_title( ) {
+	public function do_subtitle( ) {
 
 		if ( $this->timeframe_id ) {
 
@@ -414,16 +419,39 @@ public function get_item_count( ) {
 			$date_start = CB_Gui::col_format_date ( $this->timeframe['date_start'] );
 			$date_end = CB_Gui::col_format_date_end ( $this->timeframe['date_end'], $this->timeframe['has_end_date'] );
 
-			$title = sprintf (
-				__('Timeframe (%d): %s at %s, %s - %s', 'commons-booking' ),
-				$this->timeframe_id,
+			$subtitle = sprintf (
+				__('%s at %s, %s - %s', 'commons-booking' ),
 				$item,
 				$location,
 				$date_start,
 				$date_end
 			);
 		} else {
-			$title = __('Create new', 'commons-booking');
+			$subtitle = '';
+		}
+		return $subtitle;
+
+	}
+	/**
+	 * Return the meta box title for each screen
+	 *
+	 * @since 2.0.0
+	 *
+	 * @uses CB_Gui
+	 *
+	 * @return mixed $title
+	 */
+	public function do_title( ) {
+
+		if ( $this->timeframe_id ) {
+
+			$title = sprintf (
+				__('<a href="%s">Timeframe (%d)</a>', 'commons-booking' ),
+				get_admin_url( get_current_blog_id(), 'admin.php?page=cb_timeframes_edit&timeframe_id=' . $this->timeframe_id ),
+				$this->timeframe_id
+			);
+		} else {
+			$title = __('New timeframe', 'commons-booking');
 		}
 		return $title;
 
@@ -597,7 +625,7 @@ public function get_item_count( ) {
  * @param $item
  * @return bool|string
  */
-function validate_timeframe_settings_form( $item ){
+function validate_timeframe_calendar_form( $item ){
 
 	// @TODO: Validaton fails if end date empty
 
