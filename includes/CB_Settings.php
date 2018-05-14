@@ -649,7 +649,7 @@ class CB_Settings {
 	public static function apply_timeframe_options() {
 
 		self::$timeframe_options = array (
-			'bookings'
+			'bookings', 'calendar', 'codes'
 		);
 	}
 	/**

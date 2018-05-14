@@ -100,8 +100,7 @@ class CB_Timeframe_Options {
 			return __('Timeframe id has not been set or timeframe does not exist.', 'commons-booking' );
 		}
 
-		$settings_options = CB_Settings::get_timeframe_option_group_fields();
-
+	$settings_options = CB_Settings::get_timeframe_option_group_fields();
 		global $wpdb;
 
 		// get data from the timeframe options table
@@ -180,7 +179,7 @@ class CB_Timeframe_Options {
 				);
 		}
 
-		// fire hook
+		// do action
 		do_action( 'commons_booking_cb_timeframe_option_updated', $result );
 		return true;
 	}

@@ -129,7 +129,6 @@ class CB_Timeframes_Admin  {
 		// saving data: empty values (like checkboxes)
 		add_filter('cmb2_override_meta_remove', array( $this->timeframe_options, 'save_timeframe_option'), 10, 2);
 
-
 	}
 	/**
 	 * Initialise a new object for the retrieval of timeframes, set the context
