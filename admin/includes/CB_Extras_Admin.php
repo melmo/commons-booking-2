@@ -195,7 +195,7 @@ class CB_Extras_Admin {
 		}
 		echo '</div>';
 	}
-			/**
+		/**
 	 * Send a Push notification on the users browser using the Web Push plugin for WordPress
 	 *
 	 * CB_Extras->web_push_notification( 'Title', 'Content', 'http://domain.tld');

@@ -275,7 +275,6 @@ public function get_item_count( ) {
 		$this->timeframe_options->set_timeframe_id( $this->timeframe_id );
 
 		$options = $this->timeframe_options->get_timeframe_options( $this->timeframe_id );
-		// var_dump ($options);
 
 		// setup the meta box
 		$this->setup_metaboxes( );
