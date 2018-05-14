@@ -124,7 +124,9 @@ class CB_Timeframes_Admin  {
 
 		// add filters for timeframe options custom saving/retrival function
 		add_filter('cmb2_override_meta_value', array( $this->timeframe_options, 'get_timeframe_option_cmb2_form'), 10, 4);
+		// saving data
 		add_filter('cmb2_override_meta_save', array( $this->timeframe_options, 'save_timeframe_option'), 10, 2);
+		// saving data: empty values (like checkboxes)
 		add_filter('cmb2_override_meta_remove', array( $this->timeframe_options, 'save_timeframe_option'), 10, 2);
 
 
@@ -174,7 +176,6 @@ class CB_Timeframes_Admin  {
 				'scope' => '', // ignore dates
 		 );
 			$timeframe = $this->timeframes_array->get_timeframes( $args );
-			console($this->timeframes_array);
 
 			$array = cb_obj_to_array( $timeframe );
 			return $array[0];
