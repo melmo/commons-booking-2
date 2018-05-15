@@ -169,6 +169,12 @@ class CB_Settings {
 						'type'             => 'select',
 						'show_option_none' => true,
 						'options' 				 => CB_Holidays::get_providers()
+					),
+					array(
+						'name'             => __( 'Allow booking over closed days & holidays', 'commons-booking' ),
+						'desc'             => __( 'E.g. Location is closed Saturday and Sunday, allow booking from Friday to Monday.', 'commons-booking' ),
+						'id'               => 'closed_days_booking',
+						'type'             => 'checkbox'
 					)
 			)
 		);
