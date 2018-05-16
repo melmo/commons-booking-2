@@ -28,14 +28,18 @@ class CB_Enqueue_Admin {
 		if ( !apply_filters( 'commons_booking_cb_enqueue_admin_initialize', true ) ) {
 			return;
 		}
+
+		$plugin_basename = plugin_basename( plugin_dir_path( realpath( dirname( __FILE__ ) ) ) . CB_TEXTDOMAIN . '.php' );
+
 		// Add the manage menu & options page entry
 		add_action( 'admin_menu', array( $this, 'add_plugin_manage_menu') );
 		// Add an action link pointing to the options page.
-		$plugin_basename = plugin_basename( plugin_dir_path( realpath( dirname( __FILE__ ) ) ) . CB_TEXTDOMAIN . '.php' );
 		add_filter( 'plugin_action_links_' . $plugin_basename, array( $this, 'add_action_links' ) );
 		// Load admin style sheet and JavaScript.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+		// @TODO not working
+		add_filter( 'cmb2_sanitize_toggle', array( $this, 'cmb2_sanitize_checkbox' ), 20, 2 );
 	}
 
 		/**
@@ -91,15 +95,15 @@ class CB_Enqueue_Admin {
 		 */
 		// 1. Bookings List Table
 		add_submenu_page( 'cb_dashboard_page', __('Bookings', 'commons-booking'), __('Bookings', 'commons-booking'), 'manage_options', 'cb_bookings_table', array( $this, 'display_bookings_table_page' ) );
+
 		// 2. Bookings Edit Screen
     add_submenu_page( NULL, __('Add new', 'commons-booking'), __('Add new', 'commons-booking'), 'manage_options', 'cb_bookings_edit', array( $this, 'display_bookings_edit_page' ) );
 
 		// 2. Timeframes List Table
 		add_submenu_page( 'cb_dashboard_page', __('Timeframes', 'commons-booking'), __('Timeframes', 'commons-booking'), 'manage_options', 'cb_timeframes_table', array( $this, 'display_timeframes_table_page' ) );
+
 		// 2. Timeframes Add/Edit Screen
     add_submenu_page( NULL, __('Add new', 'commons-booking'), __('Add new', 'commons-booking'), 'manage_options', 'cb_timeframes_edit', array( $this, 'display_timeframes_edit_page' ) );
-
-
 
 		// Settings menu
 		$this->admin_view_page = add_submenu_page( 'cb_dashboard_page', __( 'Settings', CB_TEXTDOMAIN ), __( 'Settings', CB_TEXTDOMAIN ), 'manage_options', 'cb_settings_page', array( $this, 'display_plugin_admin_page' ) );
@@ -183,7 +187,18 @@ class CB_Enqueue_Admin {
 				), $links
 		);
 	}
-
+/**
+ * Fixed checkbox issue with default is true.
+ *
+ * @param  mixed $override_value Sanitization/Validation override value to return.
+ * @param  mixed $value          The value to be saved to this field.
+ * @return mixed
+ */
+function cmb2_sanitize_checkbox( $override_value, $value ) {
+    // Return 0 instead of false if null value given. This hack for
+		// checkbox or checkbox-like can be setting true as default value.
+    return is_null( $value ) ? 0 : $value;
+	}
 }
 $cb_enqueue_admin = new CB_Enqueue_Admin();
 $cb_enqueue_admin->initialize();

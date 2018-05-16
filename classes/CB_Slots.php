@@ -381,7 +381,7 @@ class CB_Slots {
 	 *
 	 * @uses CB_Locations
 	 *
-	 * @param array $timeframe
+	 * @param array|object $timeframe
 	 * @param $request
 	 *
 	 * @return int $result
@@ -429,6 +429,9 @@ class CB_Slots {
 				$this->set_include_codes( $timeframe['codes_enabled'] );
 
 				$sql_slots_result = $this->generate_slots( );
+
+				do_action( 'commons_booking_cb_slots_generated', $sql_slots_result );
+
 
 				return $sql_slots_result;
 	}
