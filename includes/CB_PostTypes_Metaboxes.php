@@ -29,7 +29,7 @@ class CB_PostTypes_Metaboxes {
 		$this->prefix = $prefix = '_' . $this->slug . '_';
 
 		add_action( 'add_meta_boxes', array( $this, 'add_item_timeframe_metabox' ) );
-		add_action( 'cmb2_admin_init', array( $this, 'add_cb_posttype_metaboxes' ) );
+		add_action( 'cmb2_admin_init', array( $this, 'add_cb_posttype_excerpt_metaboxes' ) );
 		add_action( 'cmb2_admin_init', array( $this, 'add_location_metaboxes' ) );
 	}
 	/**
@@ -53,7 +53,7 @@ class CB_PostTypes_Metaboxes {
 	 *
 	 * @return void
 	 */
-	public function add_cb_posttype_metaboxes() {
+	public function add_cb_posttype_excerpt_metaboxes() {
 		/**
 		 * Metabox: Item/location short list info
 		 */
@@ -93,66 +93,33 @@ class CB_PostTypes_Metaboxes {
 	 *
 	 * @since 2.0.0
 	 * @uses CMB2
+	 * @uses CB_Settings
 	 *
 	 * @return void
 	 */
 	public function add_location_metaboxes() {
 
 		/**
-		 * Metabox: Pickup mode
+		 * Metabox: Pickup mode - set up in Settings module
 		 */
 		$fields_location_pickup_mode = CB_Settings::get_settings_group( 'location-pickup-mode');
 
 		CB_Settings::cb2_add_settings_to_cpt( 'location_pickup_mode', __('Location pickup mode', 'commons-booking'), array('cb_location'), $fields_location_pickup_mode );
 
-		// $cmb = new_cmb2_box( array(
-		// 	'id'            => 'location-pickup-mode',
-		// 	'title'         => __( 'Location pickup mode', 'commons-booking' ),
-		// 	'object_types'  => array( 'cb_location', ), // Post type
-		// 	'context'       => 'normal',
-		// 	'priority'      => 'high',
-		// 	'show_names'    => true, // Show field names on the left
-		// 	'cmb_styles' => false, // false to disable the CMB stylesheet
-		// 	'fields'				=> $fields_location_pickup_mode
-		// ) );
-
 		/**
-		 * Metabox: Personal pickup contact info (conditional)
+		 * Metabox: Personal pickup contact info - set up in Settings module
 		 */
 		$fields_location_personal_contact_info = CB_Settings::get_settings_group( 'location-personal-contact-info');
 
-		/**
-		 * Initiate the metabox
-		 */
-		$cmb = new_cmb2_box( array(
-			'id'            => 'location-personal-contact-info',
-			'title'         => __( 'Location personal contact info', 'commons-booking' ),
-			'object_types'  => array( 'cb_location', ), // Post type
-			'context'       => 'normal',
-			'priority'      => 'high',
-			'show_names'    => true, // Show field names on the left
-			'cmb_styles' => false, // false to disable the CMB stylesheet
-			'fields'				=> $fields_location_personal_contact_info
-		) );
+		CB_Settings::cb2_add_settings_to_cpt('location_personal_contact_info', __('Location personal contact info', 'commons-booking'), array('cb_location'), $fields_location_personal_contact_info);
 
 		/**
-		 * Metabox: Opening times (conditional)
+		 * Metabox: Opening times - set up in Settings module
 		 */
 		$fields_location_opening_times = CB_Settings::get_settings_group( 'location-opening-times');
 
-		/**
-		 * Initiate the metabox
-		 */
-		$cmb = new_cmb2_box( array(
-			'id'            => 'location-opening-times',
-			'title'         => __( 'Location opening times', 'commons-booking' ),
-			'object_types'  => array( 'cb_location', ), // Post type
-			'context'       => 'normal',
-			'priority'      => 'high',
-			'show_names'    => true, // Show field names on the left
-			'cmb_styles' => false, // false to disable the CMB stylesheet
-			'fields'				=> $fields_location_opening_times
-		) );
+		CB_Settings::cb2_add_settings_to_cpt('location_opening_times', __('Opening times', 'commons-booking'), array('cb_location'), $fields_location_opening_times);
+
 	}
 
 }
