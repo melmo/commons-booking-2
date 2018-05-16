@@ -83,18 +83,19 @@ class CB_Settings {
 	public static function initialize() {
 
 		self::cb2_add_settings_tab( 'my-id', 'my title', 'my description');
+		self::cb2_add_settings_tab( 'my-id-2', 'my second title', 'my description');
 		// self::cb2_add_settings_tab( 'mytest', 'second title', 'my description');
 
 		$group_test = self::get_settings_template_location_opening_times();
 
 		self::cb2_add_settings_group(
 			self::get_settings_template_location_opening_times(),
-			'location'
+			'my-id'
 		);
 
 		// self::apply_settings_templates();
 		// self::apply_settings_tabs();
-		// self::apply_timeframe_options();
+		self::apply_timeframe_options();
 
 
 		}
@@ -115,9 +116,9 @@ class CB_Settings {
 		$slug = $group['slug'];
 		self::$plugin_settings[ $slug ] = $group;
 
-		if ( $tab_id && isset (self::$plugin_settings_tabs[$tab_id]['groups'])) {
-			self::$plugin_settings_tabs[ $tab_id ]['groups'][] = $slug;
-		}
+		//print_r(self::$plugin_settings);
+
+		self::$plugin_settings_tabs[ $tab_id ]['groups'][] = $slug;
 
 	}
 
