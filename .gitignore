@@ -37,3 +37,4 @@ vendor
 /includes/lib/
 /composer/
 *.code-workspace
+.vscode

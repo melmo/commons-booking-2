@@ -34,7 +34,6 @@ class CB_Cron {
 		$timeframes_object = new CB_Timeframes( $timeframe_args );
 		$timeframes = $timeframes_object->get();
 
-
 		// 2. get cal limit from settings, calculate how many days to add
 		$cal_limit =  intval ( CB_Settings::get( 'calendar', 'limit' ) );
 		$new_end_date = date ( 'Y-m-d', strtotime( '+' . $cal_limit . 'days' ) );
@@ -70,7 +69,7 @@ class CB_Cron {
 						if ( $sql_timeframe_result == 1 ) { // update successful
 
 							$tf->date_end = $new_end_date;
-		// 4. create slots
+							// 4. create slots
 							$slots = new CB_Slots( $tf->timeframe_id );
 							$generate_slots_result = $slots->re_generate_slots_function( $tf );
 						} // end if update successful
