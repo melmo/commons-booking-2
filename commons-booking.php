@@ -69,9 +69,9 @@ require_once( CB_PLUGIN_ROOT . 'includes/CB_API.php' );
 require_once( CB_PLUGIN_ROOT . 'includes/CB_Template.php' );
 require_once( CB_PLUGIN_ROOT . 'includes/CB_Shortcodes.php' );
 require_once( CB_PLUGIN_ROOT . 'includes/lib/yasumi/src/Yasumi/Yasumi.php' );
-if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	require_once( CB_PLUGIN_ROOT . 'includes/CB_WPCli.php' );
-}
+// if ( defined( 'WP_CLI' ) && WP_CLI ) {
+// 	require_once( CB_PLUGIN_ROOT . 'includes/CB_WPCli.php' );
+// }
 
 if ( is_admin() ) {
 	if (
