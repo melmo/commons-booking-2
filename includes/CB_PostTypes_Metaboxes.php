@@ -101,23 +101,25 @@ class CB_PostTypes_Metaboxes {
 		/**
 		 * Metabox: Pickup mode
 		 */
-		$fields_location_pickup_mode = CB_Settings::get_admin_metabox( 'location-pickup-mode');
+		$fields_location_pickup_mode = CB_Settings::get_settings_group( 'location-pickup-mode');
 
-		$cmb = new_cmb2_box( array(
-			'id'            => 'location-pickup-mode',
-			'title'         => __( 'Location pickup mode', 'commons-booking' ),
-			'object_types'  => array( 'cb_location', ), // Post type
-			'context'       => 'normal',
-			'priority'      => 'high',
-			'show_names'    => true, // Show field names on the left
-			'cmb_styles' => false, // false to disable the CMB stylesheet
-			'fields'				=> $fields_location_pickup_mode
-		) );
+		CB_Settings::cb2_add_settings_to_cpt( 'location_pickup_mode', __('Location pickup mode', 'commons-booking'), array('cb_location'), $fields_location_pickup_mode );
+
+		// $cmb = new_cmb2_box( array(
+		// 	'id'            => 'location-pickup-mode',
+		// 	'title'         => __( 'Location pickup mode', 'commons-booking' ),
+		// 	'object_types'  => array( 'cb_location', ), // Post type
+		// 	'context'       => 'normal',
+		// 	'priority'      => 'high',
+		// 	'show_names'    => true, // Show field names on the left
+		// 	'cmb_styles' => false, // false to disable the CMB stylesheet
+		// 	'fields'				=> $fields_location_pickup_mode
+		// ) );
 
 		/**
 		 * Metabox: Personal pickup contact info (conditional)
 		 */
-		$fields_location_personal_contact_info = CB_Settings::get_admin_metabox( 'location-personal-contact-info');
+		$fields_location_personal_contact_info = CB_Settings::get_settings_group( 'location-personal-contact-info');
 
 		/**
 		 * Initiate the metabox
@@ -136,7 +138,7 @@ class CB_PostTypes_Metaboxes {
 		/**
 		 * Metabox: Opening times (conditional)
 		 */
-		$fields_location_opening_times = CB_Settings::get_admin_metabox( 'location-opening-times');
+		$fields_location_opening_times = CB_Settings::get_settings_group( 'location-opening-times');
 
 		/**
 		 * Initiate the metabox

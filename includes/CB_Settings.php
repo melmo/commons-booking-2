@@ -37,7 +37,7 @@ class CB_Settings {
 	 *
 	 * @var array
 	 */
-	protected static $admin_settings_tabs;
+	protected static $plugin_settings_tabs;
 	/**
 	 * Settings groups used in timeframe options
 	 *
@@ -82,502 +82,48 @@ class CB_Settings {
 	 */
 	public static function initialize() {
 
-		// self::add_settings_tab( 'general', __( 'General', 'commons-booking' ) );
-		// self::add_settings_tab( 'pages', __( 'Pages', 'commons-booking' ) );
-		// self::add_settings_tab( 'bookings', __( 'Bookings', 'commons-booking' ) );
+		self::cb2_add_settings_tab( 'my-id', 'my title', 'my description');
+		// self::cb2_add_settings_tab( 'mytest', 'second title', 'my description');
 
-		self::apply_settings_templates();
-		self::apply_settings_tabs();
-		self::apply_timeframe_options();
+		$group_test = self::get_settings_template_location_opening_times();
+
+		self::cb2_add_settings_group(
+			self::get_settings_template_location_opening_times(),
+			'location'
+		);
+
+		// self::apply_settings_templates();
+		// self::apply_settings_tabs();
+		// self::apply_timeframe_options();
 
 
 		}
+
+
 	/**
-	 * Booking settings template
+	 * Add a settings group to plugin settings or a post type
 	 *
 	 * @since 2.0.0
 	 *
-	 * @return array
+	 * @param array 	$tab_id 	The id of the tab
+	 * @param array 	$group 		The group config
+	 *
+	 * @return void
 	 */
-	public static function init_settings() {
+	public static function cb2_add_settings_group ( $group, $tab_id=FALSE ) {
+
+		$slug = $group['slug'];
+		self::$plugin_settings[ $slug ] = $group;
+
+		if ( $tab_id && isset (self::$plugin_settings_tabs[$tab_id]['groups'])) {
+			self::$plugin_settings_tabs[ $tab_id ]['groups'][] = $slug;
+		}
 
 	}
 
-	/**
-	 * Booking settings template
-	 *
-	 * @since 2.0.0
-	 *
-	 * @return array
-	 */
-	public static function get_settings_template_bookings() {
 
-		$settings_bookings = array(
-			'name' => __( 'Bookings', 'commons-booking' ),
-			'slug' => 'bookings',
-			'fields' => array (
-					array (
-						'name'             => __( 'Maximum slots', 'commons-booking' ),
-						'desc'             => __( 'Maximum slots a user is allowed to book at once', 'commons-booking' ),
-						'id'               => 'max-slots',
-						'type'             => 'text_small',
-						'default'          => 3
-					),
-					array(
-						'name'             => __( 'Consecutive slots', 'commons-booking' ),
-						'desc'             => __( 'Slots must be consecutive', 'commons-booking' ),
-						'id'               => 'consecutive-slots',
-						'type'             => 'checkbox',
-						'default' 				=> cmb2_set_checkbox_default_for_new_post( true )
-					),
-					array(
-						'name'             => __( 'Use booking codes', 'commons-booking' ),
-						'desc'             => __( 'Create codes for every slot', 'commons-booking' ),
-						'id'               => 'use-codes',
-						'type'             => 'checkbox',
-						'default' 				=> cmb2_set_checkbox_default_for_new_post( true )
-					),
-				)
-			);
-		return $settings_bookings;
-	}
-	/**
-	 * calendar settings template
-	 *
-	 * @since 2.0.0
-	 *
-	 * @return array
-	 */
-	public static function get_settings_template_calendar() {
 
-		$settings_calendar = array(
-			'name' => __( 'Calendar', 'commons-booking' ),
-			'slug' => 'calendar',
-			'fields' => array (
-					array(
-						'name'             => __( 'Calendar limit', 'commons-booking' ),
-						'desc'             => __( 'Calendar limit', 'commons-booking' ),
-						'id'               => 'limit',
-						'type'             => 'text_small',
-						'default'          => '30',
-						'description'			 => __('Limit calendars to X future days.')
-					),
-					array(
-						'name'             => __( 'Holidays', 'commons-booking' ),
-						'desc'             => __( 'Select country to show local holidays in the calendar and block those holidays from pickup/return.', 'commons-booking' ),
-						'id'               => 'holiday_provider',
-						'type'             => 'select',
-						'show_option_none' => true,
-						'options' 				 => CB_Holidays::get_providers()
-					),
-					array(
-						'name'             => __( 'Allow booking over closed days & holidays', 'commons-booking' ),
-						'desc'             => __( 'E.g. Location is closed Saturday and Sunday, allow booking from Friday to Monday.', 'commons-booking' ),
-						'id'               => 'closed_days_booking',
-						'type'             => 'checkbox'
-					)
-			)
-		);
-		return $settings_calendar;
-	}
-	/**
-	 * Pages settings template
-	 *
-	 * @since 2.0.0
-	 *
-	 * @return array
-	 */
-	public static function get_settings_template_pages() {
 
-		$settings_pages = array(
-			'name' => __( 'Pages', 'commons-booking' ),
-			'slug' => 'pages',
-			'fields' => array (
-					array(
-						'before_row'       => __('Pages: Items and calendar', 'commons-booking' ), // Headline
-						'name'             => __( 'Items page', 'commons-booking' ),
-						'desc'             => __( 'Display list of items on this page', 'commons-booking' ),
-						'id'               => 'item-page-id',
-						'type'             => 'select',
-						'show_option_none' => true,
-						'default'          => 'none',
-						'options'          => cb_get_pages_dropdown(),
-					),
-					array(
-						'name'             => __( 'Locations page', 'commons-booking' ),
-						'desc'             => __( 'Display list of Locations on this page', 'commons-booking' ),
-						'id'               => 'location-page-id',
-						'type'             => 'select',
-						'show_option_none' => true,
-						'default'          => 'none',
-						'options'          => cb_get_pages_dropdown(),
-					),
-					array(
-						'name'             => __( 'Calendar page', 'commons-booking' ),
-						'desc'             => __( 'Display the calendar on this page', 'commons-booking' ),
-						'id'               => 'calendar-page-id',
-						'type'             => 'select',
-						'show_option_none' => true,
-						'default'          => 'none',
-						'options'          => cb_get_pages_dropdown(),
-					),
-					array(
-						'before_row'       => __('Pages: Bookings', 'commons-booking' ), // Headline
-						'name'             => __( 'Booking review page', 'commons-booking' ),
-						'desc'             => __( 'Shows the pending booking, prompts for confimation.', 'commons-booking' ),
-						'id'               => 'booking-review-page-id',
-						'type'             => 'select',
-						'show_option_none' => true,
-						'default'          => 'none',
-						'options'          => cb_get_pages_dropdown(),
-					),
-					array(
-						'name'             => __( 'Booking confirmed page', 'commons-booking' ),
-						'desc'             => __( 'Displayed when the user has confirmed a booking.', 'commons-booking' ),
-						'id'               => 'booking-confirmed-page-id',
-						'type'             => 'select',
-						'show_option_none' => true,
-						'default'          => 'none',
-						'options'          => cb_get_pages_dropdown(),
-					),
-					array(
-						'name'             => __( 'Booking page', 'commons-booking' ),
-						'desc'             => __( '', 'commons-booking' ),
-						'id'               => 'booking-page-id',
-						'type'             => 'select',
-						'show_option_none' => true,
-						'default'          => 'none',
-						'options'          => cb_get_pages_dropdown(),
-					),
-					array(
-						'name'             => __( 'My bookings page', 'commons-booking' ),
-						'desc'             => __( 'Shows the user´s bookings.', 'commons-booking' ),
-						'id'               => 'user-bookings-page-id',
-						'type'             => 'select',
-						'show_option_none' => true,
-						'default'          => 'none',
-						'options'          => cb_get_pages_dropdown(),
-					)
-				)
-		);
-		return $settings_pages;
-	}
-	/**
-	 * Codes settings template
-	 *
-	 * @since 2.0.0
-	 *
-	 * @return array
-	 */
-	public static function get_settings_template_codes() {
-
-		$settings_codes = array(
-			'name' => __( 'Codes', 'commons-booking' ),
-			'slug' => 'codes',
-			'fields' => array (
-					array(
-						'name'             => __( 'Codes', 'commons-booking' ),
-						'desc'             => __( 'Booking codes, comma-seperated', 'commons-booking' ),
-						'id'               => 'codes-pool',
-						'type'             => 'textarea_code',
-						'default'          => 'none',
-				)
-			)
-		);
-		return $settings_codes;
-	}
-	/**
-	 * Strings (for possible overwrite in the backend
-	 *
-	 * @since 2.0.0
-	 *
-	 * @return array
-	 */
-	public static function get_settings_template_cb_strings() {
-
-		$strings_array = CB_Strings::get();
-		$fields_array = array();
-
-		// reformat array to fit our cmb2 settings fields
-		foreach ( $strings_array as $category => $fields) {
-			// add title field
-			$fields_array[] = array(
-						'name'  => $category,
-						'id'    => $category . '-title',
-						'type'  => 'title',
-			);
-			foreach ($fields as $field_name => $field_value ) {
-
-				$fields_array[] = array(
-							'name'             => $field_name,
-							'id'               => $category . '_' . $field_name,
-							'type'             => 'textarea_small',
-							'default'					 => $field_value
-				);
-			} // end foreach fields
-
-		} // end foreach strings_array
-
-		$settings_template_cb_strings = array(
-			'name' => __( 'Strings', 'commons-booking' ),
-			'slug' => 'strings',
-			'show_in_plugin_settings' => true,
-			'fields' => $fields_array
-		);
-
-		return $settings_template_cb_strings;
-	}
-	/**
-	 * Geo Code Service
-	 *
-	 * @since 2.0.0
-	 *
-	 * @return array
-	 */
-	public static function get_settings_template_map_geocode() {
-
-		$settings_map_geocode = array(
-			'name' => __( 'Map Geocode', 'commons-booking' ),
-			'slug' => 'map_geocode',
-			'fields' => array (
-				array(
-					'name'             => __( 'API Key', 'commons-booking' ),
-					'desc'             => __( 'Get your api key at..., comma-seperated', 'commons-booking' ),
-					'id'               => 'api-key',
-					'type'             => 'text',
-					'default'          => '',
-				)
-			)
-		);
-		return $settings_map_geocode;
-	}
-	/**
-	 * Locations meta box: opening times template
-	 *
-	 * @since 2.0.0
-	 *
-	 * @return array
-	 */
-	public static function get_settings_template_location_opening_times() {
-
-		$settings_template_location_opening_times = array(
-			'name' => __( 'Location Opening Times', 'commons-booking' ),
-			'slug' => 'locations',
-			'show_in_plugin_settings' => false,
-			'fields' => array (
-					array(
-						'before_row'       => __('Monday', 'commons-booking' ), // Headline
-						'name'             => __( 'Open on Mondays', 'commons-booking' ),
-						'id'               => 'location-open-mon',
-						'type'             => 'checkbox',
-					),
-					array(
-						'before_row'       => __('Monday', 'commons-booking' ), // Headline
-						'name'             => __( 'Open on Mondays', 'commons-booking' ),
-						'id'               => 'location-open-mon',
-						'type'             => 'checkbox',
-					),
-					array(
-						'name'             => __( 'Opening time', 'commons-booking' ),
-						'id'               => 'location-open-mon-from',
-						'type'             => 'text_time',
-						'time_format'      => 'H:i',
-						'classes'					 => 'mon-hidden'
-					),
-					array(
-						'name'             => __( 'Closing time', 'commons-booking' ),
-						'id'               => 'location-open-mon-til',
-						'type' 						 => 'text_time',
-						'time_format'      => 'H:i',
-						'classes'					 => 'mon-hidden'
-					),
-					array(
-						'before_row'       => __('tuesday', 'commons-booking' ), // Headline
-						'name'             => __( 'Open on tuesdays', 'commons-booking' ),
-						'id'               => 'location-open-tue',
-						'type'             => 'checkbox',
-					),
-					array(
-						'name'             => __( 'Opening time', 'commons-booking' ),
-						'id'               => 'location-open-tue-from',
-						'type'             => 'text_time',
-						'time_format'      => 'H:i',
-						'classes'					 => 'tue-hidden'
-					),
-					array(
-						'name'             => __( 'Closing time', 'commons-booking' ),
-						'id'               => 'location-open-tue-til',
-						'type' 						 => 'text_time',
-						'time_format'      => 'H:i',
-						'classes'					 => 'tue-hidden'
-					),
-					array(
-						'before_row'       => __('wednesday', 'commons-booking' ), // Headline
-						'name'             => __( 'Open on wednesdays', 'commons-booking' ),
-						'id'               => 'location-open-wed',
-						'type'             => 'checkbox',
-					),
-					array(
-						'name'             => __( 'Opening time', 'commons-booking' ),
-						'id'               => 'location-open-wed-from',
-						'type'             => 'text_time',
-						'time_format'      => 'H:i',
-						'classes'					 => 'wed-hidden'
-					),
-					array(
-						'name'             => __( 'Closing time', 'commons-booking' ),
-						'id'               => 'location-open-wed-til',
-						'type' 						 => 'text_time',
-						'time_format'      => 'H:i',
-						'classes'					 => 'wed-hidden'
-					),
-					array(
-						'before_row'       => __('thursday', 'commons-booking' ), // Headline
-						'name'             => __( 'Open on thursdays', 'commons-booking' ),
-						'id'               => 'location-open-thu',
-						'type'             => 'checkbox',
-					),
-					array(
-						'name'             => __( 'Opening time', 'commons-booking' ),
-						'id'               => 'location-open-thu-from',
-						'type'             => 'text_time',
-						'time_format'      => 'H:i',
-						'classes'					 => 'thu-hidden'
-					),
-					array(
-						'name'             => __( 'Closing time', 'commons-booking' ),
-						'id'               => 'location-open-thu-til',
-						'type' 						 => 'text_time',
-						'time_format'      => 'H:i',
-						'classes'					 => 'thu-hidden'
-					),
-					array(
-						'before_row'       => __('friday', 'commons-booking' ), // Headline
-						'name'             => __( 'Open on fridays', 'commons-booking' ),
-						'id'               => 'location-open-fri',
-						'type'             => 'checkbox',
-					),
-					array(
-						'name'             => __( 'Opening time', 'commons-booking' ),
-						'id'               => 'location-open-fri-from',
-						'type'             => 'text_time',
-						'time_format'      => 'H:i',
-						'classes'					 => 'fri-hidden'
-					),
-					array(
-						'name'             => __( 'Closing time', 'commons-booking' ),
-						'id'               => 'location-open-fri-til',
-						'type' 						 => 'text_time',
-						'time_format'      => 'H:i',
-						'classes'					 => 'fri-hidden'
-					),
-					array(
-						'before_row'       => __('saturday', 'commons-booking' ), // Headline
-						'name'             => __( 'Open on saturdays', 'commons-booking' ),
-						'id'               => 'location-open-sat',
-						'type'             => 'checkbox',
-					),
-					array(
-						'name'             => __( 'Opening time', 'commons-booking' ),
-						'id'               => 'location-open-sat-from',
-						'type'             => 'text_time',
-						'time_format'      => 'H:i',
-						'classes'					 => 'sat-hidden'
-					),
-					array(
-						'name'             => __( 'Closing time', 'commons-booking' ),
-						'id'               => 'location-open-sat-til',
-						'type' 						 => 'text_time',
-						'time_format'      => 'H:i',
-						'classes'					 => 'sat-hidden'
-					),
-					array(
-						'before_row'       => __('sunday', 'commons-booking' ), // Headline
-						'name'             => __( 'Open on sundays', 'commons-booking' ),
-						'id'               => 'location-open-sun',
-						'type'             => 'checkbox',
-					),
-					array(
-						'name'             => __( 'Opening time', 'commons-booking' ),
-						'id'               => 'location-open-sun-from',
-						'type'             => 'text_time',
-						'time_format'      => 'H:i',
-						'classes'					 => 'sun-hidden'
-					),
-					array(
-						'name'             => __( 'Closing time', 'commons-booking' ),
-						'id'               => 'location-open-sun-til',
-						'type' 						 => 'text_time',
-						'time_format'      => 'H:i',
-						'classes'					 => 'sun-hidden'
-					),
-			)
-		);
-		return $settings_template_location_opening_times;
-	}
-	/**
-	 * Locations meta box: choose pickup mode template
-	 *
-	 * @since 2.0.0
-	 *
-	 * @return array
-	 */
-	public static function get_settings_template_location_pickup_mode() {
-
-		$settings_template_location_pickup_mode = array(
-			'name' => __( 'Pickup mode', 'commons-booking' ),
-			'slug' => 'locations',
-			'show_in_plugin_settings' => false,
-			'fields' => array (
-				array(
-						'name'             => __( 'Pickup mode', 'commons-booking' ),
-						'id'               => 'location-pickup-mode',
-						'type'             => 'radio_inline',
-						'options' 				 => array(
-																	'personal_contact'   => __( 'Contact the location for pickup', 'commons-booking' ),
-																	'opening_times' 		 => __( 'Fixed opening times for pickup', 'commons-booking' ),
-																	),
-						'default' => 'personal_contact',
-				),
-			)
-		);
-		return $settings_template_location_pickup_mode;
-	}
-	/**
-	 * Locations meta box: location contact (personal contact)
-	 *
-	 * @since 2.0.0
-	 *
-	 * @return array
-	 */
-	public static function get_settings_template_location_personal_contact_info() {
-
-		$settings_template_location_personal_contact_info = array(
-			'name' => __( 'Personal contact', 'commons-booking' ),
-			'slug' => 'locations',
-			'show_in_plugin_settings' => false,
-			'fields' => array (
-				array(
-						'name'             => __( 'my title', 'commons-booking' ),
-						'id'               => 'location-personal-contact-info-title',
-						'type'             => 'title',
-				),
-				array(
-						'name'             => __( 'Public', 'commons-booking' ),
-						'id'               => 'location-personal-contact-info-public',
-						'type'             => 'textarea_small',
-						'default'					 => __('Please contact the location after booking. The contact information will be in your confirmation email.', 'commons-booking' ),
-				),
-				array(
-						'name'             => __( 'Private', 'commons-booking' ),
-						'id'               => 'location-personal-contact-info-private',
-						'type'             => 'textarea_small',
-						'default'					 => __('Contact info: Phone, mail, etc.', 'commons-booking' ),
-				),
-			)
-		);
-		return $settings_template_location_personal_contact_info;
-	}
 	/**
 	 * Populate settings array
 	 *
@@ -655,7 +201,7 @@ class CB_Settings {
 	public static function apply_timeframe_options() {
 
 		self::$timeframe_options = array (
-			'bookings', 'calendar', 'codes'
+
 		);
 	}
 	/**
@@ -670,17 +216,22 @@ class CB_Settings {
 
 		$fields = array();
 
-		foreach ( self::$timeframe_options as $option ) {
+		if ( !empty ( self::$timeframe_options ) && is_array( self::$timeframe_options  ) ) {
 
-			$group = self::get_settings_group_fields( $option );
+			foreach ( self::$timeframe_options as $option ) {
 
-			foreach ( $group as $group_fields ) {
-				$field = $group_fields['id'];
-				$val = self::get( $option, $field );
-				$fields[$field] = $val;
+				$group = self::get_settings_group_fields( $option );
+
+				foreach ( $group as $group_fields ) {
+					$field = $group_fields['id'];
+					$val = self::get( $option, $field );
+					$fields[$field] = $val;
+				}
 			}
+			return $fields;
+
 		}
-		return $fields;
+
 	}
 	/**
 	 * Render the admin settings
@@ -690,19 +241,22 @@ class CB_Settings {
 	 */
 	public static function do_admin_settings( ) {
 
-		$tabs = self::$admin_settings_tabs;
+		$tabs = self::$plugin_settings_tabs;
 
-		foreach ( $tabs as $tab => $value ) { ?>
-				<div id="tabs-<?php echo $tab ; ?>" class="wrap">
+		if ( is_array ( $tabs ) ) {
+
+			foreach ( $tabs as $tab => $value ) { ?>
+					<div id="tabs-<?php echo $tab ; ?>" class="wrap">
+				<?php
+				echo $value['description'];
+
+				foreach ( $value['groups'] as $group ) { // render the settings groups
+					self::do_settings_group( $group );
+				}
+				?>
+						</div>
 			<?php
-			echo $value['description'];
-
-			foreach ( $value['groups'] as $group ) { // render the settings groups
-				self::do_settings_group( $group );
 			}
-			?>
-					</div>
-     <?php
 		}
 
 	}
@@ -743,9 +297,29 @@ class CB_Settings {
 	 *
 	 * @param array $args
 	 */
-	public static function add_settings_tab( $slug, $tab = array() ) {
+	public static function cb2_add_settings_tab( $tab_id, $title, $description ) {
 
-		self::$admin_settings_tabs[$slug] = $tab;
+		self::$plugin_settings_tabs[$tab_id] = array(
+		'title' => $title,
+		'description' => $description
+		);
+
+
+	}
+	/**
+	 * Add a settings tab
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param array $args
+	 */
+	public static function cb2_add_settings_to_cpt( $id, $title, $object_types = array(), $fields = array() ) {
+		$cmb = new_cmb2_box( array(
+			'id' => $id,
+			'title' => $title,
+			'object_types' => $object_types, // Post type
+			'fields' => $fields
+		));
 
 	}
 	/**
@@ -758,31 +332,32 @@ class CB_Settings {
 	public static function do_admin_tabs( ) {
 
 		$html = '';
-		foreach ( self::$admin_settings_tabs as $key => $value ) {
+		foreach ( self::$plugin_settings_tabs as $key => $value ) {
 				$slug = $key;
 				$html .= '<li><a href="#tabs-' . $slug . '">' . $value['title'] . '</a></li>';
 		}
 		return apply_filters( 'cb_do_admin_tabs', $html );
 	}
 	/**
-	 * Get settings admin box
+	 * Get a specific admin group
 	 *
 	 * @since 2.0.0
-	 *
+	 * @param string $slug slug of the settings group
 	 * @return array $metabox
 	 */
-	public static function get_admin_metabox( $slug ) {
+	public static function get_settings_group( $slug ) {
 
 		return self::$plugin_settings[$slug]['fields'];
 
 	}
-	/**
-	 * Get settings admin box
-	 *
-	 * @since 2.0.0
-	 *
-	 * @return array $metabox
-	 */
+/**
+ * Get all the fields defined for a settings group @TODO
+ *
+ * @since 2.0.0
+ *
+ * @param string $slug slug of the settings group
+ * @return array $fields
+ */
 	public static function get_settings_group_fields( $slug ) {
 
 		return self::$plugin_settings[$slug]['fields'];
@@ -828,5 +403,491 @@ class CB_Settings {
 			// CB_Object::throw_error( __FILE__, $options_page . ' is not a valid setting');
 		}
 	}
+/**
+ * Booking settings template
+ *
+ * @since 2.0.0
+ *
+ * @return array
+ */
+public static function get_settings_template_bookings()
+{
+
+	$settings_bookings = array(
+		'name' => __('Bookings', 'commons-booking'),
+		'slug' => 'bookings',
+		'fields' => array(
+			array(
+				'name' => __('Maximum slots', 'commons-booking'),
+				'desc' => __('Maximum slots a user is allowed to book at once', 'commons-booking'),
+				'id' => 'max-slots',
+				'type' => 'text_small',
+				'default' => 3
+			),
+			array(
+				'name' => __('Consecutive slots', 'commons-booking'),
+				'desc' => __('Slots must be consecutive', 'commons-booking'),
+				'id' => 'consecutive-slots',
+				'type' => 'checkbox',
+				'default' => cmb2_set_checkbox_default_for_new_post(true)
+			),
+			array(
+				'name' => __('Use booking codes', 'commons-booking'),
+				'desc' => __('Create codes for every slot', 'commons-booking'),
+				'id' => 'use-codes',
+				'type' => 'checkbox',
+				'default' => cmb2_set_checkbox_default_for_new_post(true)
+			),
+		)
+	);
+	return $settings_bookings;
+}
+/**
+ * calendar settings template
+ *
+ * @since 2.0.0
+ *
+ * @return array
+ */
+public static function get_settings_template_calendar()
+{
+
+	$settings_calendar = array(
+		'name' => __('Calendar', 'commons-booking'),
+		'slug' => 'calendar',
+		'fields' => array(
+			array(
+				'name' => __('Calendar limit', 'commons-booking'),
+				'desc' => __('Calendar limit', 'commons-booking'),
+				'id' => 'limit',
+				'type' => 'text_small',
+				'default' => '30',
+				'description' => __('Limit calendars to X future days.')
+			),
+			array(
+				'name' => __('Holidays', 'commons-booking'),
+				'desc' => __('Select country to show local holidays in the calendar and block those holidays from pickup/return.', 'commons-booking'),
+				'id' => 'holiday_provider',
+				'type' => 'select',
+				'show_option_none' => true,
+				'options' => CB_Holidays::get_providers()
+			),
+			array(
+				'name' => __('Allow booking over closed days & holidays', 'commons-booking'),
+				'desc' => __('E.g. Location is closed Saturday and Sunday, allow booking from Friday to Monday.', 'commons-booking'),
+				'id' => 'closed_days_booking',
+				'type' => 'checkbox'
+			)
+		)
+	);
+	return $settings_calendar;
+}
+/**
+ * Pages settings template
+ *
+ * @since 2.0.0
+ *
+ * @return array
+ */
+public static function get_settings_template_pages()
+{
+
+	$settings_pages = array(
+		'name' => __('Pages', 'commons-booking'),
+		'slug' => 'pages',
+		'fields' => array(
+			array(
+				'before_row' => __('Pages: Items and calendar', 'commons-booking'), // Headline
+				'name' => __('Items page', 'commons-booking'),
+				'desc' => __('Display list of items on this page', 'commons-booking'),
+				'id' => 'item-page-id',
+				'type' => 'select',
+				'show_option_none' => true,
+				'default' => 'none',
+				'options' => cb_get_pages_dropdown(),
+			),
+			array(
+				'name' => __('Locations page', 'commons-booking'),
+				'desc' => __('Display list of Locations on this page', 'commons-booking'),
+				'id' => 'location-page-id',
+				'type' => 'select',
+				'show_option_none' => true,
+				'default' => 'none',
+				'options' => cb_get_pages_dropdown(),
+			),
+			array(
+				'name' => __('Calendar page', 'commons-booking'),
+				'desc' => __('Display the calendar on this page', 'commons-booking'),
+				'id' => 'calendar-page-id',
+				'type' => 'select',
+				'show_option_none' => true,
+				'default' => 'none',
+				'options' => cb_get_pages_dropdown(),
+			),
+			array(
+				'before_row' => __('Pages: Bookings', 'commons-booking'), // Headline
+				'name' => __('Booking review page', 'commons-booking'),
+				'desc' => __('Shows the pending booking, prompts for confimation.', 'commons-booking'),
+				'id' => 'booking-review-page-id',
+				'type' => 'select',
+				'show_option_none' => true,
+				'default' => 'none',
+				'options' => cb_get_pages_dropdown(),
+			),
+			array(
+				'name' => __('Booking confirmed page', 'commons-booking'),
+				'desc' => __('Displayed when the user has confirmed a booking.', 'commons-booking'),
+				'id' => 'booking-confirmed-page-id',
+				'type' => 'select',
+				'show_option_none' => true,
+				'default' => 'none',
+				'options' => cb_get_pages_dropdown(),
+			),
+			array(
+				'name' => __('Booking page', 'commons-booking'),
+				'desc' => __('', 'commons-booking'),
+				'id' => 'booking-page-id',
+				'type' => 'select',
+				'show_option_none' => true,
+				'default' => 'none',
+				'options' => cb_get_pages_dropdown(),
+			),
+			array(
+				'name' => __('My bookings page', 'commons-booking'),
+				'desc' => __('Shows the user´s bookings.', 'commons-booking'),
+				'id' => 'user-bookings-page-id',
+				'type' => 'select',
+				'show_option_none' => true,
+				'default' => 'none',
+				'options' => cb_get_pages_dropdown(),
+			)
+		)
+	);
+	return $settings_pages;
+}
+/**
+ * Codes settings template
+ *
+ * @since 2.0.0
+ *
+ * @return array
+ */
+public static function get_settings_template_codes()
+{
+
+	$settings_codes = array(
+		'name' => __('Codes', 'commons-booking'),
+		'slug' => 'codes',
+		'fields' => array(
+			array(
+				'name' => __('Codes', 'commons-booking'),
+				'desc' => __('Booking codes, comma-seperated', 'commons-booking'),
+				'id' => 'codes-pool',
+				'type' => 'textarea_code',
+				'default' => 'none',
+			)
+		)
+	);
+	return $settings_codes;
+}
+/**
+ * Strings (for possible overwrite in the backend
+ *
+ * @since 2.0.0
+ *
+ * @return array
+ */
+public static function get_settings_template_cb_strings()
+{
+
+	$strings_array = CB_Strings::get();
+	$fields_array = array();
+
+		// reformat array to fit our cmb2 settings fields
+	foreach ($strings_array as $category => $fields) {
+			// add title field
+		$fields_array[] = array(
+			'name' => $category,
+			'id' => $category . '-title',
+			'type' => 'title',
+		);
+		foreach ($fields as $field_name => $field_value) {
+
+			$fields_array[] = array(
+				'name' => $field_name,
+				'id' => $category . '_' . $field_name,
+				'type' => 'textarea_small',
+				'default' => $field_value
+			);
+		} // end foreach fields
+
+	} // end foreach strings_array
+
+	$settings_template_cb_strings = array(
+		'name' => __('Strings', 'commons-booking'),
+		'slug' => 'strings',
+		'show_in_plugin_settings' => true,
+		'fields' => $fields_array
+	);
+
+	return $settings_template_cb_strings;
+}
+/**
+ * Geo Code Service
+ *
+ * @since 2.0.0
+ *
+ * @return array
+ */
+public static function get_settings_template_map_geocode()
+{
+
+	$settings_map_geocode = array(
+		'name' => __('Map Geocode', 'commons-booking'),
+		'slug' => 'map_geocode',
+		'fields' => array(
+			array(
+				'name' => __('API Key', 'commons-booking'),
+				'desc' => __('Get your api key at..., comma-seperated', 'commons-booking'),
+				'id' => 'api-key',
+				'type' => 'text',
+				'default' => '',
+			)
+		)
+	);
+	return $settings_map_geocode;
+}
+/**
+ * Locations meta box: opening times template
+ *
+ * @since 2.0.0
+ *
+ * @return array
+ */
+public static function get_settings_template_location_opening_times()
+{
+
+	$settings_template_location_opening_times = array(
+		'name' => __('Location Opening Times', 'commons-booking'),
+		'slug' => 'locations',
+		'show_in_plugin_settings' => false,
+		'fields' => array(
+			array(
+				'before_row' => __('Monday', 'commons-booking'), // Headline
+				'name' => __('Open on Mondays', 'commons-booking'),
+				'id' => 'location-open-mon',
+				'type' => 'checkbox',
+			),
+			array(
+				'before_row' => __('Monday', 'commons-booking'), // Headline
+				'name' => __('Open on Mondays', 'commons-booking'),
+				'id' => 'location-open-mon',
+				'type' => 'checkbox',
+			),
+			array(
+				'name' => __('Opening time', 'commons-booking'),
+				'id' => 'location-open-mon-from',
+				'type' => 'text_time',
+				'time_format' => 'H:i',
+				'classes' => 'mon-hidden'
+			),
+			array(
+				'name' => __('Closing time', 'commons-booking'),
+				'id' => 'location-open-mon-til',
+				'type' => 'text_time',
+				'time_format' => 'H:i',
+				'classes' => 'mon-hidden'
+			),
+			array(
+				'before_row' => __('tuesday', 'commons-booking'), // Headline
+				'name' => __('Open on tuesdays', 'commons-booking'),
+				'id' => 'location-open-tue',
+				'type' => 'checkbox',
+			),
+			array(
+				'name' => __('Opening time', 'commons-booking'),
+				'id' => 'location-open-tue-from',
+				'type' => 'text_time',
+				'time_format' => 'H:i',
+				'classes' => 'tue-hidden'
+			),
+			array(
+				'name' => __('Closing time', 'commons-booking'),
+				'id' => 'location-open-tue-til',
+				'type' => 'text_time',
+				'time_format' => 'H:i',
+				'classes' => 'tue-hidden'
+			),
+			array(
+				'before_row' => __('wednesday', 'commons-booking'), // Headline
+				'name' => __('Open on wednesdays', 'commons-booking'),
+				'id' => 'location-open-wed',
+				'type' => 'checkbox',
+			),
+			array(
+				'name' => __('Opening time', 'commons-booking'),
+				'id' => 'location-open-wed-from',
+				'type' => 'text_time',
+				'time_format' => 'H:i',
+				'classes' => 'wed-hidden'
+			),
+			array(
+				'name' => __('Closing time', 'commons-booking'),
+				'id' => 'location-open-wed-til',
+				'type' => 'text_time',
+				'time_format' => 'H:i',
+				'classes' => 'wed-hidden'
+			),
+			array(
+				'before_row' => __('thursday', 'commons-booking'), // Headline
+				'name' => __('Open on thursdays', 'commons-booking'),
+				'id' => 'location-open-thu',
+				'type' => 'checkbox',
+			),
+			array(
+				'name' => __('Opening time', 'commons-booking'),
+				'id' => 'location-open-thu-from',
+				'type' => 'text_time',
+				'time_format' => 'H:i',
+				'classes' => 'thu-hidden'
+			),
+			array(
+				'name' => __('Closing time', 'commons-booking'),
+				'id' => 'location-open-thu-til',
+				'type' => 'text_time',
+				'time_format' => 'H:i',
+				'classes' => 'thu-hidden'
+			),
+			array(
+				'before_row' => __('friday', 'commons-booking'), // Headline
+				'name' => __('Open on fridays', 'commons-booking'),
+				'id' => 'location-open-fri',
+				'type' => 'checkbox',
+			),
+			array(
+				'name' => __('Opening time', 'commons-booking'),
+				'id' => 'location-open-fri-from',
+				'type' => 'text_time',
+				'time_format' => 'H:i',
+				'classes' => 'fri-hidden'
+			),
+			array(
+				'name' => __('Closing time', 'commons-booking'),
+				'id' => 'location-open-fri-til',
+				'type' => 'text_time',
+				'time_format' => 'H:i',
+				'classes' => 'fri-hidden'
+			),
+			array(
+				'before_row' => __('saturday', 'commons-booking'), // Headline
+				'name' => __('Open on saturdays', 'commons-booking'),
+				'id' => 'location-open-sat',
+				'type' => 'checkbox',
+			),
+			array(
+				'name' => __('Opening time', 'commons-booking'),
+				'id' => 'location-open-sat-from',
+				'type' => 'text_time',
+				'time_format' => 'H:i',
+				'classes' => 'sat-hidden'
+			),
+			array(
+				'name' => __('Closing time', 'commons-booking'),
+				'id' => 'location-open-sat-til',
+				'type' => 'text_time',
+				'time_format' => 'H:i',
+				'classes' => 'sat-hidden'
+			),
+			array(
+				'before_row' => __('sunday', 'commons-booking'), // Headline
+				'name' => __('Open on sundays', 'commons-booking'),
+				'id' => 'location-open-sun',
+				'type' => 'checkbox',
+			),
+			array(
+				'name' => __('Opening time', 'commons-booking'),
+				'id' => 'location-open-sun-from',
+				'type' => 'text_time',
+				'time_format' => 'H:i',
+				'classes' => 'sun-hidden'
+			),
+			array(
+				'name' => __('Closing time', 'commons-booking'),
+				'id' => 'location-open-sun-til',
+				'type' => 'text_time',
+				'time_format' => 'H:i',
+				'classes' => 'sun-hidden'
+			),
+		)
+	);
+	return $settings_template_location_opening_times;
+}
+/**
+ * Locations meta box: choose pickup mode template
+ *
+ * @since 2.0.0
+ *
+ * @return array
+ */
+public static function get_settings_template_location_pickup_mode()
+{
+
+	$settings_template_location_pickup_mode = array(
+		'name' => __('Pickup mode', 'commons-booking'),
+		'slug' => 'locations',
+		'show_in_plugin_settings' => false,
+		'fields' => array(
+			array(
+				'name' => __('Pickup mode', 'commons-booking'),
+				'id' => 'location-pickup-mode',
+				'type' => 'radio_inline',
+				'options' => array(
+					'personal_contact' => __('Contact the location for pickup', 'commons-booking'),
+					'opening_times' => __('Fixed opening times for pickup', 'commons-booking'),
+				),
+				'default' => 'personal_contact',
+			),
+		)
+	);
+	return $settings_template_location_pickup_mode;
+}
+/**
+ * Locations meta box: location contact (personal contact)
+ *
+ * @since 2.0.0
+ *
+ * @return array
+ */
+public static function get_settings_template_location_personal_contact_info()
+{
+
+	$settings_template_location_personal_contact_info = array(
+		'name' => __('Personal contact', 'commons-booking'),
+		'slug' => 'locations',
+		'show_in_plugin_settings' => false,
+		'fields' => array(
+			array(
+				'name' => __('my title', 'commons-booking'),
+				'id' => 'location-personal-contact-info-title',
+				'type' => 'title',
+			),
+			array(
+				'name' => __('Public', 'commons-booking'),
+				'id' => 'location-personal-contact-info-public',
+				'type' => 'textarea_small',
+				'default' => __('Please contact the location after booking. The contact information will be in your confirmation email.', 'commons-booking'),
+			),
+			array(
+				'name' => __('Private', 'commons-booking'),
+				'id' => 'location-personal-contact-info-private',
+				'type' => 'textarea_small',
+				'default' => __('Contact info: Phone, mail, etc.', 'commons-booking'),
+			),
+		)
+	);
+	return $settings_template_location_personal_contact_info;
+}
+
+
 }
 add_action( 'plugins_loaded', array( 'CB_Settings', 'get_instance' ) );
