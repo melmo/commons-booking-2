@@ -303,8 +303,6 @@ class CB_Settings {
 		'title' => $title,
 		'description' => $description
 		);
-
-
 	}
 	/**
 	 * Add a settings tab
