@@ -43,7 +43,7 @@ class CB_Settings {
 	 *
 	 * @var array
 	 */
-	protected static $timeframe_options;
+	protected static $timeframe_options = array();
 	/**
 	 * Settings slug
 	 *
@@ -82,21 +82,40 @@ class CB_Settings {
 	 */
 	public static function initialize() {
 
-		self::cb2_add_settings_tab( 'my-id', 'my title', 'my description');
-		self::cb2_add_settings_tab( 'my-id-2', 'my second title', 'my description');
-		// self::cb2_add_settings_tab( 'mytest', 'second title', 'my description');
+		/* Add settings tabs */
+		self::cb2_add_settings_tab( 'welcome', __( 'CB2', 'commons-booking-2' ), 'Welcome');
+		self::cb2_add_settings_tab( 'bookings', __( 'Bookings', 'commons-booking-2' ), '');
+		self::cb2_add_settings_tab( 'calendar', __( 'Calendar', 'commons-booking-2' ), '');
+		self::cb2_add_settings_tab( 'map', __( 'Map', 'commons-booking-2' ), '');
+		self::cb2_add_settings_tab( 'strings', __( 'Strings', 'commons-booking-2' ), 'nothing yet');
 
-		$group_test = self::get_settings_template_location_opening_times();
-
+		/* Add settings groups to tabs */
 		self::cb2_add_settings_group(
-			self::get_settings_template_location_opening_times(),
-			'my-id'
+			self::get_settings_template_bookings(),
+			'bookings'
+		);
+		self::cb2_add_settings_group(
+			self::get_settings_template_calendar(),
+			'calendar'
 		);
 
-		// self::apply_settings_templates();
-		// self::apply_settings_tabs();
-		self::apply_timeframe_options();
+		/* Add settings groups for cpts only  */
+		self::cb2_add_settings_group(
+			self::get_settings_template_location_opening_times()
+		);
+		self::cb2_add_settings_group(
+			self::get_settings_template_location_pickup_mode()
+		);
+		self::cb2_add_settings_group(
+		self::get_settings_template_location_personal_contact_info()
+		);
+		self::cb2_add_settings_group(
+			self::get_settings_template_location_personal_contact_info()
+		);
 
+		/* Define setting groups that may be overwritten by timeframe (cb_timeframe_edit) */
+		self::cb2_enable_timeframe_option( 'bookings' );
+		self::cb2_enable_timeframe_option( 'calendar' );
 
 		}
 
@@ -116,94 +135,37 @@ class CB_Settings {
 		$slug = $group['slug'];
 		self::$plugin_settings[ $slug ] = $group;
 
-		//print_r(self::$plugin_settings);
-
-		self::$plugin_settings_tabs[ $tab_id ]['groups'][] = $slug;
+		if ( $tab_id ) {
+			self::$plugin_settings_tabs[ $tab_id ]['groups'][] = $slug;
+		}
 
 	}
-
-
-
-
 	/**
-	 * Populate settings array
+	 * Add plugin setting to be overwritten by timeframe option
 	 *
 	 * @since 2.0.0
 	 *
+	 * @param string $group_id settings group id
+	 *
 	 * @return void
 	 */
-	public static function apply_settings_templates() {
+	public static function cb2_enable_timeframe_option( $group_id ) {
 
-		// all settings groups (including those only used at wp post meta boxes)
-		self::$plugin_settings = array (
-			'pages' => self::get_settings_template_pages(),
-			'bookings' => self::get_settings_template_bookings(),
-			'calendar' => self::get_settings_template_calendar(),
-			'codes' => self::get_settings_template_codes(),
-			'location-opening-times' => self::get_settings_template_location_opening_times(),
-			'location-pickup-mode' => self::get_settings_template_location_pickup_mode(),
-			'location-personal-contact-info' => self::get_settings_template_location_personal_contact_info(),
-			'map_geocode' => self::get_settings_template_map_geocode(),
-			'strings' => self::get_settings_template_cb_strings(),
-		);
+		array_push ( self::$timeframe_options, $group_id );
+
 	}
-
 	/**
-	 * Add Plugin Settings Menu Tabs
+	 * Render the timeframe options in the cb_timeframes_edit
 	 *
 	 * @since 2.0.0
 	 *
-	 * @return void
+	 * @return array
 	 */
-	public static function apply_settings_tabs() {
-
-		self::add_settings_tab( 'intro',
-			array(
-				'title' => __( 'Welcome', 'commons-booking' ),
-				'description' => __( 'Welcome to CB', 'commons-booking' ),
-				'groups' => array()
-			)
-		);
-		self::add_settings_tab( 'bookings',
-			array(
-				'title' => __( 'Bookings', 'commons-booking' ),
-				'description' => __( 'General Booking settings', 'commons-booking' ),
-				'groups' => array (
-					'bookings', 'calendar', 'codes'
-				)
-			)
-		);
-		self::add_settings_tab( 'maps',
-			array(
-				'title' => __( 'Maps', 'commons-booking' ),
-				'description' => __( 'Map settings', 'commons-booking' ),
-				'groups' => array (
-					'map_geocode'
-				)
-			)
-		);
-		self::add_settings_tab( 'formats',
-			array(
-				'title' => __( 'Formats', 'commons-booking' ),
-				'description' => __( 'Formatting of gui, custom strings, mail etc', 'commons-booking' ),
-				'groups' => array (
-					'strings'
-				)
-			)
-		);
-	}
-	/**
-	 * Setup the metaboxes that can be overriden by Timeframe_Options
-	 *
-	 * @since 2.0.0
-	 *
-	 * @return void
-	 */
-	public static function apply_timeframe_options() {
-
-		self::$timeframe_options = array (
-
-		);
+	public static function do_timeframe_options() {
+		foreach ( self::$timeframe_options as $option ) {
+			// Add setting groups
+			CB_Settings::do_settings_group( $option );
+		}
 	}
 	/**
 	 * Return field names and values as key/value pair
@@ -232,10 +194,9 @@ class CB_Settings {
 			return $fields;
 
 		}
-
 	}
 	/**
-	 * Render the admin settings
+	 * Render the admin settings screen tabs & groups
 	 *
 	 * @since 2.0.0
 	 *
@@ -246,13 +207,15 @@ class CB_Settings {
 
 		if ( is_array ( $tabs ) ) {
 
-			foreach ( $tabs as $tab => $value ) { ?>
+			foreach ( $tabs as $tab => $value ) {
+				?>
 					<div id="tabs-<?php echo $tab ; ?>" class="wrap">
 				<?php
 				echo $value['description'];
-
-				foreach ( $value['groups'] as $group ) { // render the settings groups
-					self::do_settings_group( $group );
+				if ( isset ($value['groups']) && is_array ( $value['groups'] )) {
+					foreach ( $value['groups'] as $group ) { // render the settings groups
+						self::do_settings_group( $group );
+					}
 				}
 				?>
 						</div>
@@ -594,6 +557,8 @@ public static function get_settings_template_codes()
  *
  * @since 2.0.0
  *
+ * @uses	CB_Strings
+ *
  * @return array
  */
 public static function get_settings_template_cb_strings()
@@ -625,7 +590,6 @@ public static function get_settings_template_cb_strings()
 	$settings_template_cb_strings = array(
 		'name' => __('Strings', 'commons-booking'),
 		'slug' => 'strings',
-		'show_in_plugin_settings' => true,
 		'fields' => $fields_array
 	);
 
@@ -668,7 +632,7 @@ public static function get_settings_template_location_opening_times()
 
 	$settings_template_location_opening_times = array(
 		'name' => __('Location Opening Times', 'commons-booking'),
-		'slug' => 'locations',
+		'slug' => 'location-opening-times',
 		'show_in_plugin_settings' => false,
 		'fields' => array(
 			array(
@@ -833,7 +797,7 @@ public static function get_settings_template_location_pickup_mode()
 
 	$settings_template_location_pickup_mode = array(
 		'name' => __('Pickup mode', 'commons-booking'),
-		'slug' => 'locations',
+		'slug' => 'location-pickup-mode',
 		'show_in_plugin_settings' => false,
 		'fields' => array(
 			array(
@@ -862,14 +826,9 @@ public static function get_settings_template_location_personal_contact_info()
 
 	$settings_template_location_personal_contact_info = array(
 		'name' => __('Personal contact', 'commons-booking'),
-		'slug' => 'locations',
+		'slug' => 'location-personal-contact-info',
 		'show_in_plugin_settings' => false,
 		'fields' => array(
-			array(
-				'name' => __('my title', 'commons-booking'),
-				'id' => 'location-personal-contact-info-title',
-				'type' => 'title',
-			),
 			array(
 				'name' => __('Public', 'commons-booking'),
 				'id' => 'location-personal-contact-info-public',

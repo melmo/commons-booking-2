@@ -233,10 +233,7 @@ function render_timeframe_generate_slots_meta_box( $item ) {
 }
 // function to render the timeframe generate slots/calendar meta box
 function render_timeframe_options_meta_box( $item ) {
-				// Add setting groups from CB_settings here
-				CB_Settings::do_settings_group('bookings');
-				CB_Settings::do_settings_group('calendar');
-				CB_Settings::do_settings_group('codes');
+	CB_Settings::do_timeframe_options();
 }
 
 
