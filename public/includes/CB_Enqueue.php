@@ -67,23 +67,23 @@ class CB_Enqueue {
 		// items
 		if ( is_post_type_archive( 'cb_item' ) && in_the_loop() ) {
 			$args = array ( 'item_id' => get_the_id() );
-			$timeframe_object = new CB_Timeframe( $args );
+			$timeframe_object = new CB_Timeframes( $args );
 			$CB_Timeframes = $timeframe_object->get( );
 			cb_get_template_part(  CB_TEXTDOMAIN, 'item', 'list', $CB_Timeframes );
 		} elseif ( is_singular( 'cb_item' ) && in_the_loop() ) {
 			$args = array ( 'item_id' => get_the_id() );
-			$timeframe_object = new CB_Timeframe( $args );
+			$timeframe_object = new CB_Timeframes( $args );
 			$CB_Timeframes = $timeframe_object->get( );
 			cb_get_template_part(  CB_TEXTDOMAIN, 'item', 'single', $CB_Timeframes );
 		// locations
 		} elseif ( is_post_type_archive( 'cb_location' ) && in_the_loop() ) {
 			$args = array ( 'location_id' => get_the_id() );
-			$timeframe_object = new CB_Timeframe( $args );
+			$timeframe_object = new CB_Timeframes( $args );
 			$CB_Timeframes = $timeframe_object->get( );
 			cb_get_template_part(  CB_TEXTDOMAIN, 'location', 'list', $CB_Timeframes );
 		} elseif ( is_singular( 'cb_location') && in_the_loop() ) {
 			$args = array ( 'location_id' => get_the_id() );
-			$timeframe_object = new CB_Timeframe( $args );
+			$timeframe_object = new CB_Timeframes( $args );
 			$CB_Timeframes = $timeframe_object->get( );
 			cb_get_template_part(  CB_TEXTDOMAIN, 'location', 'single', $CB_Timeframes );
 		} else {

@@ -97,6 +97,12 @@ class CB_Object {
 	 */
     public $context;
 	/**
+	 * context
+	 *
+	 * @var array
+	 */
+    public $timeframe_options;
+	/**
 	 * Prefix & Table names
 	 *	 */
 		// var $db_prefix;
@@ -207,6 +213,7 @@ class CB_Object {
 	}
 	/**
 	 * Get configuration from settings
+	 * @TODO Retire? We get the settings/timeframe_options in the query for the individual timeframes
 	 *
 	 * @uses CB_Settings
 	 *
@@ -460,9 +467,15 @@ class CB_Object {
 
 			$slot_query_args = array(); // array to hold our slot query args
 
+			$timeframe_options_object = new CB_Timeframe_Options;
+
 			if ( $this->context == 'timeframe' ) { // loop through timeframes, map slots to each timeframe´s calendar
 
 				foreach ( $timeframe_results as $timeframe_result ) {
+
+					// TImeframe Options
+
+					$timeframe_options = $timeframe_options_object->get_timeframe_options( $timeframe_result->timeframe_id );
 
 					// Create new calendar object with an array of dates
 					$timeframe_calendar = new CB_Calendar( $timeframe_result->timeframe_id, $this->today, $timeframe_result->date_end  );
@@ -490,6 +503,8 @@ class CB_Object {
 						$timeframe_calendar->calendar = $this->map_slots_to_cal ( $timeframe_calendar->dates_array, $slot_results_formatted );
 
 						$timeframe_result->calendar = $timeframe_calendar->calendar; // add calendar to the timeframe results object
+
+						$timeframe_result->options = $timeframe_options; // add options to the timeframe results object
 
 						$timeframe_result->css_classes = $this->args_array_to_string();
 

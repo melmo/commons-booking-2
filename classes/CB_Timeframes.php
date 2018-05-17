@@ -8,7 +8,7 @@
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
  */
-class CB_Timeframe extends CB_Object {
+class CB_Timeframes extends CB_Object {
 	/**
 	 * Timeframe id
 	 *

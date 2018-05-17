@@ -6,7 +6,7 @@
 	"devDependencies": {
 		"grunt": "*",
 		"grunt-contrib-compass": "*",
-		"grunt-contrib-watch": "*",
+		"grunt-contrib-watch": "^1.0.1",
 		"matchdep": "^2.0.0"
 	},
 	"dependencies": {

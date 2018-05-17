@@ -10,7 +10,7 @@
  * @license   GPL 2.0+
  * @link      http://commonsbooking.wielebenwir.de
  */
-class CB_Item  {
+class CB_Items  {
 	/**
 	 * Instance of this class.
 	 *
@@ -72,4 +72,4 @@ class CB_Item  {
 		return self::$instance;
 	}
 }
-add_action( 'plugins_loaded', array( 'CB_Item', 'get_instance' ) );
+add_action( 'plugins_loaded', array( 'CB_Items', 'get_instance' ) );

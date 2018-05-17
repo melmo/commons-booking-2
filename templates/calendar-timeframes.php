@@ -14,7 +14,7 @@
 $cal = $template_args;
 	if ( !empty ( $cal )) { ?>
 		<?php // calendar ?>
-		<?php 
+		<?php var_dump($cal);
 		$cb_calendar_class = 'cb-calendar-single';
 		if (isset($cal['timeframe_id']) && is_array($cal['timeframe_id']) && count($cal['timeframe_id']) > 1) {
 			$cb_calendar_class = 'cb-calendar-grouped';
@@ -33,6 +33,7 @@ $cal = $template_args;
 										<?php foreach ( $date['slots'] as $slot ) { ?>
 											
 											<li id="<?php echo $slot['slot_id']; ?>" class="cb-slot" alt="<?php echo esc_html( $slot['description'] ); ?>" <?php echo CB_Gui::slot_attributes( $slot ); ?> >
+
 												<span class="cb-item-dot"></span>
 												<!-- checkbox or similar here -->
 											</li>

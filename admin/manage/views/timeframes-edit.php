@@ -37,19 +37,20 @@
 <div class="wrap">
 	<?php // meta box holder ?>
     <div class="icon32 icon32-posts-post" id="icon-edit"><br></div>
-    <h1 class="wp-heading-inline"><?php _e('Timeframe', 'commons-booking')?> <a class="add-new-h2" href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=cb_timeframes_table' );?>"><?php _e('back to list', 'commons-booking')?></a>
+    <h1 class="wp-heading-inline">
+			<?php echo $Timeframes_Admin->do_title(); ?>
     </h1>
-		<h2><?php echo $Timeframes_Admin->do_title(); ?></h2>
+		<h2><?php echo $Timeframes_Admin->do_subtitle(); ?></h2>
     <form id="form" method="POST">
         <input type="hidden" name="nonce" value="<?php echo wp_create_nonce(basename(__FILE__))?>"/>
         <?php /* NOTICE: here we storing id to determine will be item added or updated */ ?>
         <input type="hidden" name="timeframe_id" value="<?php echo $item['timeframe_id']; ?>"/>
 
         <div class="metabox-holder" id="cb_admin_metabox">
-            <div id="post-body">
-                <div id="post-body-content">
+             <div id="post-body">
+                 <div id="post-body-content">
                     <?php /* And here we call our custom meta box */ ?>
-                    <?php do_meta_boxes('timeframe', 'normal', $item); ?>
+                    <?php do_meta_boxes('timeframe', 'normal', $item ); ?>
 										<?php $Timeframes_Admin->do_form_footer(); ?>
 
                 </div>
@@ -60,16 +61,11 @@
 
 <?php
 // function to render the timeframe settings meta box
-function render_timeframe_settings_meta_box( $item ) {
+function render_timeframe_calendar_meta_box( $item ) {
 
 	?><table cellspacing="2" cellpadding="5" style="width: 100%;" class="form-table">
     <tbody>
-		 <tr class="form-field cb-form-info-availability">
-        <td valign="top" colspan="4">
-					<?php // echo CB_Gui::col_format_availability( $item ); ?>
-        </td>
-    </tr>
-		<tr class="form-field form-field-header">
+		<tr class="form-field form-field-header" style="display:none">
         <td valign="top" colspan="4">
 						<input id="booking_enabled" name="booking_enabled" type="checkbox" value="booking_enabled" <?php if ( $item['booking_enabled'] ) { echo "CHECKED"; }; ?> class="checkbox">
             <label for="booking_enabled"><?php _e('Enable Bookings', 'commons-booking')?></label>
@@ -92,26 +88,26 @@ function render_timeframe_settings_meta_box( $item ) {
 					<?php echo CB_Gui::edit_table_post_select_html('cb_item', 'item_id', $item['item_id'] ); ?>
 				</td>
     </tr>
-		<tr class="form-field form-field-header">
+		<tr class="form-field form-field-header row-alternate">
         <td valign="top" colspan="4">
 						<input id="calendar_enabled" name="calendar_enabled" type="checkbox" value="calendar_enabled" <?php if (! empty ( $item['calendar_enabled']) ) { echo "CHECKED"; }; ?> class="checkbox">
             <label for="calendar_enabled"><?php _e('Enable booking calendar', 'commons-booking')?></label>
         </td>
 		</tr>
-		 <tr class="form-field">
+		 <tr class="form-field row-alternate">
         <td valign="top">
             <label for="date_start"><?php _e('Start Date', 'commons-booking')?></label>
         </td>
         <td>
  						<input id="date_start" name="date_start" type="date" value="<?php echo esc_attr($item['date_start'])?>" class="date">
         </td>
- 				<td valign="top">
+ 				<td valign="top" colspan="2">
 				 		<input id="has_end_date" name="has_end_date" type="checkbox" value="has_end_date" <?php if ($item['has_end_date']) { echo "CHECKED"; }; ?> class="checkbox">
             <label for="has_end_date"><?php _e('Set an end date', 'commons-booking')?></label>
         </td>
     </tr>
-		 <tr class="form-field">
-		    <td valign="top">
+		 <tr class="form-field row-alternate">
+		    <td valign="top" colspan="1">
             <label for="date_end"><?php _e('End Date', 'commons-booking')?></label>
         </td>
         <td colspan="3">
@@ -119,18 +115,6 @@ function render_timeframe_settings_meta_box( $item ) {
 						 if (  $item['has_end_date'] == 1 ) { echo esc_attr($item['date_end']); } ?>" class="date">
         </td>
 		</tr>
-		<tr class="form-field">
-        <td colspan="1"><?php _e('Exclude days', 'commons-booking'); ?></td>
-        <td valign="top" colspan="1">
-						<input id="exclude_location_closed" name="exclude_location_closed" type="checkbox" value="exclude_location_closed"
-						<?php if ( $item['exclude_location_closed'] ) { echo "CHECKED"; }; ?> class="checkbox">
-            <label for="exclude_location_closed"><?php _e('Exclude closed days of the location', 'commons-booking')?></label>
-        </td>
-        <td valign="top" colspan="1">
-						<input id="exclude_holiday_closed" name="exclude_holiday_closed" type="checkbox" value="exclude_holiday_closed" <?php if ( $item['exclude_holiday_closed'] ) { echo "CHECKED"; }; ?>  class="checkbox">
-            <label for="exclude_holiday_closed"><?php _e('Exclude holidays', 'commons-booking')?></label>
-        </td>
-    </tr>
 		 <tr class="form-field">
         <td valign="top">
           <label for="slot_template_select"><?php _e('Booking Mode', 'commons-booking')?></label>
@@ -141,7 +125,7 @@ function render_timeframe_settings_meta_box( $item ) {
 				<td></td>
 				<td></td>
     </tr>
-		<tr class="form-field">
+		<tr class="form-field row-alternate">
 		        <td valign="top">
             <label for="codes_enabled"><?php _e('Codes', 'commons-booking')?></label>
         </td>
@@ -247,6 +231,12 @@ function render_timeframe_generate_slots_meta_box( $item ) {
 <?php
 
 }
+// function to render the timeframe generate slots/calendar meta box
+function render_timeframe_options_meta_box( $item ) {
+	CB_Settings::do_timeframe_options();
+}
+
+
 // function to render the timeframe generate slots meta box
 function render_timeframe_view_meta_box( $item ) {
 
@@ -271,35 +261,6 @@ function render_timeframe_view_meta_box( $item ) {
 					?>. Using template: <?php echo CB_Gui::list_slot_templates_html( $item['slot_template_group_id'], FALSE); ?>
         </td>
     </tr>
-
-		<tr>
-        <td valign="top">
-            <label for="item_id"><?php _e('Item', 'commons-booking')?></label>
-        </td>
-				<td>
-				<?php echo CB_Gui::col_format_post( $item['item_id'] ); ?>
-				</td>
-        <td>
-            <label for="location_id"><?php _e('Location', 'commons-booking')?></label>
-        </td>
-        <td>
-						<?php echo CB_Gui::col_format_post( $item['location_id'] ); ?>
-        </td>
-    </tr>
-		 <tr class="form-field">
-        <td valign="top">
-            <label for="date_start"><?php _e('Start Date', 'commons-booking')?></label>
-        </td>
-        <td>
-						<?php echo CB_Gui::col_format_date( $item['date_start'] ); ?>
-        </td>
-        <td valign="top">
-            <label for="date_end"><?php _e('End Date', 'commons-booking')?></label>
-        </td>
-        <td>
-						<?php echo CB_Gui::col_format_date_end( $item['date_end'], $item['has_end_date'] ); ?>
-        </td>
-    </tr>
 		 <tr class="form-field">
         <td valign="top">
             <label for="description"><?php _e('Description', 'commons-booking')?></label>
@@ -316,8 +277,9 @@ function render_timeframe_view_meta_box( $item ) {
     </tr>
 		 <tr class="form-field">
         <td valign="top" colspan="4">
-					<a class="add-new-h2" href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=cb_timeframes_edit&edit=1&timeframe_id=' . $item['timeframe_id'] );?>"><?php _e('Edit timeframe', 'commons-booking')?></a>
+					<a class="add-new-h2" href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=cb_timeframes_edit&edit=1&timeframe_id=' . $item['timeframe_id'] );?>"><?php _e('Edit', 'commons-booking')?></a>
 					<a class="add-new-h2" href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=cb_bookings_table&timeframe_id=' . $item['timeframe_id'] );?>"><?php _e('View Bookings', 'commons-booking')?></a>
+					<a class="add-new-h2" href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=cb_timeframes_edit&timeframe_id=' . $item['timeframe_id'] );?>&timeframe_options"><?php _e('Advanced options', 'commons-booking')?></a>
         </td>
     	</tr>
     </tbody>
@@ -325,7 +287,7 @@ function render_timeframe_view_meta_box( $item ) {
 @TODO: render calendar here.
 <?php
 	$args = array ( 'timeframe_id' => $item['timeframe_id'] );
-	$timeframe_object = new CB_Timeframe( $args );
+	$timeframe_object = new CB_Timeframes( $args );
 	$CB_Timeframes = $timeframe_object->get( );
 	cb_get_template_part(  CB_TEXTDOMAIN, 'timeframe', 'admin', $CB_Timeframes );
 

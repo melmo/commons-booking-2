@@ -11,7 +11,7 @@
 /**
  * Interface for Locations
  */
-class CB_Location  {
+class CB_Locations  {
 
 	public $location_id;
 	/**

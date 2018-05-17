@@ -25,7 +25,7 @@ class Commons_Booking {
 	 *
 	 * @var array
 	 */
-	protected $cpts = array( 'CB_Item', 'CB_Location' );
+	protected $cpts = array( 'CB_Items', 'CB_Locations' );
 		/**
 	 * Array of custom taxonimies of the plugin
 	 *

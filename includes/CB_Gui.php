@@ -413,7 +413,7 @@ public static function col_format_timeframe( $post_id, $echo=false ) {
 		'order' => 'ASC'
 	);
 
-	$timeframe_object = new CB_Timeframe( $args );
+	$timeframe_object = new CB_Timeframes( $args );
 	$timeframes = $timeframe_object->get( );
 
 	if ( isset( $timeframes ) && is_array( $timeframes ) ) {
@@ -477,7 +477,7 @@ public static function list_slot_templates_html( $slot_template_group_id, $list_
  * @return mixed $html
  */
 public static function list_location_opening_times_html( $location_id ) {
-	$location = new CB_Location ( $location_id );
+	$location = new CB_Locations ( $location_id );
 	$opening_times = $location->get_opening_times();
 	$pickup_mode = $location->get_pickup_mode();
 

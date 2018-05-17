@@ -379,9 +379,9 @@ class CB_Slots {
 	 * 5. get holidays and add to holidays array
 	 * 6. generate slots
 	 *
-	 * @uses CB_Location
+	 * @uses CB_Locations
 	 *
-	 * @param array $timeframe
+	 * @param array|object $timeframe
 	 * @param $request
 	 *
 	 * @return int $result
@@ -409,7 +409,7 @@ class CB_Slots {
 				$this->add_to_ignored_days ( $existing_dates ); // add these date to ignore list, we are ignoring days that have already slots attached.
 
 				// handle location opening times checkbox
-				$location = new CB_Location ( $timeframe['location_id'] );
+				$location = new CB_Locations ( $timeframe['location_id'] );
 				$opening_times = $location->get_opening_times();
 				$pickup_mode = $location->get_pickup_mode();
 
@@ -429,6 +429,9 @@ class CB_Slots {
 				$this->set_include_codes( $timeframe['codes_enabled'] );
 
 				$sql_slots_result = $this->generate_slots( );
+
+				do_action( 'commons_booking_cb_slots_generated', $sql_slots_result );
+
 
 				return $sql_slots_result;
 	}

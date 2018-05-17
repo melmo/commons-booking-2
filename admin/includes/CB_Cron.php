@@ -31,9 +31,8 @@ class CB_Cron {
 		// 1. get timeframes that have no end date
 		$timeframe_args = array ( 'has_end_date' => 0, 'scope' => '' );
 
-		$timeframes_object = new CB_Timeframe( $timeframe_args );
+		$timeframes_object = new CB_Timeframes( $timeframe_args );
 		$timeframes = $timeframes_object->get();
-
 
 		// 2. get cal limit from settings, calculate how many days to add
 		$cal_limit =  intval ( CB_Settings::get( 'calendar', 'limit' ) );
@@ -70,7 +69,7 @@ class CB_Cron {
 						if ( $sql_timeframe_result == 1 ) { // update successful
 
 							$tf->date_end = $new_end_date;
-		// 4. create slots
+							// 4. create slots
 							$slots = new CB_Slots( $tf->timeframe_id );
 							$generate_slots_result = $slots->re_generate_slots_function( $tf );
 						} // end if update successful
