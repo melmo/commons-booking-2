@@ -98,6 +98,10 @@ class CB_Settings {
 			self::get_settings_template_calendar(),
 			'calendar'
 		);
+		self::cb2_add_settings_group(
+			self::get_settings_template_map_geocode(),
+			'map'
+		);
 
 		/* Add settings groups for cpts only  */
 		self::cb2_add_settings_group(
@@ -110,8 +114,9 @@ class CB_Settings {
 		self::get_settings_template_location_personal_contact_info()
 		);
 		self::cb2_add_settings_group(
-			self::get_settings_template_location_personal_contact_info()
+			self::get_settings_template_location_address()
 		);
+
 
 		/* Define setting groups that may be overwritten by timeframe (cb_timeframe_edit) */
 		self::cb2_enable_timeframe_option( 'bookings' );
@@ -139,30 +144,6 @@ class CB_Settings {
 			self::$plugin_settings_tabs[ $tab_id ]['groups'][] = $slug;
 		}
 
-	}
-	/**
-	 * Add plugin setting to be overwritten by timeframe option
-	 *
-	 * @since 2.0.0
-	 *
-	 * @return array
-	 */
-	public static function get_settings_template_map_geocode() {
-
-		$settings_map_geocode = array(
-			'name' => __( 'Map Geocode', 'commons-booking' ),
-			'slug' => 'map_geocode',
-			'fields' => array (
-				array(
-					'name'             => __( 'API Key', 'commons-booking' ),
-					'desc'             => __( 'Get your API key at https://geocoder.opencagedata.com/users/sign_up, comma-separated', 'commons-booking' ),
-					'id'               => 'api-key',
-					'type'             => 'text',
-					'default'          => '',
-				)
-			)
-		);
-		return $settings_map_geocode;
 	}
 	/**
 	 * Locations meta box: opening times template
@@ -387,6 +368,31 @@ class CB_Settings {
 			// CB_Object::throw_error( __FILE__, $options_page . ' is not a valid setting');
 		}
 	}
+/**
+ * Geo Code Service
+ *
+ * @since 2.0.0
+ *
+ * @return array
+ */
+public static function get_settings_template_map_geocode()
+{
+
+	$settings_map_geocode = array(
+		'name' => __('Map Geocode', 'commons-booking'),
+		'slug' => 'map_geocode',
+		'fields' => array(
+			array(
+				'name' => __('API Key', 'commons-booking'),
+				'desc' => __('Get your API key at https://geocoder.opencagedata.com/users/sign_up, comma-separated', 'commons-booking'),
+				'id' => 'api-key',
+				'type' => 'text',
+				'default' => '',
+			)
+		)
+	);
+	return $settings_map_geocode;
+}
 /**
  * Booking settings template
  *
@@ -618,29 +624,58 @@ public static function get_settings_template_cb_strings()
 	return $settings_template_cb_strings;
 }
 /**
- * Geo Code Service
+ * Locations meta box: address
  *
  * @since 2.0.0
  *
  * @return array
  */
-public static function get_settings_template_map_geocode()
+public static function get_settings_template_location_address()
 {
 
-	$settings_map_geocode = array(
-		'name' => __('Map Geocode', 'commons-booking'),
-		'slug' => 'map_geocode',
+	$settings_template_location_address = array(
+		'name' => __('Address', 'commons-booking'),
+		'slug' => 'location-address',
+		'show_in_plugin_settings' => false,
 		'fields' => array(
 			array(
-				'name' => __('API Key', 'commons-booking'),
-				'desc' => __('Get your api key at..., comma-seperated', 'commons-booking'),
-				'id' => 'api-key',
-				'type' => 'text',
-				'default' => '',
-			)
+				'name' => __('Address Line 1', 'commons-booking'),
+				'id' => 'location-address-line1',
+				'type' => 'text'
+			),
+			array(
+				'name' => __('Address Line 2 (Optional)', 'commons-booking'),
+				'id' => 'location-address-line2',
+				'type' => 'text'
+			),
+			array(
+				'name' => __('State', 'commons-booking'),
+				'id' => 'location-address-state',
+				'type' => 'text'
+			),
+			array(
+				'name' => __('Postcode', 'commons-booking'),
+				'id' => 'location-address-postcode',
+				'type' => 'text'
+			),
+			array(
+				'name' => __('Country', 'commons-booking'),
+				'id' => 'location-address-country',
+				'type' => 'text'
+			),
+			array(
+				'name' => __('Latitude', 'commons-booking'),
+				'id' => 'location-address-latitude',
+				'type' => 'hidden'
+			),
+			array(
+				'name' => __('Longitude', 'commons-booking'),
+				'id' => 'location-address-longitude',
+				'type' => 'hidden'
+			),
 		)
 	);
-	return $settings_map_geocode;
+	return $settings_template_location_address;
 }
 /**
  * Locations meta box: opening times template

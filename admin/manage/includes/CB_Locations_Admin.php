@@ -11,7 +11,7 @@
  * @link      http://commonsbooking.wielebenwir.de
  */
 class CB_Bookings_Location  {
-	
+
 
 	/**
 	 * Constructor
@@ -20,7 +20,7 @@ class CB_Bookings_Location  {
 
 		global $wpdb;
 
-		add_action( 'cmb2_save_post_fields_location-address',array( $this, 'save_lat_lng' ), 10, 3 ); // admin/includes/lib/cmb2/includes/CMB2.php
+		add_action( 'cmb2_save_post_fields_location_address',array( $this, 'save_lat_lng' ), 10, 3 ); // admin/includes/lib/cmb2/includes/CMB2.php
 		add_action( 'admin_notices', array( $this, 'admin_notice' ) );
 	}
 
@@ -56,12 +56,12 @@ class CB_Bookings_Location  {
 
 		// Get the address ready for geocoding
 		$address = $data['location-address-line1'] . ' ' . $data['location-address-line2'] . ' ' . $data['location-address-state'] . ' ' . $data['location-address-postcode'] . ' ' . $data['location-address-country'];
-		
+
 		// Connect to OpenCage
 		$geocode_api_key = CB_Settings::get('map_geocode','api-key');
 
 		$geocoder = new \OpenCage\Geocoder\Geocoder($geocode_api_key);
-				
+
 		$geo_result = $geocoder->geocode($address);
 
 		// API key missing or invalid
@@ -78,7 +78,7 @@ class CB_Bookings_Location  {
 		}
 
 		// Everything worked, save the lat and lng
-		
+
 		$first = $geo_result['results'][0];
 
 		$cmb->data_to_save['location-address-latitude'] = $first['geometry']['lat'];
@@ -89,16 +89,16 @@ class CB_Bookings_Location  {
                     'name' => 'Latitude',
                     'id' => 'location-address-latitude',
                     'type' => 'text'
-                ) 
+                )
             );
 		$cmb->process_field(array
                 (
                     'name' => 'Longitude',
                     'id' => 'location-address-longitude',
                     'type' => 'text'
-                ) 
+                )
             );
-			
+
 	}
 
 	public function add_geocode_failed_var( $location ) {
