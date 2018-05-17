@@ -145,7 +145,29 @@ class CB_Settings {
 	 *
 	 * @since 2.0.0
 	 *
-	 * @param string $group_id settings group id
+	 * @return array
+	 */
+	public static function get_settings_template_map_geocode() {
+
+		$settings_map_geocode = array(
+			'name' => __( 'Map Geocode', 'commons-booking' ),
+			'slug' => 'map_geocode',
+			'fields' => array (
+				array(
+					'name'             => __( 'API Key', 'commons-booking' ),
+					'desc'             => __( 'Get your API key at https://geocoder.opencagedata.com/users/sign_up, comma-separated', 'commons-booking' ),
+					'id'               => 'api-key',
+					'type'             => 'text',
+					'default'          => '',
+				)
+			)
+		);
+		return $settings_map_geocode;
+	}
+	/**
+	 * Locations meta box: opening times template
+	 *
+	 * @since 2.0.0
 	 *
 	 * @return void
 	 */
