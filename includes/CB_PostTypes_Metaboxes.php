@@ -123,6 +123,7 @@ class CB_PostTypes_Metaboxes {
 		/**
 		 * Metabox: location address - defined in Settings module
 		 */
+
 		$fields_location_address = CB_Settings::get_settings_group( 'location-address');
 
 		CB_Settings::cb2_add_settings_to_cpt('location_address', __('Location Address', 'commons-booking'), array('cb_location'), $fields_location_address);

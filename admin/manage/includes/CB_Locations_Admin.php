@@ -89,6 +89,7 @@ class CB_Bookings_Location  {
                     'name' => 'Latitude',
                     'id' => 'location-address-latitude',
                     'type' => 'text'
+                ) 
                 )
             );
 		$cmb->process_field(array
@@ -96,8 +97,9 @@ class CB_Bookings_Location  {
                     'name' => 'Longitude',
                     'id' => 'location-address-longitude',
                     'type' => 'text'
-                )
+                ) 
             );
+			
 
 	}
 
@@ -132,3 +134,4 @@ class CB_Bookings_Location  {
 }
 
 new CB_Bookings_Location();
+

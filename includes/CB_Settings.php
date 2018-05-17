@@ -144,6 +144,7 @@ class CB_Settings {
 			self::$plugin_settings_tabs[ $tab_id ]['groups'][] = $slug;
 		}
 
+
 	}
 	/**
 	 * Locations meta box: opening times template
@@ -152,6 +153,7 @@ class CB_Settings {
 	 *
 	 * @return void
 	 */
+
 	public static function cb2_enable_timeframe_option( $group_id ) {
 
 		array_push ( self::$timeframe_options, $group_id );
@@ -164,6 +166,7 @@ class CB_Settings {
 	 *
 	 * @return array
 	 */
+
 	public static function do_timeframe_options() {
 		foreach ( self::$timeframe_options as $option ) {
 			// Add setting groups
@@ -178,6 +181,7 @@ class CB_Settings {
 	 *
 	 * @return array
 	 */
+
 	public static function get_timeframe_option_group_fields() {
 
 		$fields = array();
