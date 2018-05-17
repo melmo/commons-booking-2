@@ -45,6 +45,19 @@ class CB_Locations  {
 		return $mode;
 	}
 	/**
+	* Return Lat/Long
+	* @param int $location_id
+	* @return array geocoords
+  */
+	public function get_latlong( $location_id ) {
+
+		$geocoords = array (
+			'long'=> get_post_meta( $this->location_id, 'location-address-longitude', true ),
+			'lat'=> get_post_meta( $this->location_id, 'location-address-latitude', true )
+		);
+		return $geocoords;
+	}
+	/**
 	* Return an array of open days & times
 	* @param int $location_id
 	* @return array $opening_times
