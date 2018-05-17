@@ -3,7 +3,7 @@ new Fake_Page(
 	  array(
     'slug' => 'fake_slug',
     'post_title' => 'Fake Page Title',
-    // 'post_content' => testing()
+    'post_content' => testing()
 	  )
 );
 
@@ -18,9 +18,11 @@ function testing() {
 // 	'discard_empty' => TRUE,
 // );
 
-// $tf = new CB_Timeframe();
-// // $tf->set_context('admin_table'); // either 1) 'timeframe' (default): group by timeframe or 2) 'calendar': group by date or 3) 'admin_table'
+// $args = array();
+// $tf = new CB_Timeframes();
+// $tf->set_context('timeframe'); // either 1) 'timeframe' (default): group by timeframe or 2) 'calendar': group by date or 3) 'admin_table'
 // $timeframes = $tf->get_timeframes( $args );
+// var_dump($timeframes);
 
 
 
