@@ -4,7 +4,7 @@ require('CB_Calendar_StatusTypes.php');
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
-class CB2_Period extends CB2_PostNavigator implements JsonSerializable {
+class CB_Period extends CB_PostNavigator implements JsonSerializable {
   private static $database_table = 'wp_cb2_periods';
   public  static $all = array();
   public  static $standard_fields = array( 'period_group_type', 'time_start', 'name', 'period_status_type_name', 'recurrence_index', 'priority' );
@@ -42,7 +42,7 @@ class CB2_Period extends CB2_PostNavigator implements JsonSerializable {
     $this->period_object        = $period_object;
 
     // Real World Objects
-    // TODO: make this extensible? e.g. array( CB2_Location, ... )
+    // TODO: make this extensible? e.g. array( CB_Location, ... )
     $this->location = NULL;
     $this->item     = NULL;
     $this->user     = NULL;
@@ -81,11 +81,11 @@ class CB2_Period extends CB2_PostNavigator implements JsonSerializable {
     }
 
     switch ( $group_type ) {
-      case 'A': $period_class = 'CB2_Period_Automatic';          break;
-      case 'G': $period_class = 'CB2_Period_Global';             break;
-      case 'L': $period_class = 'CB2_Period_Location';           break;
-      case 'I': $period_class = 'CB2_Period_Timeframe';      break;
-      case 'U': $period_class = 'CB2_Period_Timeframe_User'; break;
+      case 'A': $period_class = 'CB_Period_Automatic';          break;
+      case 'G': $period_class = 'CB_Period_Global';             break;
+      case 'L': $period_class = 'CB_Period_Location';           break;
+      case 'I': $period_class = 'CB_Period_Timeframe';      break;
+      case 'U': $period_class = 'CB_Period_Timeframe_User'; break;
       default: throw new Exception( 'Unknown Period type' );
     }
 
@@ -146,8 +146,8 @@ class CB2_Period extends CB2_PostNavigator implements JsonSerializable {
     // 24:00 = 86400
     static $seconds_in_day = 24 * 60 * 60; // 86400
 
-    $seconds_start = CB2_Calendar_Query::seconds_in_day( $this->datetime_part_period_start );
-    $seconds_end   = CB2_Calendar_Query::seconds_in_day( $this->datetime_part_period_end );
+    $seconds_start = CB_Calendar_Query::seconds_in_day( $this->datetime_part_period_start );
+    $seconds_end   = CB_Calendar_Query::seconds_in_day( $this->datetime_part_period_end );
     $seconds_start_percent = (int) ( $seconds_start / $seconds_in_day * 100 );
     $seconds_end_percent   = (int) ( $seconds_end   / $seconds_in_day * 100 );
     $seconds_diff_percent  = $seconds_end_percent - $seconds_start_percent;
@@ -194,7 +194,7 @@ class CB2_Period extends CB2_PostNavigator implements JsonSerializable {
     if ( WP_DEBUG ) $html .= ( '<td>' . $this->debug_html() . '</td>' );
 
     // Period fields
-    foreach ( CB2_Period::$standard_fields as $field_name ) {
+    foreach ( CB_Period::$standard_fields as $field_name ) {
       $value = $this->period_object->$field_name;
       $class = 'cb2-' . str_replace( '_', '-', $field_name );
       $html .= ( "<td class='$class'>" );
@@ -273,7 +273,7 @@ class CB2_Period extends CB2_PostNavigator implements JsonSerializable {
   }
 
   function save() {
-    $insert = CB2_Database_Insert::factory( self::$database_table );
+    $insert = CB_Database_Insert::factory( self::$database_table );
     $insert->add_field( 'name', $this->name );
     $insert->add_field( 'datetime_part_period_start', $this->datetime_part_period_start );
     $insert->add_field( 'datetime_part_period_end',   $this->datetime_part_period_end );
@@ -285,11 +285,11 @@ class CB2_Period extends CB2_PostNavigator implements JsonSerializable {
     $insert->add_field( 'recurrence_sequence',        $this->recurrence_sequence, '%d' );
     $period_id = $insert->run();
 
-    $insert = CB2_Database_Insert::factory( 'wp_cb2_period_groups' );
+    $insert = CB_Database_Insert::factory( 'wp_cb2_period_groups' );
     $insert->add_field( 'name', $this->name );
     $period_group_id = $insert->run();
 
-    $insert = CB2_Database_Insert::factory( 'wp_cb2_period_group_period' );
+    $insert = CB_Database_Insert::factory( 'wp_cb2_period_group_period' );
     $insert->add_field( 'period_group_id', $period_group_id );
     $insert->add_field( 'period_id',       $period_id );
     $insert->run();
@@ -302,10 +302,10 @@ class CB2_Period extends CB2_PostNavigator implements JsonSerializable {
       'period_id' => $this->period_id,
       'recurrence_index' => $this->recurrence_index,
       'name' => $this->name,
-      'datetime_part_period_start' => $this->datetime_part_period_start->format( CB2_Calendar_Query::$javascript_date_format ),
-      'datetime_part_period_end' => $this->datetime_part_period_end->format( CB2_Calendar_Query::$javascript_date_format ),
-      'datetime_from' => $this->datetime_from->format( CB2_Calendar_Query::$javascript_date_format ),
-      'datetime_to' => ( $this->datetime_to ? $this->datetime_to->format( CB2_Calendar_Query::$javascript_date_format ) : '' ),
+      'datetime_part_period_start' => $this->datetime_part_period_start->format( CB_Calendar_Query::$javascript_date_format ),
+      'datetime_part_period_end' => $this->datetime_part_period_end->format( CB_Calendar_Query::$javascript_date_format ),
+      'datetime_from' => $this->datetime_from->format( CB_Calendar_Query::$javascript_date_format ),
+      'datetime_to' => ( $this->datetime_to ? $this->datetime_to->format( CB_Calendar_Query::$javascript_date_format ) : '' ),
       'period_status_type' => $this->period_status_type,
       'recurrence_type' => $this->recurrence_type,
       'recurrence_frequency' => $this->recurrence_frequency,
@@ -324,7 +324,7 @@ class CB2_Period extends CB2_PostNavigator implements JsonSerializable {
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
-class CB2_Period_Automatic extends CB2_Period {
+class CB_Period_Automatic extends CB_Period {
   function __construct(
     $location_ID,
     $item_ID,
@@ -375,7 +375,7 @@ class CB2_Period_Automatic extends CB2_Period {
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
-class CB2_Period_Global extends CB2_Period {
+class CB_Period_Global extends CB_Period {
   static $name_field = 'period_group_name';
   static $database_table = 'wp_cb2_global_period_groups';
 
@@ -424,7 +424,7 @@ class CB2_Period_Global extends CB2_Period {
   function save() {
     $period_group_id = parent::save();
 
-    $insert = CB2_Database_Insert::factory( self::$database_table );
+    $insert = CB_Database_Insert::factory( self::$database_table );
     $insert->add_field( 'period_group_id',  $period_group_id );
     $insert->run();
 
@@ -436,7 +436,7 @@ class CB2_Period_Global extends CB2_Period {
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
-class CB2_Period_Location extends CB2_Period {
+class CB_Period_Location extends CB_Period {
   static $name_field = 'location_post_title';
   static $database_table = 'wp_cb2_location_period_groups';
 
@@ -472,7 +472,7 @@ class CB2_Period_Location extends CB2_Period {
       $recurrence_sequence,
       $period_object
     );
-    $this->location = CB2_Location::factory(
+    $this->location = CB_Location::factory(
       $location_ID,
       ( isset( $this->period_object->location_post_title ) ? $this->period_object->location_post_title : NULL )
     );
@@ -491,7 +491,7 @@ class CB2_Period_Location extends CB2_Period {
   function save() {
     $period_group_id = parent::save();
 
-    $insert = CB2_Database_Insert::factory( self::$database_table );
+    $insert = CB_Database_Insert::factory( self::$database_table );
     $insert->add_field( 'location_ID', $this->location->ID );
     $insert->add_field( 'period_group_id',  $period_group_id );
     $insert->run();
@@ -510,7 +510,7 @@ class CB2_Period_Location extends CB2_Period {
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
-class CB2_Period_Timeframe extends CB2_Period {
+class CB_Period_Timeframe extends CB_Period {
   static $name_field = array( 'location_post_title', 'item_post_title' );
   static $database_table = 'wp_cb2_timeframe_period_groups';
 
@@ -546,13 +546,13 @@ class CB2_Period_Timeframe extends CB2_Period {
       $recurrence_sequence,
       $period_object
     );
-    $this->location = CB2_Location::factory(
+    $this->location = CB_Location::factory(
       $location_ID,
       ( isset( $this->period_object->location_post_title ) ? $this->period_object->location_post_title : NULL )
     );
     array_push( $this->posts, $this->location );
 
-    $this->item = CB2_Item::factory(
+    $this->item = CB_Item::factory(
       $this->location,
       $item_ID,
       ( isset( $this->period_object->item_post_title ) ? $this->period_object->item_post_title : NULL )
@@ -572,7 +572,7 @@ class CB2_Period_Timeframe extends CB2_Period {
   function save() {
     $period_group_id = parent::save();
 
-    $insert = CB2_Database_Insert::factory( self::$database_table );
+    $insert = CB_Database_Insert::factory( self::$database_table );
     $insert->add_field( 'location_ID', $this->location->ID );
     $insert->add_field( 'item_ID',     $this->item->ID );
     $insert->add_field( 'period_group_id',  $period_group_id );
@@ -593,7 +593,7 @@ class CB2_Period_Timeframe extends CB2_Period {
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
-class CB2_Period_Timeframe_User extends CB2_Period {
+class CB_Period_Timeframe_User extends CB_Period {
   static $name_field = array( 'location_post_title', 'item_post_title', 'user_login' );
   static $database_table = 'wp_cb2_location_item_user_period_groups';
 
@@ -629,20 +629,20 @@ class CB2_Period_Timeframe_User extends CB2_Period {
       $recurrence_sequence,
       $period_object
     );
-    $this->location = CB2_Location::factory(
+    $this->location = CB_Location::factory(
       $location_ID,
       ( isset( $this->period_object->location_post_title ) ? $this->period_object->location_post_title : NULL )
     );
     array_push( $this->posts, $this->location );
 
-    $this->item = CB2_Item::factory(
+    $this->item = CB_Item::factory(
       $this->location,
       $item_ID,
       ( isset( $this->period_object->item_post_title ) ? $this->period_object->item_post_title : NULL )
     );
     array_push( $this->posts, $this->item );
 
-    $this->user = CB2_User::factory(
+    $this->user = CB_User::factory(
       $this->location,
       $this->item,
       $user_ID,
@@ -663,7 +663,7 @@ class CB2_Period_Timeframe_User extends CB2_Period {
   function save() {
     $period_group_id = parent::save();
 
-    $insert = CB2_Database_Insert::factory( self::$database_table );
+    $insert = CB_Database_Insert::factory( self::$database_table );
     $insert->add_field( 'location_ID',      $this->location->ID );
     $insert->add_field( 'item_ID',          $this->item->ID );
     $insert->add_field( 'user_ID',          $this->user->ID );

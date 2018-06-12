@@ -2,10 +2,10 @@
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
-class CB2_User extends CB2_PostNavigator implements JsonSerializable {
+class CB_User extends CB_PostNavigator implements JsonSerializable {
   public static $all    = array();
   public static $schema = 'with-periods'; //this-only, with-periods
-  
+
   protected function __construct( &$location, &$item, $ID, $user_login = NULL ) {
     $this->periods    = array();
     parent::__construct( $this->periods );
@@ -14,7 +14,7 @@ class CB2_User extends CB2_PostNavigator implements JsonSerializable {
     $this->ID         = $ID;
     $this->user_login = $user_login;
   }
-  
+
   static function factory( &$location, &$item, $ID, $user_login = NULL ) {
     // Design Patterns: Factory Singleton with Multiton
     $key = $ID;
@@ -24,14 +24,14 @@ class CB2_User extends CB2_PostNavigator implements JsonSerializable {
       $object = new self( $location, $item, $ID, $user_login );
       self::$all[$key] = $object;
     }
-    
+
     return $object;
   }
-  
+
   function add_period( &$period ) {
     array_push( $this->periods, $period );
   }
-  
+
   function get_the_content( $more_link_text = null, $strip_teaser = false ) {
     return "<span>$this->user_login</span>";
   }
@@ -45,12 +45,12 @@ class CB2_User extends CB2_PostNavigator implements JsonSerializable {
 
     return $array;
   }
-} 
+}
 
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
-class CB2_Post extends CB2_PostNavigator implements JsonSerializable {
+class CB_Post extends CB_PostNavigator implements JsonSerializable {
   public static $schema = 'with-periods'; //this-only, with-periods
 
   protected function __construct( $ID, $post_title = NULL ) {
@@ -59,15 +59,15 @@ class CB2_Post extends CB2_PostNavigator implements JsonSerializable {
     $this->ID         = $ID;
     $this->post_title = $post_title;
   }
-  
+
   function get_the_content( $more_link_text = null, $strip_teaser = false ) {
     return "<span>$this->post_title</span>";
   }
-  
+
   function add_period( &$period ) {
     array_push( $this->periods, $period );
   }
-  
+
   function jsonSerialize() {
     $array = array(
       'ID' => $this->ID,
@@ -77,19 +77,19 @@ class CB2_Post extends CB2_PostNavigator implements JsonSerializable {
 
     return $array;
   }
-} 
+}
 
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
-class CB2_Location extends CB2_Post implements JsonSerializable {
+class CB_Location extends CB_Post implements JsonSerializable {
   public static $all = array();
 
   protected function __construct( $ID, $post_title = NULL ) {
     parent::__construct( $ID, $post_title );
     $this->items = array();
   }
-  
+
   static function factory( $ID, $post_title = NULL ) {
     // Design Patterns: Factory Singleton with Multiton
     $key = $ID;
@@ -99,10 +99,10 @@ class CB2_Location extends CB2_Post implements JsonSerializable {
       $object = new self($ID, $post_title);
       self::$all[$key] = $object;
     }
-    
+
     return $object;
   }
-  
+
   function add_item( &$item ) {
     array_push( $this->items, $item );
     return $this;
@@ -114,12 +114,12 @@ class CB2_Location extends CB2_Post implements JsonSerializable {
         'items' => &$this->items
     ));
   }
-} 
+}
 
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
-class CB2_Item extends CB2_Post implements JsonSerializable {
+class CB_Item extends CB_Post implements JsonSerializable {
   public  static $all = array();
 
   protected function __construct( &$location, $ID, $post_title = NULL ) {
@@ -129,7 +129,7 @@ class CB2_Item extends CB2_Post implements JsonSerializable {
       $this->location->add_item( $this );
     }
   }
-  
+
   static function factory( &$location, $ID, $post_title = NULL ) {
     // Design Patterns: Factory Singleton with Multiton
     $key = $ID;
@@ -139,7 +139,7 @@ class CB2_Item extends CB2_Post implements JsonSerializable {
       $object = new self( $location, $ID, $post_title );
       self::$all[$key] = $object;
     }
-    
+
     return $object;
   }
-} 
+}

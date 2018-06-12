@@ -6,8 +6,8 @@ require( 'CB_RealWorldObjects.php' );
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
-class CB2_Calendar_Query extends CB2_PostNavigator implements JsonSerializable {
-  /* CB2_Calendar_Query behaviour is based loosely on WP_Query
+class CB_Calendar_Query extends CB_PostNavigator implements JsonSerializable {
+  /* CB_Calendar_Query behaviour is based loosely on WP_Query
    * https://codex.wordpress.org/Class_Reference/WP_Query
    * TODO: integrate in to WP_Query hooks so that objects can be requested through that interface also
    */
@@ -47,19 +47,19 @@ class CB2_Calendar_Query extends CB2_PostNavigator implements JsonSerializable {
   // -------------------------------------------------------------------- Form helpers
   // TODO: move these functions in to a separate class
   static function location_options() {
-    return CB2_Calendar_Query::get_options( 'wp_cb2_view_locations' );
+    return CB_Calendar_Query::get_options( 'wp_cb2_view_locations' );
   }
 
   static function item_options() {
-    return CB2_Calendar_Query::get_options( 'wp_cb2_view_items' );
+    return CB_Calendar_Query::get_options( 'wp_cb2_view_items' );
   }
 
   static function user_options() {
-    return CB2_Calendar_Query::get_options( 'wp_users', 'ID', 'user_login' );
+    return CB_Calendar_Query::get_options( 'wp_users', 'ID', 'user_login' );
   }
 
   static function period_status_type_options() {
-    return CB2_Calendar_Query::get_options( 'wp_cb2_period_status_types', 'period_status_type_id', 'name' );
+    return CB_Calendar_Query::get_options( 'wp_cb2_period_status_types', 'period_status_type_id', 'name' );
   }
 
   static function get_options( $table, $id_field = 'ID', $name_field = 'post_title' ) {
@@ -95,7 +95,7 @@ class CB2_Calendar_Query extends CB2_PostNavigator implements JsonSerializable {
     }
   }
 
-  // -------------------------------------------------------------------- Expose CB2_Database_Query
+  // -------------------------------------------------------------------- Expose CB_Database_Query
   // TODO: add_condition() etc.
   // Maybe we should directly inherit
   // And remove the PostNavigation
@@ -118,14 +118,14 @@ class CB2_Calendar_Query extends CB2_PostNavigator implements JsonSerializable {
     // TODO: re-evaluate use of queried_object_id for storage of schema
     if ( $queried_object_id != $this->queried_object_id ) {
       switch ( $queried_object_id ) {
-        case 'periods':   $this->queried_object = &CB2_Period::$all;    break;
-        case 'days':      $this->queried_object = &CB2_Day::$all;       break;
-        case 'weeks':     $this->queried_object = &CB2_Week::$all;      break;
-        case 'months':    $this->queried_object = &CB2_Month::$all;     break;
-        case 'locations': $this->queried_object = &CB2_Location::$all;  break;
-        case 'items':     $this->queried_object = &CB2_Item::$all;      break;
-        case 'users':     $this->queried_object = &CB2_User::$all;      break;
-        // TODO: Move to CB2_Options::factory() with the_content()
+        case 'periods':   $this->queried_object = &CB_Period::$all;    break;
+        case 'days':      $this->queried_object = &CB_Day::$all;       break;
+        case 'weeks':     $this->queried_object = &CB_Week::$all;      break;
+        case 'months':    $this->queried_object = &CB_Month::$all;     break;
+        case 'locations': $this->queried_object = &CB_Location::$all;  break;
+        case 'items':     $this->queried_object = &CB_Item::$all;      break;
+        case 'users':     $this->queried_object = &CB_User::$all;      break;
+        // TODO: Move to CB_Options::factory() with the_content()
         case 'forms': {
           $forms = array(
             'location_options' => $this->location_options(),
@@ -233,9 +233,9 @@ class CB2_Calendar_Query extends CB2_PostNavigator implements JsonSerializable {
           $this->enddate   = new DateTime( $endate_string );
         }
       } else if ( is_string( $startdate ) ) {
-        throw new Exception("CB2_Calendar_Query single query string parameter not implemented yet");
+        throw new Exception("CB_Calendar_Query single query string parameter not implemented yet");
       } else {
-        throw new Exception("CB2_Calendar_Query first parameter must be a DateTime or an array of parameters");
+        throw new Exception("CB_Calendar_Query first parameter must be a DateTime or an array of parameters");
       }
       $this->constructed_with_args = TRUE;
     }
@@ -264,7 +264,7 @@ class CB2_Calendar_Query extends CB2_PostNavigator implements JsonSerializable {
     global $wpdb;
 
     $records  = array();
-    $db_query = CB2_Database_Query::factory( self::$database_table, self::$database_table_alias );
+    $db_query = CB_Database_Query::factory( self::$database_table, self::$database_table_alias );
 
     if ( $sql ) {
       $records = $db_query->get_results( $sql );
@@ -316,8 +316,8 @@ class CB2_Calendar_Query extends CB2_PostNavigator implements JsonSerializable {
       if ( $this->order ) $db_query->add_order_direction( $this->order );
 
       $records = $db_query->run(
-        $this->startdate->format( CB2_Database_Query::$database_date_format ),
-        $this->enddate->format(   CB2_Database_Query::$database_date_format )
+        $this->startdate->format( CB_Database_Query::$database_date_format ),
+        $this->enddate->format(   CB_Database_Query::$database_date_format )
       );
     }
 
@@ -325,9 +325,9 @@ class CB2_Calendar_Query extends CB2_PostNavigator implements JsonSerializable {
     if ( $records ) {
       $current_date = NULL;
       foreach ( $records as $period_object ) {
-        // CB2_Period will create and associate
-        // all the associated objects, e.g. CB2_Day
-        $period = CB2_Period::factory_period(
+        // CB_Period will create and associate
+        // all the associated objects, e.g. CB_Day
+        $period = CB_Period::factory_period(
           $period_object->location_ID,
           $period_object->item_ID,
           $period_object->user_ID,
@@ -339,7 +339,7 @@ class CB2_Calendar_Query extends CB2_PostNavigator implements JsonSerializable {
           new DateTime( $period_object->datetime_part_period_end ),
           new DateTime( $period_object->datetime_from ),
           ( $period_object->datetime_to ? new DateTime( $period_object->datetime_to   ) : NULL ),
-          CB2_PeriodStatusType::factory(
+          CB_PeriodStatusType::factory(
             $period_object->period_status_type_id,
             $period_object->period_status_type_name,
             $period_object->colour,
@@ -355,7 +355,7 @@ class CB2_Calendar_Query extends CB2_PostNavigator implements JsonSerializable {
           $period_object
         );
 
-        $day = CB2_Day::factory( new DateTime( $period_object->date ) );
+        $day = CB_Day::factory( new DateTime( $period_object->date ) );
         $day->add_period( $period );
       }
     }
@@ -374,8 +374,8 @@ class CB2_Calendar_Query extends CB2_PostNavigator implements JsonSerializable {
   // -------------------------------------------------------------------- Output
   function jsonSerialize() {
     $array = [
-      'startdate'    => $this->startdate->format( CB2_Calendar_Query::$javascript_date_format ),
-      'enddate'      => $this->enddate->format( CB2_Calendar_Query::$javascript_date_format ),
+      'startdate'    => $this->startdate->format( CB_Calendar_Query::$javascript_date_format ),
+      'enddate'      => $this->enddate->format( CB_Calendar_Query::$javascript_date_format ),
       'location_ID' => $this->location_ID,
       'item_ID' => $this->item_ID,
       'user_ID'      => $this->user_ID,
@@ -383,7 +383,7 @@ class CB2_Calendar_Query extends CB2_PostNavigator implements JsonSerializable {
       'year'         => $this->year,
       'month'        => $this->month,
       'month_name'   => $this->month_name,
-      'period_status_types'    => &CB2_PeriodStatusType::$all,
+      'period_status_types'    => &CB_PeriodStatusType::$all,
       'queried_object_id'      => $this->queried_object_id,
       $this->queried_object_id => &$this->queried_object
     ];
@@ -407,7 +407,7 @@ class CB2_Calendar_Query extends CB2_PostNavigator implements JsonSerializable {
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
-class CB2_Month extends CB2_PostNavigator implements JsonSerializable {
+class CB_Month extends CB_PostNavigator implements JsonSerializable {
   static $all = array();
 
   protected function __construct( $day ) {
@@ -467,7 +467,7 @@ class CB2_Month extends CB2_PostNavigator implements JsonSerializable {
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
-class CB2_Week extends CB2_PostNavigator implements JsonSerializable {
+class CB_Week extends CB_PostNavigator implements JsonSerializable {
   static $all = array();
 
   protected function __construct( $day ) {
@@ -531,7 +531,7 @@ class CB2_Week extends CB2_PostNavigator implements JsonSerializable {
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
-class CB2_Day extends CB2_PostNavigator implements JsonSerializable {
+class CB_Day extends CB_PostNavigator implements JsonSerializable {
   static $all = array();
 
   protected function __construct( $date, $title_format = 'D, M-d' ) {
@@ -552,8 +552,8 @@ class CB2_Day extends CB2_PostNavigator implements JsonSerializable {
     // http://php.net/manual/en/function.date.php
     if ( $this->dayofweek == 0 ) $this->dayofweek = 7;
 
-    $this->week  = CB2_Week::factory(  $this );
-    $this->month = CB2_Month::factory( $this );
+    $this->week  = CB_Week::factory(  $this );
+    $this->month = CB_Month::factory( $this );
   }
 
   static function factory( $date, $title_format = 'D, M-d' ) {
@@ -603,7 +603,7 @@ class CB2_Day extends CB2_PostNavigator implements JsonSerializable {
 
   function jsonSerialize() {
     return [
-      'date'        => $this->date->format( CB2_Calendar_Query::$javascript_date_format ),
+      'date'        => $this->date->format( CB_Calendar_Query::$javascript_date_format ),
       'year'        => $this->year,
       'weekinyear'  => $this->weekinyear,
       'monthinyear' => $this->monthinyear,
