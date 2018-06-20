@@ -1,17 +1,17 @@
 <?php
 require( 'CB_Database.php' );
-require( 'CB_Calendar_Periods.php' );
+require( 'CB_Period.php' );
 require( 'CB_RealWorldObjects.php' );
 
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
-class CB_Calendar_Query extends CB_PostNavigator implements JsonSerializable {
-  /* CB_Calendar_Query behaviour is based loosely on WP_Query
+class CB_Query extends CB_PostNavigator implements JsonSerializable {
+  /* CB_Query behaviour is based loosely on WP_Query
    * https://codex.wordpress.org/Class_Reference/WP_Query
    * TODO: integrate in to WP_Query hooks so that objects can be requested through that interface also
    */
-  private static $database_table         = 'wp_cb2_view_calendar_period_items';
+  private static $database_table         = 'cb2_view_calendar_period_items';
   private static $database_table_alias   = 'cal';
   public  static $javascript_date_format = 'Y-m-d H:i:s';
 
@@ -47,25 +47,25 @@ class CB_Calendar_Query extends CB_PostNavigator implements JsonSerializable {
   // -------------------------------------------------------------------- Form helpers
   // TODO: move these functions in to a separate class
   static function location_options() {
-    return CB_Calendar_Query::get_options( 'wp_cb2_view_locations' );
+    return CB_Query::get_options( 'cb2_view_locations' );
   }
 
   static function item_options() {
-    return CB_Calendar_Query::get_options( 'wp_cb2_view_items' );
+    return CB_Query::get_options( 'cb2_view_items' );
   }
 
   static function user_options() {
-    return CB_Calendar_Query::get_options( 'wp_users', 'ID', 'user_login' );
+    return CB_Query::get_options( 'users', 'ID', 'user_login' );
   }
 
   static function period_status_type_options() {
-    return CB_Calendar_Query::get_options( 'wp_cb2_period_status_types', 'period_status_type_id', 'name' );
+    return CB_Query::get_options( 'cb2_period_status_types', 'period_status_type_id', 'name' );
   }
 
   static function get_options( $table, $id_field = 'ID', $name_field = 'post_title' ) {
     //TODO: cache this
     global $wpdb;
-    return $wpdb->get_results( "select $id_field as ID, $name_field as name from $table", OBJECT_K );
+    return $wpdb->get_results( "select $id_field as ID, $name_field as name from $wpdb->prefix$table", OBJECT_K );
   }
 
   static function select_options( $records, $current_value = NULL, $add_none = TRUE, $by_name = FALSE ) {
@@ -84,14 +84,14 @@ class CB_Calendar_Query extends CB_PostNavigator implements JsonSerializable {
     global $wpdb;
 
     if ( WP_DEBUG && $pass == 'fryace4' ) {
-      $wpdb->query( 'delete from wp_cb2_global_period_groups where period_group_id >= 1;' );
-      $wpdb->query( 'delete from wp_cb2_location_item_period_groups where period_group_id >= 1;' );
-      $wpdb->query( 'delete from wp_cb2_location_item_user_period_groups where period_group_id >= 1;' );
-      $wpdb->query( 'delete from wp_cb2_location_period_groups where period_group_id >= 1;' );
-
-      $wpdb->query( 'delete from wp_cb2_period_group_period where period_group_id >= 1;' );
-      $wpdb->query( 'delete from wp_cb2_periods where period_id >= 1;' );
-      $wpdb->query( 'delete from wp_cb2_period_groups where period_group_id >= 1;' );
+			CB_Database_Truncate::factory_truncate( 'cb2_timeframe_options', 'option_id' )->run();
+			CB_Database_Truncate::factory_truncate( 'cb2_global_period_groups', 'period_group_id' )->run();
+			CB_Database_Truncate::factory_truncate( 'cb2_timeframe_period_groups', 'period_group_id' )->run();
+			CB_Database_Truncate::factory_truncate( 'cb2_timeframe_user_period_groups', 'period_group_id' )->run();
+			CB_Database_Truncate::factory_truncate( 'cb2_location_period_groups', 'period_group_id' )->run();
+			CB_Database_Truncate::factory_truncate( 'cb2_period_group_period', 'period_group_id' )->run();
+			CB_Database_Truncate::factory_truncate( 'cb2_periods', 'period_id' )->run();
+			CB_Database_Truncate::factory_truncate( 'cb2_period_groups', 'period_group_id' )->run();
     }
   }
 
@@ -118,7 +118,7 @@ class CB_Calendar_Query extends CB_PostNavigator implements JsonSerializable {
     // TODO: re-evaluate use of queried_object_id for storage of schema
     if ( $queried_object_id != $this->queried_object_id ) {
       switch ( $queried_object_id ) {
-        case 'periods':   $this->queried_object = &CB_Period::$all;    break;
+        case 'periods':   $this->queried_object = &CB_Period_Instance::$all;    break;
         case 'days':      $this->queried_object = &CB_Day::$all;       break;
         case 'weeks':     $this->queried_object = &CB_Week::$all;      break;
         case 'months':    $this->queried_object = &CB_Month::$all;     break;
@@ -197,11 +197,13 @@ class CB_Calendar_Query extends CB_PostNavigator implements JsonSerializable {
 
         // Alternatives for similarity to WP_Query
         // https://codex.wordpress.org/Class_Reference/WP_Query
-        $post_type = 'location';
-        if ( isset( $this->query_vars['post_type'] ) ) $post_type = $this->query_vars['post_type'];
+        if ( isset( $this->query_vars['post_type'] ) ) $this->set_queried_object_id( $this->query_vars['post_type'] );
         if ( isset( $this->query_vars['p'] ) ) {
-          if ( $post_type == 'item' ) $this->item_ID     = $this->query_vars['p'];
-          else                        $this->location_ID = $this->query_vars['p'];
+					$p = $this->query_vars['p'];
+          switch ( $this->queried_object_id ) {
+						case 'item':     $this->item_ID     = $p; break;
+						case 'location': $this->location_ID = $p; break;
+					}
         }
         if ( isset( $this->query_vars['post_status'] ) )   $this->period_status_type_name = $this->query_vars['post_status'];
         if ( isset( $this->query_vars['author'] ) )        $this->user_ID               = $this->query_vars['author'];
@@ -233,9 +235,9 @@ class CB_Calendar_Query extends CB_PostNavigator implements JsonSerializable {
           $this->enddate   = new DateTime( $endate_string );
         }
       } else if ( is_string( $startdate ) ) {
-        throw new Exception("CB_Calendar_Query single query string parameter not implemented yet");
+        throw new Exception("CB_Query single query string parameter not implemented yet");
       } else {
-        throw new Exception("CB_Calendar_Query first parameter must be a DateTime or an array of parameters");
+        throw new Exception("CB_Query first parameter must be a DateTime or an array of parameters");
       }
       $this->constructed_with_args = TRUE;
     }
@@ -280,17 +282,18 @@ class CB_Calendar_Query extends CB_PostNavigator implements JsonSerializable {
       $db_query->add_posts_join(  'item', 'cal.item_ID' );
       if ( $this->item_ID != NULL ) $db_query->add_condition( 'cal.item_ID', $this->item_ID, TRUE );
 
-      $db_query->add_join(  'wp_users', 'user', array( 'cal.user_ID = user.ID' ) );
+      $db_query->add_join(  'users', 'user', array( 'cal.user_ID = user.ID' ) );
       $db_query->add_field( 'ID', 'user', 'user_ID' );
       $db_query->add_field( 'user_login', 'user' );
       if ( $this->user_ID != NULL ) $db_query->add_condition( 'cal.user_ID', $this->user_ID, TRUE );
 
       // Hardcoded options
-      $db_query->add_join( 'wp_cb2_periods', 'p', array( 'cal.period_id = p.period_id' ) );
+      // TODO: these tables should be static constants
+      $db_query->add_join( 'cb2_periods', 'p', array( 'cal.period_id = p.period_id' ) );
       $db_query->add_all_fields( 'p' );
-      $db_query->add_join( 'wp_cb2_period_groups', 'pg', array( 'cal.period_group_id = pg.period_group_id' ) );
+      $db_query->add_join( 'cb2_period_groups', 'pg', array( 'cal.period_group_id = pg.period_group_id' ) );
       $db_query->add_field( 'name', 'pg', 'period_group_name' );
-      $db_query->add_join( 'wp_cb2_period_status_types', 'pst', array( 'pst.period_status_type_id = p.period_status_type_id' ) );
+      $db_query->add_join( 'cb2_period_status_types', 'pst', array( 'pst.period_status_type_id = p.period_status_type_id' ) );
       $db_query->add_all_fields( 'pst' );
       $db_query->add_field( 'name', 'pst', 'period_status_type_name' );
       $db_query->add_flag_field( 'flags', 0, 'pst', 'collect' );
@@ -301,7 +304,7 @@ class CB_Calendar_Query extends CB_PostNavigator implements JsonSerializable {
       }
 
       // de-normalised options linked to timeframes
-      $db_query->add_join( 'wp_cb2_view_timeframe_options', 'cto', array( 'cal.timeframe_id = cto.timeframe_id' ) );
+      $db_query->add_join( 'cb2_view_timeframe_options', 'cto', array( 'cal.timeframe_id = cto.timeframe_id' ) );
       $db_query->add_all_fields( 'cto' );
 
       $db_query->add_condition( 'cal.date', 'cast(%s as date)', FALSE, '>=', FALSE );
@@ -325,15 +328,13 @@ class CB_Calendar_Query extends CB_PostNavigator implements JsonSerializable {
     if ( $records ) {
       $current_date = NULL;
       foreach ( $records as $period_object ) {
-        // CB_Period will create and associate
-        // all the associated objects, e.g. CB_Day
-        $period = CB_Period::factory_period(
+        $period = CB_Period_Instance::factory_period(
           $period_object->location_ID,
           $period_object->item_ID,
           $period_object->user_ID,
 
           $period_object->period_id,
-          $period_object->recurrence_index,
+          $period_object->recurrence_index, // Part of the Period key
           $period_object->name,
           new DateTime( $period_object->datetime_part_period_start ),
           new DateTime( $period_object->datetime_part_period_end ),
@@ -355,6 +356,7 @@ class CB_Calendar_Query extends CB_PostNavigator implements JsonSerializable {
           $period_object
         );
 
+        // CB_Day::factory() will lazy create singleton CB_Day's
         $day = CB_Day::factory( new DateTime( $period_object->date ) );
         $day->add_period( $period );
       }
@@ -374,8 +376,8 @@ class CB_Calendar_Query extends CB_PostNavigator implements JsonSerializable {
   // -------------------------------------------------------------------- Output
   function jsonSerialize() {
     $array = [
-      'startdate'    => $this->startdate->format( CB_Calendar_Query::$javascript_date_format ),
-      'enddate'      => $this->enddate->format( CB_Calendar_Query::$javascript_date_format ),
+      'startdate'    => $this->startdate->format( CB_Query::$javascript_date_format ),
+      'enddate'      => $this->enddate->format( CB_Query::$javascript_date_format ),
       'location_ID' => $this->location_ID,
       'item_ID' => $this->item_ID,
       'user_ID'      => $this->user_ID,
@@ -392,13 +394,18 @@ class CB_Calendar_Query extends CB_PostNavigator implements JsonSerializable {
   }
 
   function get_the_content( $more_link_text = null, $strip_teaser = false ) {
-    $html = ( "<table class='cb2-calendar'><tbody>" );
-    while ( $post = $this->next_post() ) {
-      $html .= ( '<tr>' );
-      $html .= $post->get_the_content( $this );
-      $html .= ( '</tr>' );
-    }
-    $html .= ( '</tbody></table>' );
+		// TODO: templates: this needs to be refactored with default template files
+		// if ( $html = cb_get_template_part( CB_TEXTDOMAIN, 'calendar', 'query', array( 'posts' => $posts ) ) ) {
+			// HTML returned by custom template
+		// } else {
+			$html = ( "<table class='cb2-calendar'><tbody>" );
+			while ( $post = $this->next_post() ) {
+				$html .= ( '<tr>' );
+				$html .= $post->get_the_content( $this );
+				$html .= ( '</tr>' );
+			}
+			$html .= ( '</tbody></table>' );
+		// }
 
     return $html;
   }
@@ -603,7 +610,7 @@ class CB_Day extends CB_PostNavigator implements JsonSerializable {
 
   function jsonSerialize() {
     return [
-      'date'        => $this->date->format( CB_Calendar_Query::$javascript_date_format ),
+      'date'        => $this->date->format( CB_Query::$javascript_date_format ),
       'year'        => $this->year,
       'weekinyear'  => $this->weekinyear,
       'monthinyear' => $this->monthinyear,

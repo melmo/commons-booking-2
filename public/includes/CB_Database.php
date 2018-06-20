@@ -13,6 +13,10 @@ class CB_Database {
     $this->table = ( $table_alias ? "$name $table_alias" : $name );
   }
 
+  function prepare( $arg1 = NULL, $arg2 = NULL, $arg3 = NULL, $arg4 = NULL, $arg5 = NULL, $arg6 = NULL ) {
+		return NULL;
+  }
+
   // -------------------------------- Utilities
   static function to_string( $value ) {
     if ( is_object( $value ) ) {
@@ -54,6 +58,86 @@ class CB_Database {
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
+class CB_Database_UpdateInsert extends CB_Database {
+  static $database_command = 'UPDATE';
+
+  protected function __construct( $table ) {
+    parent::__construct( $table );
+	}
+
+  static function factory( $table ) {
+    return new self( $table );
+  }
+
+  //TODO: complete CB_Database_UpdateInsert
+}
+
+// --------------------------------------------------------------------
+// --------------------------------------------------------------------
+// --------------------------------------------------------------------
+class CB_Database_Delete extends CB_Database {
+  static $database_command = 'DELETE';
+
+  protected function __construct( $table ) {
+    parent::__construct( $table );
+    $this->conditions = array();
+	}
+
+  static function factory( $table ) {
+    return new self( $table );
+  }
+
+  function add_condition( $field, $value, $allow_nulls = FALSE, $comparison = '=', $prepare = TRUE ) {
+    global $wpdb;
+    $condition = ( $prepare ? $wpdb->prepare( "$field $comparison %s", $value ) : "$field $comparison $value" );
+    if ( $allow_nulls ) $condition = "(isnull($field) or $condition)";
+    array_push( $this->conditions, $condition );
+    return $this;
+  }
+
+  function prepare( $arg1 = NULL, $arg2 = NULL, $arg3 = NULL, $arg4 = NULL, $arg5 = NULL, $arg6 = NULL ) {
+    global $wpdb;
+
+    $this->condition_sql = implode( "\n          and ", $this->conditions );
+
+    $this->sql = $wpdb->prepare(
+      self::$database_command . "
+      FROM $wpdb->prefix$this->table
+      where
+        $this->condition_sql",
+      $arg1, $arg2 //TODO: add other args
+    );
+
+    return $this->sql;
+  }
+
+  function run( $arg1 = NULL, $arg2 = NULL, $arg3 = NULL, $arg4 = NULL, $arg5 = NULL, $arg6 = NULL ) {
+    global $wpdb;
+    if ( WP_DEBUG ) print( "<div class='cb2-debug cb2-sql'><pre>deleting from $this->table</pre></div>" );
+    return $wpdb->query( $this->prepare( $arg1, $arg2, $arg3, $arg4, $arg5, $arg6 ) );
+  }
+}
+
+// --------------------------------------------------------------------
+// --------------------------------------------------------------------
+// --------------------------------------------------------------------
+class CB_Database_Truncate extends CB_Database_Delete {
+  protected function __construct( $table ) {
+    parent::__construct( $table );
+	}
+
+  static function factory_truncate( $table, $id_field ) {
+		// We require an id field to avoid SQL_SAFE MODE
+		// factory_truncate() named as not compatible with parent::factory() signature
+    $truncate = new self( $table );
+    $truncate->add_condition( $id_field, 0, FALSE, '>=' );
+    return $truncate;
+  }
+}
+
+// --------------------------------------------------------------------
+// --------------------------------------------------------------------
+// --------------------------------------------------------------------
 class CB_Database_Query extends CB_Database {
   static $database_command = 'SELECT';
   static $post_fields = array(
@@ -73,7 +157,7 @@ class CB_Database_Query extends CB_Database {
   }
 
   static function factory( $table, $alias = NULL ) {
-    return new CB_Database_Query( $table, $alias );
+    return new self( $table, $alias );
   }
 
   function add_orderby( $name, $table_alias = NULL ) {
@@ -105,7 +189,7 @@ class CB_Database_Query extends CB_Database {
   }
 
   function add_posts_join( $table_alias, $on, $add_post_fields = TRUE ) {
-    $this->add_join( 'wp_posts', $table_alias, array( "$on = $table_alias.ID" ) );
+    $this->add_join( 'posts', $table_alias, array( "$on = $table_alias.ID" ) );
     if ( $add_post_fields ) $this->add_post_fields( $table_alias );
     return $this;
   }
@@ -120,7 +204,7 @@ class CB_Database_Query extends CB_Database {
   function add_join( $table, $table_alias, $ons ) {
     global $wpdb;
     $on   = implode( $ons, ' and ' );
-    $join = "$table $table_alias on $on";
+    $join = "$wpdb->prefix$table $table_alias on $on";
     array_push( $this->joins, $join );
     return $this;
   }
@@ -151,7 +235,7 @@ class CB_Database_Query extends CB_Database {
 
     $this->sql = $wpdb->prepare(
       self::$database_command . " $this->field_sql
-      FROM $this->table
+      FROM $wpdb->prefix$this->table
         $this->join_sql
       where
         $this->condition_sql
@@ -188,7 +272,7 @@ class CB_Database_Insert extends CB_Database {
   }
 
   static function factory( $table ) {
-    return new CB_Database_Insert( $table );
+    return new self( $table );
   }
 
   function add_field( $name, $value, $format = NULL ) {
@@ -200,6 +284,7 @@ class CB_Database_Insert extends CB_Database {
 
   function run() {
     global $wpdb;
+
     if ( WP_DEBUG ) {
       print( "<div class='cb2-debug cb2-sql'><h2>WP_DEBUG insert SQL: $this->table</h2><pre>" );
       print_r( $this->fields );
@@ -207,7 +292,7 @@ class CB_Database_Insert extends CB_Database {
       print( '</pre></div>' );
     }
 
-    $wpdb->insert( $this->table, $this->fields, $this->formats );
+    $wpdb->insert( "$wpdb->prefix$this->table", $this->fields, $this->formats );
     $insert_id = $wpdb->insert_id;
 
     if ( WP_DEBUG ) {
@@ -215,6 +300,7 @@ class CB_Database_Insert extends CB_Database {
       print( " = $insert_id" );
       print( '</div>' );
     }
+
     return $insert_id;
   }
 }
@@ -260,7 +346,12 @@ class CB_PostNavigator {
   }
 
   function the_content( $more_link_text = null, $strip_teaser = false ) {
-    print( $this->get_the_content( $more_link_text, $strip_teaser ) );
+		// Borrowed from wordpress
+		// https://developer.wordpress.org/reference/functions/the_content/
+    $content = $this->get_the_content( $more_link_text, $strip_teaser );
+    $content = apply_filters( 'the_content', $content );
+    $content = str_replace( ']]>', ']]&gt;', $content );
+    echo $content;
   }
 }
 
