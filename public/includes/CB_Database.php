@@ -313,11 +313,19 @@ class CB_PostNavigator {
     $this->zero_array = array();
     if ( is_null( $posts ) ) $this->posts = &$this->zero_array;
     else                     $this->posts = &$posts;
+
+    // WP_Post default values
+    $this->post_status   = 'publish';
+    $this->post_password = '';
+    $this->post_excerpt  = $this->get_the_excerpt();
+    $this->post_content  = $this->get_the_content();
+    $this->post_author   = 1;
+    $this->post_date     = date( 'c' );
   }
 
   // ------------------------------------------------- Navigation
   function have_posts() {
-    return count( $this->posts );
+    return current( $this->posts );
   }
 
   function next_post() {
@@ -333,7 +341,104 @@ class CB_PostNavigator {
 
   function the_post() {
     global $post;
-    return ( $post = $this->next_post() );
+    $post = $this->next_post();
+    $this->setup_postdata( $post );
+    return $post;
+  }
+
+  // ------------------------------------------------- Properties
+  function is_feed()    {return FALSE;}
+  function is_page()    {return FALSE;}
+  function is_single()  {return FALSE;}
+  function get( $name ) {return NULL;}
+
+  function setup_postdata( $post ) {
+		global $id, $authordata, $currentday, $currentmonth, $page, $pages, $multipage, $more, $numpages;
+
+    if ( ! $post ) {
+        return;
+    }
+
+    $id = (int) $post->ID;
+
+    $authordata = get_userdata($post->post_author);
+
+    $currentday = mysql2date('d.m.y', $post->post_date, false);
+    $currentmonth = mysql2date('m', $post->post_date, false);
+    $numpages = 1;
+    $multipage = 0;
+    $page = $this->get( 'page' );
+    if ( ! $page )
+        $page = 1;
+
+    /*
+     * Force full post content when viewing the permalink for the $post,
+     * or when on an RSS feed. Otherwise respect the 'more' tag.
+     */
+    if ( $post->ID === get_queried_object_id() && ( $this->is_page() || $this->is_single() ) ) {
+        $more = 1;
+    } elseif ( $this->is_feed() ) {
+        $more = 1;
+    } else {
+        $more = 0;
+    }
+
+    $content = $post->post_content;
+    if ( false !== strpos( $content, '<!--nextpage-->' ) ) {
+        $content = str_replace( "\n<!--nextpage-->\n", '<!--nextpage-->', $content );
+        $content = str_replace( "\n<!--nextpage-->", '<!--nextpage-->', $content );
+        $content = str_replace( "<!--nextpage-->\n", '<!--nextpage-->', $content );
+
+        // Ignore nextpage at the beginning of the content.
+        if ( 0 === strpos( $content, '<!--nextpage-->' ) )
+            $content = substr( $content, 15 );
+
+        $pages = explode('<!--nextpage-->', $content);
+    } else {
+        $pages = array( $post->post_content );
+    }
+
+    /**
+     * Filters the "pages" derived from splitting the post content.
+     *
+     * "Pages" are determined by splitting the post content based on the presence
+     * of `<!-- nextpage -->` tags.
+     *
+     * @since 4.4.0
+     *
+     * @param array   $pages Array of "pages" derived from the post content.
+     *                       of `<!-- nextpage -->` tags..
+     * @param WP_Post $post  Current post object.
+     */
+    $pages = apply_filters( 'content_pagination', $pages, $post );
+
+    $numpages = count( $pages );
+
+    if ( $numpages > 1 ) {
+        if ( $page > 1 ) {
+            $more = 1;
+        }
+        $multipage = 1;
+    } else {
+        $multipage = 0;
+    }
+
+    /**
+     * Fires once the post data has been setup.
+     *
+     * @since 2.8.0
+     * @since 4.1.0 Introduced `$this` parameter.
+     *
+     * @param WP_Post  $post The Post object (passed by reference).
+     * @param WP_Query $this The current Query object (passed by reference).
+     */
+    do_action_ref_array( 'the_post', array( &$post, &$this ) );
+
+    return true;
+	}
+
+  function template( $mode = 'list' ) {
+		return array( $this->post_type(), $mode );
   }
 
   // ------------------------------------------------- Output
@@ -352,6 +457,18 @@ class CB_PostNavigator {
     $content = apply_filters( 'the_content', $content );
     $content = str_replace( ']]>', ']]&gt;', $content );
     echo $content;
+  }
+
+  function get_the_excerpt() {
+		return '';
+  }
+
+  function get_the_content() {
+		return '';
+  }
+
+  function classes() {
+		return '';
   }
 }
 

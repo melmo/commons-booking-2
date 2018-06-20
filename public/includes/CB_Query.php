@@ -14,6 +14,10 @@ class CB_Query extends CB_PostNavigator implements JsonSerializable {
   private static $database_table         = 'cb2_view_calendar_period_items';
   private static $database_table_alias   = 'cal';
   public  static $javascript_date_format = 'Y-m-d H:i:s';
+  public  static $all = array();
+  static $static_post_type = 'query';
+
+  function post_type() {return self::$static_post_type;}
 
   function __construct(
     $startdate = NULL,
@@ -28,13 +32,20 @@ class CB_Query extends CB_PostNavigator implements JsonSerializable {
     $this->init();
     $this->parse_query( $startdate, $enddate, $location_ID, $item_ID, $user_ID, $period_status_type_name, $queried_object_id );
     if ( $this->constructed_with_args ) $this->get_posts();
+
+    // WP_Post values
+    $this->ID            = 0;
+    $this->post_title    = "$this->month_name / $this->year";
+    $this->post_type     = self::$static_post_type;
+
+    self::$all[$this->ID] = $this;
   }
 
   function init() {
     $this->query_vars            = NULL;
     $this->constructed_with_args = FALSE;
     $this->queried_object_id     = NULL;
-    $this->set_queried_object_id( 'weeks' );
+    $this->set_queried_object_id( CB_Week::$static_post_type );
 
     $this->order   = NULL;
     $this->orderby = NULL;
@@ -103,14 +114,15 @@ class CB_Query extends CB_PostNavigator implements JsonSerializable {
   // -------------------------------------------------------------------- Schema
   static function queried_object_types() {
     return array(
-      'periods' => 'periods',
-      'days'    => 'days',
-      'weeks'   => 'weeks',
-      'months'  => 'months',
-      'locations' => 'locations',
-      'items'   => 'items',
-      'users'   => 'users',
-      'forms'   => 'forms',
+      CB_Period::$static_post_type => CB_Period::$static_post_type,
+      CB_Period_Instance::$static_post_type => CB_Period_Instance::$static_post_type,
+      CB_Day::$static_post_type    => CB_Day::$static_post_type,
+      CB_Week::$static_post_type   => CB_Week::$static_post_type,
+      CB_Month::$static_post_type  => CB_Month::$static_post_type,
+      CB_Location::$static_post_type => CB_Location::$static_post_type,
+      CB_Item::$static_post_type   => CB_Item::$static_post_type,
+      CB_User::$static_post_type   => CB_User::$static_post_type,
+      'form'   => 'form',
     );
   }
 
@@ -118,15 +130,16 @@ class CB_Query extends CB_PostNavigator implements JsonSerializable {
     // TODO: re-evaluate use of queried_object_id for storage of schema
     if ( $queried_object_id != $this->queried_object_id ) {
       switch ( $queried_object_id ) {
-        case 'periods':   $this->queried_object = &CB_Period_Instance::$all;    break;
-        case 'days':      $this->queried_object = &CB_Day::$all;       break;
-        case 'weeks':     $this->queried_object = &CB_Week::$all;      break;
-        case 'months':    $this->queried_object = &CB_Month::$all;     break;
-        case 'locations': $this->queried_object = &CB_Location::$all;  break;
-        case 'items':     $this->queried_object = &CB_Item::$all;      break;
-        case 'users':     $this->queried_object = &CB_User::$all;      break;
-        // TODO: Move to CB_Options::factory() with the_content()
-        case 'forms': {
+        case CB_Period::$static_post_type:   $this->queried_object = &CB_Period::$all;    break;
+        case CB_Period_Instance::$static_post_type: $this->queried_object = &CB_Period_Instance::$all;    break;
+        case CB_Day::$static_post_type:      $this->queried_object = &CB_Day::$all;       break;
+        case CB_Week::$static_post_type:     $this->queried_object = &CB_Week::$all;      break;
+        case CB_Month::$static_post_type:    $this->queried_object = &CB_Month::$all;     break;
+        case CB_Location::$static_post_type: $this->queried_object = &CB_Location::$all;  break;
+        case CB_Item::$static_post_type:     $this->queried_object = &CB_Item::$all;      break;
+        case CB_User::$static_post_type:     $this->queried_object = &CB_User::$all;      break;
+        // TODO: Move to classes to reveal their options, e.g. CB_Location::options()
+        case 'form': {
           $forms = array(
             'location_options' => $this->location_options(),
             'item_options'     => $this->item_options(),
@@ -409,6 +422,10 @@ class CB_Query extends CB_PostNavigator implements JsonSerializable {
 
     return $html;
   }
+
+  function classes() {
+		return 'cb2-calendar';
+  }
 }
 
 // --------------------------------------------------------------------
@@ -416,15 +433,21 @@ class CB_Query extends CB_PostNavigator implements JsonSerializable {
 // --------------------------------------------------------------------
 class CB_Month extends CB_PostNavigator implements JsonSerializable {
   static $all = array();
+  static $static_post_type = 'month';
+
+  function post_type() {return self::$static_post_type;}
 
   protected function __construct( $day ) {
     $this->days = array();
-    parent::__construct( $this->days );
-
     $this->monthinyear = (int) $day->monthinyear;
     $this->first_day_num = 31;
-
     $this->add_day( $day );
+
+    // WP_Post values
+    $this->post_title    = $day->monthinyear;
+    $this->ID            = $day->monthinyear;
+    $this->post_type     = self::$static_post_type;
+    parent::__construct( $this->days );
   }
 
   static function factory( $day ) {
@@ -452,16 +475,6 @@ class CB_Month extends CB_PostNavigator implements JsonSerializable {
     return $day;
   }
 
-  function get_the_content( $more_link_text = null, $strip_teaser = false ) {
-    $html = '';
-    while ( $post = $this->next_post() ) {
-      $html .= ( "<td>" );
-      $html .= $post->get_the_content( $more_link_text, $strip_teaser );
-      $html .= ( '</td>' );
-    }
-    return $html;
-  }
-
   function jsonSerialize() {
     return [
       'monthinyear'   => &$this->monthinyear,
@@ -476,15 +489,23 @@ class CB_Month extends CB_PostNavigator implements JsonSerializable {
 // --------------------------------------------------------------------
 class CB_Week extends CB_PostNavigator implements JsonSerializable {
   static $all = array();
+  static $static_post_type = 'week';
+
+  function post_type() {return self::$static_post_type;}
 
   protected function __construct( $day ) {
     $this->days = array();
-    parent::__construct( $this->days );
 
     $this->weekinyear = (int) $day->weekinyear;
     $this->first_day_num = 7;
 
     $this->add_day( $day );
+
+    // WP_Post values
+    $this->post_title    = $this->weekinyear;
+    $this->ID            = $this->weekinyear;
+    $this->post_type     = self::$static_post_type;
+    parent::__construct( $this->days );
   }
 
   static function factory( $day ) {
@@ -512,20 +533,6 @@ class CB_Week extends CB_PostNavigator implements JsonSerializable {
     return $day;
   }
 
-  function get_the_content( $more_link_text = null, $strip_teaser = false ) {
-    $html = '';
-    for ($day = 1; $day < $this->pre_week_days(); $day++ ) {
-      $html .= ( "<td class='cb2-empty-pre-cell'>&nbsp;</td>" );
-    }
-    while ( $post = $this->next_post() ) {
-      $html .= ( "<td>" );
-      $html .= $post->get_the_content( $more_link_text, $strip_teaser );
-      $html .= ( '</td>' );
-    }
-
-    return $html;
-  }
-
   function jsonSerialize() {
     return [
       'weekinyear'    => $this->weekinyear,
@@ -540,20 +547,22 @@ class CB_Week extends CB_PostNavigator implements JsonSerializable {
 // --------------------------------------------------------------------
 class CB_Day extends CB_PostNavigator implements JsonSerializable {
   static $all = array();
+  static $static_post_type = 'day';
+
+  function post_type() {return self::$static_post_type;}
 
   protected function __construct( $date, $title_format = 'D, M-d' ) {
     $this->periods     = array();
-    parent::__construct( $this->periods );
 
-    $this->date        = $date;
-
-    $this->year        = (int) $date->format( 'Y' );
-    $this->weekinyear  = (int) $date->format( 'W' ); // Monday start day
-    $this->monthinyear = (int) $date->format( 'n' ); // 1-12
-    $this->dayinmonth  = (int) $date->format( 'j' ); // 0-31 day in month
-    $this->dayofweek   = (int) $date->format( 'w' ); // Sunday start day (see below)
-    $this->today       = ( $date->format( 'Y-m-d' ) == (new DateTime())->format( 'Y-m-d' ) );
-    $this->title       = $this->date->format( $title_format );
+    $this->date         = $date;
+    $this->year         = (int) $date->format( 'Y' );
+    $this->weekinyear   = (int) $date->format( 'W' ); // Monday start day
+    $this->monthinyear  = (int) $date->format( 'n' ); // 1-12
+    $this->dayinmonth   = (int) $date->format( 'j' ); // 0-31 day in month
+    $this->dayofweek    = (int) $date->format( 'w' ); // Sunday start day (see below)
+    $this->dayofyear    = (int) $date->format( 'z' ); // 0-365
+    $this->today        = ( $date->format( 'Y-m-d' ) == (new DateTime())->format( 'Y-m-d' ) );
+    $this->title        = $date->format( $title_format );
 
     // format( 'w' ) is Sunday start day based:
     // http://php.net/manual/en/function.date.php
@@ -561,11 +570,17 @@ class CB_Day extends CB_PostNavigator implements JsonSerializable {
 
     $this->week  = CB_Week::factory(  $this );
     $this->month = CB_Month::factory( $this );
+
+    // WP_Post values
+    $this->post_title    = $date->format( $title_format );
+    $this->ID            = $this->dayofyear;
+    $this->post_type     = self::$static_post_type;
+    parent::__construct( $this->periods );
   }
 
   static function factory( $date, $title_format = 'D, M-d' ) {
     // Design Patterns: Factory Singleton with Multiton
-    $key = $date->format( 'Y-m-d' );
+    $key = $date->format( 'z' );
     if ( isset( self::$all[$key] ) ) $object = self::$all[$key];
     else {
       $object = new self( $date, $title_format );
@@ -591,23 +606,6 @@ class CB_Day extends CB_PostNavigator implements JsonSerializable {
     return $period;
   }
 
-  function get_the_content( $more_link_text = null, $strip_teaser = false ) {
-    $html = '';
-    $classes = $this->classes(); // Asks periods for thoughts also
-    $html .= ( "<div class='$classes'>" );
-    $html .= ( "<div class='cb2-date-cell-title $classes'>$this->title</div>" );
-
-    // Periods
-    $html .= ( '<table class="cb2-periods"><tbody>' );
-    while ( $post = $this->next_post() ) {
-      $html .= $post->get_the_content( $more_link_text, $strip_teaser );
-    }
-    $html .= ( '</tbody></table>');
-    $html .= ( '</div>' );
-
-    return $html;
-  }
-
   function jsonSerialize() {
     return [
       'date'        => $this->date->format( CB_Query::$javascript_date_format ),
@@ -622,3 +620,39 @@ class CB_Day extends CB_PostNavigator implements JsonSerializable {
     ];
   }
 }
+
+// TODO: move this in to the CB_Template class
+function cb2_post_class( $classes, $class, $ID ) {
+	$post_type = NULL;
+	foreach ( $classes as $class ) {
+		if ( substr( $class, 0, 5 ) == 'type-' ) {
+			$post_type = substr( $class, 5 );
+			break;
+		}
+	}
+
+	if ( $post_type ) {
+		$lookup = NULL;
+		switch ( $post_type ) {
+			case CB_Query::$static_post_type:  $lookup = CB_Query::$all;  break;
+			case CB_Day::$static_post_type:    $lookup = CB_Day::$all;    break;
+			case CB_Week::$static_post_type:   $lookup = CB_Week::$all;   break;
+			case CB_Month::$static_post_type:  $lookup = CB_Month::$all;  break;
+			case CB_Period::$static_post_type: $lookup = CB_Period::$all; break;
+			case CB_Period_Instance::$static_post_type: $lookup = CB_Period_Instance::$all; break;
+		}
+
+
+		// Add the objects classes()
+		if ( $lookup && isset( $lookup[$ID] ) ) {
+			if ( $object = $lookup[$ID] ) {
+				if ( $object_classes = $object->classes() ) {
+					array_push( $classes, $object_classes );
+				}
+			}
+		}
+	}
+
+	return $classes;
+}
+add_filter( 'post_class', 'cb2_post_class', 10, 3 );

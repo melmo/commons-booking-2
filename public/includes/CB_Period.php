@@ -6,6 +6,12 @@ require('CB_PeriodStatusType.php');
 // --------------------------------------------------------------------
 class CB_Period implements JsonSerializable {
 	// TODO: use this generic period class
+  private static $database_table = 'cb2_periods';
+  public  static $all = array();
+  static $static_post_type = 'period';
+
+  function post_type() {return self::$static_post_type;}
+
   protected function __construct(
     $period_id,
     $name,
@@ -57,6 +63,9 @@ class CB_Period_Instance extends CB_PostNavigator implements JsonSerializable {
   public  static $all = array();
   public  static $standard_fields = array( 'period_group_type', 'time_start', 'name', 'period_status_type_name', 'recurrence_index', 'priority' );
   private $db_insert;
+  static $static_post_type = 'periodinstance';
+
+  function post_type() {return self::$static_post_type;}
 
   protected function __construct(
     $period_id,
@@ -72,8 +81,6 @@ class CB_Period_Instance extends CB_PostNavigator implements JsonSerializable {
     $recurrence_sequence,        // Array
     $period_object = NULL
   ) {
-    parent::__construct();
-
     // Period
     $this->period_id  = $period_id;
     $this->recurrence_index = $recurrence_index;
@@ -99,6 +106,13 @@ class CB_Period_Instance extends CB_PostNavigator implements JsonSerializable {
     $this->period_group_type = $this->type();
     $this->fullday = ( $this->datetime_part_period_start->format( 'H:i:s' ) == '00:00:00'
       && $this->datetime_part_period_end->format( 'H:i:s' ) == '23:59:59' );
+
+		// WP_Post values
+    $this->ID            = $this->period_id * 1000 + $this->recurrence_index;
+    $this->post_title    = $this->name;
+    $this->post_type     = self::$static_post_type;
+
+    parent::__construct();
   }
 
   function type() {
@@ -157,7 +171,7 @@ class CB_Period_Instance extends CB_PostNavigator implements JsonSerializable {
     $period_object = NULL
   ) {
     // Design Patterns: Factory Singleton with Multiton
-    $key = implode( '-', array( $location_ID, $item_ID, $user_ID, $period_id, $recurrence_index ) );
+    $key = $period_id * 1000 + $recurrence_index;
     if ( isset( self::$all[$key] ) ) $object = self::$all[$key];
     else {
       $period_class = self::type_class( $period_id, $location_ID, $item_ID, $user_ID );
@@ -236,16 +250,18 @@ class CB_Period_Instance extends CB_PostNavigator implements JsonSerializable {
   }
 
   function get_the_content( $more_link_text = null, $strip_teaser = false ) {
-    $html = ( '<tr style="' . $this->styles() . '" class="' . $this->classes() . '">' );
+    $html = '';
     if ( WP_DEBUG ) $html .= ( '<td>' . $this->debug_html() . '</td>' );
 
     // Period fields
     foreach ( CB_Period_Instance::$standard_fields as $field_name ) {
-      $value = $this->period_object->$field_name;
-      $class = 'cb2-' . str_replace( '_', '-', $field_name );
-      $html .= ( "<td class='$class'>" );
-      $html .= ( '<span>' . $this->field_value_string( $field_name, $value, $class ) . '</span>' );
-      $html .= ( '</td>' );
+      if ( isset( $this->period_object->$field_name ) ) {
+				$value = $this->period_object->$field_name;
+				$class = 'cb2-' . str_replace( '_', '-', $field_name );
+				$html .= ( "<td class='$class'>" );
+				$html .= ( '<span>' . $this->field_value_string( $field_name, $value, $class ) . '</span>' );
+				$html .= ( '</td>' );
+			}
     }
 
     // Indicators field
@@ -255,21 +271,23 @@ class CB_Period_Instance extends CB_PostNavigator implements JsonSerializable {
     }
     $html .= ( '</ul></td>' );
 
-    $html .= ( '</tr>' );
-
     return $html;
   }
 
   function debug_html() {
-    $onclick = "this.firstChild.style = (this.firstChild.style.length ? '' : 'display:block;');";
+    $onclick = "this.firstElementChild.style = (this.firstElementChild.style.length ? '' : 'display:block;');";
     $debug  = '<div class="cb2-debug-control" onclick="' . $onclick . '">';
     $debug .= '<table class="cb2-debug cb2-notice cb2-hidden">';
     if ( $this->period_object ) {
       foreach ( $this->period_object as $period_object_name => $period_object_value ) {
-        if ( $period_object_value ) $debug .= "<tr><td>$period_object_name</td><td>$period_object_value</td></tr>";
+        if ( $period_object_value ) {
+					try {
+						$debug .= "<tr><td>$period_object_name</td><td>$period_object_value</td></tr>";
+					} catch(Exception $ex) {}
+				}
       }
     }
-    $debug .= '</table>debug</div>';
+    $debug .= '</table><span>debug</span></div>';
 
     return $debug;
   }
@@ -747,4 +765,8 @@ class CB_Period_Instance_Timeframe_User extends CB_Period_Instance {
   }
 }
 
-
+function is_pseudo() {
+	// TODO: move this function to a templates utilities files
+	global $post;
+	return is_object( $post ) && is_callable( array( $post, 'pseudo' ) ) && $post->pseudo();
+}
