@@ -123,6 +123,10 @@ class CB_Period_Instance extends CB_PostNavigator implements JsonSerializable {
     return FALSE;
   }
 
+  function fields() {
+		return $this->period_object;
+  }
+
   static function type_class( $period_id, $location_ID, $item_ID, $user_ID ) {
     $period_class = NULL;
 
@@ -249,34 +253,43 @@ class CB_Period_Instance extends CB_PostNavigator implements JsonSerializable {
     return $classes;
   }
 
-  function get_the_content( $more_link_text = null, $strip_teaser = false ) {
-    $html = '';
-    if ( WP_DEBUG ) $html .= ( '<td>' . $this->debug_html() . '</td>' );
+  function field_value_string_name( $class = '', $date_format = 'H:i', $values = NULL ) {
+		$name_field_names = $this->name_field();
+		$name_value       = $this->name;
+		if ( is_null( $values ) ) $values = $this->fields();
 
-    // Period fields
-    foreach ( CB_Period_Instance::$standard_fields as $field_name ) {
-      if ( isset( $this->period_object->$field_name ) ) {
-				$value = $this->period_object->$field_name;
-				$class = 'cb2-' . str_replace( '_', '-', $field_name );
-				$html .= ( "<td class='$class'>" );
-				$html .= ( '<span>' . $this->field_value_string( $field_name, $value, $class ) . '</span>' );
-				$html .= ( '</td>' );
+		if ( is_array( $name_field_names ) ) {
+			$name_value = '';
+			foreach ( $name_field_names as $name_field_name ) {
+				if ( property_exists( $values, $name_field_name ) ) {
+					if ( $values->$name_field_name ) $name_value .= ' ';
+					$name_value .= $values->$name_field_name;
+				}
 			}
-    }
+		} else {
+			if ( property_exists( $values, $name_field_names ) ) $name_value = $values->$name_field_names;
+		}
 
+
+		return $name_value;
+	}
+
+
+  function get_the_content( $more_link_text = null, $strip_teaser = false ) {
     // Indicators field
-    $html .= ( "<td class='cb2-indicators'><ul>" );
+    $html = "<td class='cb2-indicators'><ul>";
     foreach ( $this->indicators() as $indicator ) {
-      $html .= ( "<li class='cb2-indicator-$indicator'>&nbsp;</li>" );
+      $html .= "<li class='cb2-indicator-$indicator'>&nbsp;</li>";
     }
-    $html .= ( '</ul></td>' );
+    $html .= '</ul></td>';
 
     return $html;
   }
 
-  function debug_html() {
+  function get_the_debug( $before = '<td>', $after = '</td>' ) {
     $onclick = "this.firstElementChild.style = (this.firstElementChild.style.length ? '' : 'display:block;');";
-    $debug  = '<div class="cb2-debug-control" onclick="' . $onclick . '">';
+    $debug  = $before;
+    $debug .= '<div class="cb2-debug-control" onclick="' . $onclick . '">';
     $debug .= '<table class="cb2-debug cb2-notice cb2-hidden">';
     if ( $this->period_object ) {
       foreach ( $this->period_object as $period_object_name => $period_object_value ) {
@@ -288,52 +301,13 @@ class CB_Period_Instance extends CB_PostNavigator implements JsonSerializable {
       }
     }
     $debug .= '</table><span>debug</span></div>';
+    $debug .= $after;
 
     return $debug;
   }
 
-  function field_value_string( $field_name, $value, $class = '', $date_format = 'H:i' ) {
-    $custom_render_function_name = "field_value_string_$field_name";
-
-    if ( method_exists( $this, $custom_render_function_name ) ) {
-      $value = $this->{$custom_render_function_name}( $value, $class = '', $date_format );
-    } else {
-      // Data Types
-      if ( is_object( $value ) ) {
-        switch ( get_class( $value ) ) {
-          case 'DateTime':
-            $value = $value->format( $date_format );
-            break;
-        }
-      }
-    }
-
-    return $value;
-  }
-
   function name_field() {
     return 'name';
-  }
-
-  function field_value_string_name( $value, $class = '', $date_format = 'H:i', $values = NULL ) {
-    $name_field_names = $this->name_field();
-    $name_value       = $this->name;
-    if ( is_null( $values ) ) $values = $this->period_object;
-
-    if ( is_array( $name_field_names ) ) {
-      $name_value = '';
-      foreach ( $name_field_names as $name_field_name ) {
-        if ( property_exists( $values, $name_field_name ) ) {
-          if ( $values->$name_field_name ) $name_value .= ' ';
-          $name_value .= $values->$name_field_name;
-        }
-      }
-    } else {
-      if ( property_exists( $values, $name_field_names ) ) $name_value = $values->$name_field_names;
-    }
-
-
-    return $name_value;
   }
 
   function save() {
@@ -429,10 +403,6 @@ class CB_Period_Instance_Automatic extends CB_Period_Instance {
 
   function pseudo() {
     return TRUE;
-  }
-
-  function get_the_content( $more_link_text = null, $strip_teaser = false ) {
-    return '';
   }
 }
 
@@ -765,8 +735,66 @@ class CB_Period_Instance_Timeframe_User extends CB_Period_Instance {
   }
 }
 
+// --------------------------------------------------------------------
+// --------------------------------------------------------------------
+// --------------------------------------------------------------------
+// TODO: move functions to CB_Templates utilities files
 function is_pseudo() {
-	// TODO: move this function to a templates utilities files
 	global $post;
-	return is_object( $post ) && is_callable( array( $post, 'pseudo' ) ) && $post->pseudo();
+	return is_object( $post ) && method_exists( $post, 'pseudo' ) && $post->pseudo();
+}
+
+function get_the_field( $field_name, $class = '', $date_format = 'H:i', $values = NULL ) {
+	global $post;
+	$value = NULL;
+
+	if ( is_object( $post ) ) {
+		if ( is_null( $values ) ) $values = $post;
+		$custom_render_function_name = "field_value_string_$field_name";
+
+		if ( method_exists( $post, $custom_render_function_name ) ) {
+			$value = $post->{$custom_render_function_name}( $class = '', $date_format, $values );
+		} else if ( property_exists( $values, $field_name ) ) {
+			$value = $values->$field_name;
+			if ( is_object( $value ) ) {
+				switch ( get_class( $value ) ) {
+					case 'DateTime':
+						$value = $value->format( $date_format );
+						break;
+				}
+			}
+		}
+	}
+
+	return $value;
+}
+
+function the_field( $field_name, $class = '', $date_format = 'H:i', $values = NULL ) {
+	echo get_the_field( $field_name, $class, $date_format, $values );
+}
+
+function the_fields( $field_names, $before = '<td>', $after = '</td>', $class = '', $date_format = 'H:i' ) {
+	global $post;
+
+	if ( is_object( $post ) ) {
+		$values = $post;
+		if ( method_exists( $post, 'fields' ) ) $values = $post->fields();
+
+		// TODO: allow better placement of class here
+		// that respects the possibility of complex tags being passed in
+		$before_open = ( substr( $before, -1 ) == '>' ? substr( $before, 0, -1 ) : $before );
+		foreach ( $field_names as $field_name ) {
+			$class = 'cb2-' . str_replace( '_', '-', $field_name );
+			echo $before_open, ' class="', $class, '"><span>';
+			the_field( $field_name, $class, $date_format, $values );
+			echo '</span>', $after;
+		}
+	}
+}
+
+function the_debug( $before = '<td>', $afer = '</td>' ) {
+	global $post;
+	if ( WP_DEBUG && is_object( $post ) && method_exists( $post, 'get_the_debug' ) ) {
+		echo $post->get_the_debug( $before, $afer );
+	}
 }
