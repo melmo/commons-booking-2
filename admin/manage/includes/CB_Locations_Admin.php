@@ -35,21 +35,34 @@ class CB_Bookings_Location  {
 	 */
 	public function save_lat_lng($post_id, $updated, $cmb) {
 
+		// check if the lat/lng fields have already been set. If not we should attempt to set them even if the address has not been updated, because the API key might have been set since the last save attempt
 
-		if (count($updated) < 1 ) { // nothing to see here
-			return;
-		}
+		$saved_loc = new CB_Locations( $post_id ); 
+   		$geocoords = $saved_loc->get_lat_lng();
+   		$lat_lng_set = false;
 
-		$address_fields = array(
-			'location-address-line1',
-			'location-address-line2',
-			'location-address-state',
-			'location-address-postcode',
-			'location-address-country'
-		);
+   		if (is_array($geocoords) && $geocoords['lat'] && $geocoords['lng']) {
+   			$lat_lng_set = true;
+   		}
 
-		if (!count(array_intersect($updated, $address_fields))) { // no updated address
-			return;
+		if ($lat_lng_set) { // if latlng is set then only proceed if there are updates
+			
+			if (count($updated) < 1 ) { // nothing to see here
+				return;
+			}
+
+			$address_fields = array(
+				'location-address-line1',
+				'location-address-line2',
+				'location-address-state',
+				'location-address-postcode',
+				'location-address-country'
+			);
+
+			if (!count(array_intersect($updated, $address_fields))) { // no updated address
+				return;
+			}
+
 		}
 
 		$data = $cmb->data_to_save;
@@ -57,15 +70,19 @@ class CB_Bookings_Location  {
 		// Get the address ready for geocoding
 		$address = $data['location-address-line1'] . ' ' . $data['location-address-line2'] . ' ' . $data['location-address-state'] . ' ' . $data['location-address-postcode'] . ' ' . $data['location-address-country'];
 
-		// Connect to OpenCage
+		// Attempte connection to OpenCage
 		$geocode_api_key = CB_Settings::get('map_geocode','api-key');
+		$geo_result = false;
 
-		$geocoder = new \OpenCage\Geocoder\Geocoder($geocode_api_key);
+		if ($geocode_api_key) {
+			$geocoder = new \OpenCage\Geocoder\Geocoder($geocode_api_key);
 
-		$geo_result = $geocoder->geocode($address);
+			$geo_result = $geocoder->geocode($address);
+		}
 
+	
 		// API key missing or invalid
-		if (!$geo_result) {
+		if (!$geocode_api_key || !$geo_result) {
 			// we need to use query vars here because there is a redirection after save and before admin notices
 			add_filter( 'redirect_post_location', array( $this, 'add_missing_api_key_var' ), 99 );
 			return;
@@ -116,7 +133,7 @@ class CB_Bookings_Location  {
 		if (isset( $_GET['geo_api_missing'])) {
 			?>
 			<div class="error">
-			    <p><?php _e( 'No valid OpenCage API key found. This location will not be shown on the map. Go to Settings to add your API key.', 'commons-booking' ); ?></p>
+			    <p><?php _e( 'No valid OpenCage API key found. This location will not be shown on the map. Go to the <a target="_blank" href="' . get_bloginfo('url') . '/wp-admin/admin.php?page=cb_settings_page#tabs-map">Settings</a> page to add your API key.', 'commons-booking' ); ?></p>
 			</div>
 			<?php
 		}

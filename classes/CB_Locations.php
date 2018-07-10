@@ -49,11 +49,12 @@ class CB_Locations  {
 	* @param int $location_id
 	* @return array geocoords
   */
-	public function get_latlong( $location_id ) {
+	public function get_lat_lng( ) {
 
 		$geocoords = array (
-			'long'=> get_post_meta( $this->location_id, 'location-address-longitude', true ),
-			'lat'=> get_post_meta( $this->location_id, 'location-address-latitude', true )
+			'lat'=> get_post_meta( $this->location_id, 'location-address-latitude', true ),
+			'lng'=> get_post_meta( $this->location_id, 'location-address-longitude', true )
+			
 		);
 		return $geocoords;
 	}
