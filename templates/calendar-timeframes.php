@@ -14,7 +14,7 @@
 $cal = $template_args;
 	if ( !empty ( $cal )) { ?>
 		<?php // calendar ?>
-		<?php var_dump($cal);
+		<?php // var_dump($cal);
 		$cb_calendar_class = 'cb-calendar-single';
 		if (isset($cal['timeframe_id']) && is_array($cal['timeframe_id']) && count($cal['timeframe_id']) > 1) {
 			$cb_calendar_class = 'cb-calendar-grouped';
