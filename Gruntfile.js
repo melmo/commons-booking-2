@@ -66,7 +66,8 @@ module.exports = function (grunt) {
           "jQuery": true,
           "alert": true,
           "cb2" : true,
-          "tippy" : true
+          "tippy" : true,
+          "L" : true // Leaflet map
         }
       },
       all: [
@@ -87,6 +88,7 @@ module.exports = function (grunt) {
         files: {
           'public/assets/js/public.min.js': [
             /* add path to js dependencies (ie in node_modules) here */
+            'node_modules/leaflet/dist/leaflet.js',
             'node_modules/tippy.js/dist/tippy.all.js',
             'public/assets/js/public.js'
           ]
@@ -96,11 +98,20 @@ module.exports = function (grunt) {
         files: {
           'public/assets/js/public.min.js': [
             /* add path to js dependencies (ie in node_modules) here */
+            'node_modules/leaflet/dist/leaflet.js',
             'node_modules/tippy.js/dist/tippy.all.js',
             'public/assets/js/public.js'
           ]
         }
       }
+    },
+    copy: {
+      leaflet: {
+        flatten: true,
+        expand:true,
+        src: 'node_modules/leaflet/dist/images/*',
+        dest: 'public/assets/css/images/',
+      },
     },
     watch: {
       compass: {
@@ -119,6 +130,14 @@ module.exports = function (grunt) {
         tasks: [
           'uglify:dev'
         ]
+      },
+      copy: {
+        files: [
+          '<%= copy.leaflet.src %>'
+        ],
+        tasks: [
+          'copy:leaflet'
+        ]
       }
     }
   });
@@ -127,6 +146,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-compass');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   // Register tasks
   grunt.registerTask('default', [
     'compass:admin', 'compass:public',
@@ -137,6 +157,7 @@ module.exports = function (grunt) {
   grunt.registerTask('dist', [
     'compass:admin',
     'compass:public',
+    'copy:leaflet',
     'jshint',
     'uglify:dist'
   ]);

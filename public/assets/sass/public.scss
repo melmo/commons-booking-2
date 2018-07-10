@@ -17,6 +17,9 @@
 /* Bootstrap 4: Helper mixins for responsive layouts */
 @import "../../../node_modules/bootstrap/scss/mixins/_breakpoints";
 
+/* Leaflet */
+@import "../../../node_modules/leaflet/dist/leaflet.css";
+
 /* Base styles */
 @import "partials/_base";
 
@@ -30,5 +33,5 @@
 @import "partials/_tooltipster";
 
 /* Leaflet.js customization */
-@import "partials/_map-leaflet.css";
+@import "partials/_map-leaflet";
 

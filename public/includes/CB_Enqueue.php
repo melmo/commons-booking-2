@@ -28,6 +28,7 @@ class CB_Enqueue {
 		$shortcodes = new CB_Shortcodes();
 		add_shortcode( 'cb_calendar', array( $shortcodes, 'calendar_shortcode' ) ) ;
 		add_shortcode( 'cb_timeframe', array( $shortcodes, 'timeframe_shortcode' ) ) ;
+		add_shortcode( 'cb_map', array( $shortcodes, 'map_shortcode' ) ) ;
 
 		// create an API end point
 		$API = new CB_API;
