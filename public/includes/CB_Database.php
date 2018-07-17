@@ -54,6 +54,12 @@ class CB_Database {
     return $str;
   }
 
+  static function int_to_bitstring( $int ) {
+		$binary    = decbin( $int );
+		$bitstring = "b'$binary'";
+		return $bitstring;
+  }
+
 	// ------------------------------------------------------- Reflection
   static function has_table( $table ) {
 		return in_array( $table, self::tables() );
@@ -78,9 +84,11 @@ class CB_Database {
 		return $tables;
   }
 
-	static function columns( $table ) {
+	static function columns( $table, $full_details = FALSE ) {
 		global $wpdb;
-		return $wpdb->get_col( "DESC $wpdb->prefix$table", 0 );
+		// TODO: cacheing!!!!
+		$desc_sql = "DESC $wpdb->prefix$table";
+		return $full_details ? $wpdb->get_results( $desc_sql, OBJECT_K ) : $wpdb->get_col( $desc_sql, 0 );
   }
 
   static function procedures() {

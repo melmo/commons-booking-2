@@ -370,4 +370,34 @@ class CB_Query {
 
 		return $value;
 	}
+
+	static function sanitize_data_for_table( $table, $data ) {
+		$new_data   = array();
+		$columns    = CB_Database::columns( $table, TRUE );
+
+		foreach ( $data as $field_name => $field_value ) {
+			// Standard mappings
+			$native_field_name = $field_name;
+			switch ( $field_name ) {
+				case 'post_title':   $native_field_name = 'name';        break;
+				case 'post_content': $native_field_name = 'description'; break;
+			}
+
+			// Check table
+			if ( isset( $columns[$native_field_name] ) ) {
+				// Meta data queries use arrays
+				if ( is_array( $field_value ) ) $field_value = $field_value[0];
+				// Data conversion
+				$column_definition = $columns[$native_field_name];
+				switch ( self::substring_before( $column_definition->Type, '(' ) ) {
+					case 'bit':
+						$field_value = CB_Database::int_to_bitstring( $field_value );
+						break;
+				}
+				$new_data[ $native_field_name ] = $field_value;
+			}
+		}
+
+		return $new_data;
+	}
 }
