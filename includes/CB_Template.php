@@ -16,16 +16,21 @@ if ( !function_exists( 'cb_get_template_part' ) ) {
     /**
      *
      * @param string $plugin_slug
-     * @param string $slug
+     * @param string|array $slugs
      * @param string $name
      * @param array $template_args  wp_args style argument list
      * @return string
      */
-    function cb_get_template_part( $plugin_slug, $slug, $name = '', $template_args = array(), $return = false, $cache_args = array() ) {
+    function cb_get_template_part( $plugin_slug, $slugs, $name = '', $template_args = array(), $return = false, $cache_args = array() ) {
 			$template = '';
 			$plugin_slug = $plugin_slug . '/';
 			$path = WP_PLUGIN_DIR . '/'. $plugin_slug . 'templates/';
-			if ( is_array( $slug ) ) $slug = implode( '-', $slug );
+			$slug = $slugs;
+			if ( is_array( $slugs ) ) {
+				// TODO: these templates do not necessarily exist
+				// Check through them to see if we have overrides etc.
+				$slug = $slugs[0];
+			}
 
 			// Look in yourtheme/slug-name.php and yourtheme/plugin-name/slug-name.php
 			if ( $name ) {
@@ -52,6 +57,15 @@ if ( !function_exists( 'cb_get_template_part' ) ) {
 
 			// Allow 3rd party plugin filter template file from their plugin
 			$template = apply_filters( 'cb_get_template_part', $template, $slug, $name, $plugin_slug );
+
+			// Template existence check
+			if ( empty( $template ) ) {
+				$plugin_slug_full = $plugin_slug . 'templates';
+				$name_string      = ( $name ? ", $name" : '' );
+				$slugs_string     = $slugs;
+				if ( is_array( $slugs_string ) ) $slugs_string = '(' . implode( '|', $slugs_string ) . ')';
+				throw new Exception( "Template does not exist [$plugin_slug_full/$slugs_string.php, $name_string]" );
+			}
 
 			// Parse submitted args
 			$template_args = wp_parse_args( $template_args );

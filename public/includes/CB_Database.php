@@ -53,6 +53,45 @@ class CB_Database {
     }
     return $str;
   }
+
+	// ------------------------------------------------------- Reflection
+  static function has_table( $table ) {
+		return in_array( $table, self::tables() );
+  }
+
+  static function has_procedure( $procedure ) {
+		return in_array( $procedure, self::procedures() );
+  }
+
+  static function has_function( $function ) {
+		return in_array( $function, self::functions() );
+  }
+
+  static function has_column( $table, $column ) {
+		return in_array( $column, self::columns( $table ) );
+  }
+
+  static function tables() {
+		global $wpdb;
+		$tables = $wpdb->get_col( "show tables", 0 );
+		foreach ( $tables as &$table ) $table = preg_replace( "/^$wpdb->prefix/", '', $table );
+		return $tables;
+  }
+
+	static function columns( $table ) {
+		global $wpdb;
+		return $wpdb->get_col( "DESC $wpdb->prefix$table", 0 );
+  }
+
+  static function procedures() {
+		global $wpdb;
+		return $wpdb->get_col( 'show procedure status', 1 );
+  }
+
+  static function functions() {
+		global $wpdb;
+		return $wpdb->get_col( 'show function status', 0 );
+  }
 }
 
 // --------------------------------------------------------------------
@@ -150,10 +189,20 @@ class CB_Database_Query extends CB_Database {
 
     // Data extension
     $this->order_direction = NULL;
+    $this->and_count     = FALSE;
+		$this->page_start    = NULL;
+		$this->page_size     = NULL;
     $this->fields        = array( '*' );
     $this->joins         = array();
     $this->conditions    = array();
     $this->orderby_array = array();
+
+    $this->field_sql     = NULL;
+    $this->and_count_sql = NULL;
+    $this->join_sql      = NULL;
+    $this->condition_sql = NULL;
+		$this->order_sql     = NULL;
+		$this->limit_sql     = NULL;
   }
 
   static function factory( $table, $alias = NULL ) {
@@ -161,8 +210,14 @@ class CB_Database_Query extends CB_Database {
   }
 
   function add_orderby( $name, $table_alias = NULL ) {
-    $full_name = ( $table_alias ? "$table_alias.$name" : $name );
-    array_push( $this->orderby_array, $full_name );
+		if ( is_array( $name ) ) {
+			foreach ( $name as $field_name ) {
+				$this->add_orderby( $field_name, $table_alias );
+			}
+		} else {
+			$full_name = ( $table_alias ? "$table_alias.$name" : $name );
+			array_push( $this->orderby_array, $full_name );
+		}
     return $this;
   }
 
@@ -182,6 +237,10 @@ class CB_Database_Query extends CB_Database {
     if ( $alias ) $full_name .= " as `$alias`";
     array_push( $this->fields, $full_name );
     return $this;
+  }
+
+  function add_constant_field( $alias, $value ) {
+		$this->add_field( "'$value'", NULL, $alias );
   }
 
   function add_flag_field( $name, $bit_index, $table_alias = NULL, $alias = NULL ) {
@@ -209,10 +268,17 @@ class CB_Database_Query extends CB_Database {
     return $this;
   }
 
-  function add_condition( $field, $value, $allow_nulls = FALSE, $comparison = '=', $prepare = TRUE ) {
+  function limit( $page_start, $page_size = 20 ) {
+		$this->page_start = $page_start;
+		$this->page_size  = $page_size;
+  }
+
+  function add_condition( $name, $value, $table_alias = NULL, $allow_nulls = FALSE, $comparison = '=', $prepare = TRUE, $not = FALSE ) {
     global $wpdb;
-    $condition = ( $prepare ? $wpdb->prepare( "$field $comparison %s", $value ) : "$field $comparison $value" );
-    if ( $allow_nulls ) $condition = "(isnull($field) or $condition)";
+    $full_name = ( $table_alias ? "$table_alias.$name" : $name );
+    $condition = ( $prepare ? $wpdb->prepare( "$full_name $comparison %s", $value ) : "$full_name $comparison $value" );
+    if ( $allow_nulls ) $condition = "(isnull($full_name) or $condition)";
+    if ( $not )         $condition = "not $condition";
     array_push( $this->conditions, $condition );
     return $this;
   }
@@ -227,21 +293,31 @@ class CB_Database_Query extends CB_Database {
 
     $this->condition_sql = implode( "\n          and ", $this->conditions );
 
+    if ( $this->and_count ) $this->and_count_sql = 'SQL_CALC_FOUND_ROWS';
+
+    // Order
     if ( count( $this->orderby_array ) ) {
       $this->order_sql = implode( ', ', $this->orderby_array );
       if ( $this->order_direction ) $this->order_sql .= " $this->order_direction";
       $this->order_sql = "order by $this->order_sql";
     }
 
+    // Limits
+	  if ( ! is_null( $this->page_start ) && ! is_null( $this->page_size ) )
+			$this->limit_sql = "LIMIT $this->page_start, $this->page_size";
+
     $this->sql = $wpdb->prepare(
-      self::$database_command . " $this->field_sql
+      self::$database_command . " $this->and_count_sql $this->field_sql
       FROM $wpdb->prefix$this->table
         $this->join_sql
       where
         $this->condition_sql
-        $this->order_sql",
+        $this->order_sql
+        $this->limit_sql",
       $arg1, $arg2 //TODO: add other args
     );
+
+    // if ( WP_DEBUG ) print( "<div class='cb2-debug cb2-sql'><pre>$this->sql</pre></div>" );
 
     return $this->sql;
   }
@@ -252,7 +328,6 @@ class CB_Database_Query extends CB_Database {
 
   function get_results( $sql ) {
     global $wpdb;
-    if ( WP_DEBUG ) print( "<div class='cb2-debug cb2-sql'><pre>$sql</pre></div>" );
     return $wpdb->get_results( $sql );
   }
 }
@@ -282,15 +357,18 @@ class CB_Database_Insert extends CB_Database {
     }
   }
 
-  function run() {
-    global $wpdb;
-
+  function prepare( $arg1 = NULL, $arg2 = NULL, $arg3 = NULL, $arg4 = NULL, $arg5 = NULL, $arg6 = NULL ) {
     if ( WP_DEBUG ) {
       print( "<div class='cb2-debug cb2-sql'><h2>WP_DEBUG insert SQL: $this->table</h2><pre>" );
       print_r( $this->fields );
       print_r( $this->formats );
       print( '</pre></div>' );
     }
+    return NULL;
+	}
+
+  function run() {
+    global $wpdb;
 
     $wpdb->insert( "$wpdb->prefix$this->table", $this->fields, $this->formats );
     $insert_id = $wpdb->insert_id;
@@ -304,171 +382,3 @@ class CB_Database_Insert extends CB_Database {
     return $insert_id;
   }
 }
-
-// --------------------------------------------------------------------
-// --------------------------------------------------------------------
-// --------------------------------------------------------------------
-class CB_PostNavigator {
-  protected function __construct( &$posts = NULL ) {
-    $this->zero_array = array();
-    if ( is_null( $posts ) ) $this->posts = &$this->zero_array;
-    else                     $this->posts = &$posts;
-
-    // WP_Post default values
-    $this->post_status   = 'publish';
-    $this->post_password = '';
-    $this->post_excerpt  = $this->get_the_excerpt();
-    $this->post_content  = $this->get_the_content();
-    $this->post_author   = 1;
-    $this->post_date     = date( 'c' );
-  }
-
-  // ------------------------------------------------- Navigation
-  function have_posts() {
-    return current( $this->posts );
-  }
-
-  function next_post() {
-    $post = current( $this->posts );
-    next( $this->posts );
-    return $post;
-  }
-
-  function rewind_posts() {
-    reset( $this->posts );
-    $this->post = NULL;
-  }
-
-  function the_post() {
-    global $post;
-    $post = $this->next_post();
-    $this->setup_postdata( $post );
-    return $post;
-  }
-
-  // ------------------------------------------------- Properties
-  function is_feed()    {return FALSE;}
-  function is_page()    {return FALSE;}
-  function is_single()  {return FALSE;}
-  function get( $name ) {return NULL;}
-
-  function setup_postdata( $post ) {
-		global $id, $authordata, $currentday, $currentmonth, $page, $pages, $multipage, $more, $numpages;
-
-    if ( ! $post ) {
-        return;
-    }
-
-    $id = (int) $post->ID;
-
-    $authordata = get_userdata($post->post_author);
-
-    $currentday = mysql2date('d.m.y', $post->post_date, false);
-    $currentmonth = mysql2date('m', $post->post_date, false);
-    $numpages = 1;
-    $multipage = 0;
-    $page = $this->get( 'page' );
-    if ( ! $page )
-        $page = 1;
-
-    /*
-     * Force full post content when viewing the permalink for the $post,
-     * or when on an RSS feed. Otherwise respect the 'more' tag.
-     */
-    if ( $post->ID === get_queried_object_id() && ( $this->is_page() || $this->is_single() ) ) {
-        $more = 1;
-    } elseif ( $this->is_feed() ) {
-        $more = 1;
-    } else {
-        $more = 0;
-    }
-
-    $content = $post->post_content;
-    if ( false !== strpos( $content, '<!--nextpage-->' ) ) {
-        $content = str_replace( "\n<!--nextpage-->\n", '<!--nextpage-->', $content );
-        $content = str_replace( "\n<!--nextpage-->", '<!--nextpage-->', $content );
-        $content = str_replace( "<!--nextpage-->\n", '<!--nextpage-->', $content );
-
-        // Ignore nextpage at the beginning of the content.
-        if ( 0 === strpos( $content, '<!--nextpage-->' ) )
-            $content = substr( $content, 15 );
-
-        $pages = explode('<!--nextpage-->', $content);
-    } else {
-        $pages = array( $post->post_content );
-    }
-
-    /**
-     * Filters the "pages" derived from splitting the post content.
-     *
-     * "Pages" are determined by splitting the post content based on the presence
-     * of `<!-- nextpage -->` tags.
-     *
-     * @since 4.4.0
-     *
-     * @param array   $pages Array of "pages" derived from the post content.
-     *                       of `<!-- nextpage -->` tags..
-     * @param WP_Post $post  Current post object.
-     */
-    $pages = apply_filters( 'content_pagination', $pages, $post );
-
-    $numpages = count( $pages );
-
-    if ( $numpages > 1 ) {
-        if ( $page > 1 ) {
-            $more = 1;
-        }
-        $multipage = 1;
-    } else {
-        $multipage = 0;
-    }
-
-    /**
-     * Fires once the post data has been setup.
-     *
-     * @since 2.8.0
-     * @since 4.1.0 Introduced `$this` parameter.
-     *
-     * @param WP_Post  $post The Post object (passed by reference).
-     * @param WP_Query $this The current Query object (passed by reference).
-     */
-    do_action_ref_array( 'the_post', array( &$post, &$this ) );
-
-    return true;
-	}
-
-  function template( $mode = 'list' ) {
-		return array( $this->post_type(), $mode );
-  }
-
-  // ------------------------------------------------- Output
-  function the_json_content( $options = NULL ) {
-    print( $this->get_the_json_content( $options ) );
-  }
-
-  function get_the_json_content( $options = NULL ) {
-    wp_json_encode( $this, $options );
-  }
-
-  function the_content( $more_link_text = null, $strip_teaser = false ) {
-		// Borrowed from wordpress
-		// https://developer.wordpress.org/reference/functions/the_content/
-    $content = $this->get_the_content( $more_link_text, $strip_teaser );
-    $content = apply_filters( 'the_content', $content );
-    $content = str_replace( ']]>', ']]&gt;', $content );
-    echo $content;
-  }
-
-  function get_the_excerpt() {
-		return '';
-  }
-
-  function get_the_content() {
-		return '';
-  }
-
-  function classes() {
-		return '';
-  }
-}
-

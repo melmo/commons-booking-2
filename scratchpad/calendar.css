@@ -24,9 +24,18 @@ label {
   color:red;
 }
 .cb2-debug {
-  font-family: Sans;
-  color: #777;
+	background-color:#fac83f;
+	border:1px solid #888;
+	font-family: Sans;
+  color: #000;
   font-size:10px;
+	padding:4px;
+}
+body .cb2-low-debug {
+	color: #777;
+}
+.cb2-high-debug {
+	font-weight:bold;
 }
 .cb2-notice {
   background-color:#fac83f;
@@ -48,7 +57,6 @@ label {
 }
 .cb2-calendar > .entry-content > table.cb2-subposts > tbody  > tr > td > .entry-content > table.cb2-subposts > tbody > tr {
   /* position:absolute; */
-  background-color:#fff;
   border:1px solid #d7d7d7;
 }
 .cb2-calendar > .entry-content > table.cb2-subposts > tbody  > tr > td > .entry-content > table.cb2-subposts > tbody > tr > td {
@@ -69,6 +77,12 @@ label {
 .cb2-indicators ul li {
   float:left;
 }
+.cb2-indicators ul .cb2-indicator-collect,
+.cb2-indicators ul .cb2-indicator-return,
+.cb2-indicators ul .cb2-indicator-use {
+	display:none;
+}
+
 .cb2-indicator-no-collect {
   background-color:#88ff88;
 }
@@ -80,24 +94,38 @@ label {
 }
 
 /* ---------------------- fields */
+.type-PeriodItem .entry-header {
+	display:none;
+}
 .type-day > .entry-header > .entry-title {
   color:#888;
 	margin:0px;
 }
-.cb2-calendar .cb2-today > .entry-header > .entry-title {
+.cb2-calendar .type-day.cb2-current > .entry-header > .entry-title {
   color:#111;
   font-weight:bold;
   background-color:#c7c7c7;
+}
+.cb2-calendar .type-week.cb2-current  > td:first-child,
+.cb2-calendar .type-month.cb2-current > td:first-child {
+	border-left:3px double #dd0000;
 }
 .cb2-time {
   margin-right:4px;
   color:#444444;
 }
-.cb2-period-status-type-name span {
+.cb2-field-name {
+	display:none;
+}
+.cb2-period-period-status-type-name .cb2-field-value {
   color:#fff;
   background-color:#000;
   font-size:10px;
   padding:1px 4px;
+}
+
+.cb2-booked {
+	background-color:#ffdddd;
 }
 
 /* ---------------------- Real World Object types */
@@ -107,6 +135,10 @@ label {
   color:#fff;
   background-color:#000;
   margin-right:2px;
+}
+.cb2-period-group-type .cb2-field-value {
+	writing-mode: vertical-rl;
+	text-orientation: upright;
 }
 .cb2-period-group-type-A .cb2-period-group-type {
 }

@@ -1,6 +1,6 @@
 <?php
 /**
-   * @package   Commons_Booking
+ * @package   Commons_Booking
  * @author    Florian Egermann <florian@wielebenwir.de>
  * @copyright 2018 wielebenwir e.V.
  * @license   GPL 2.0+
@@ -47,6 +47,7 @@ function cb_load_plugin_textdomain() {
 	load_textdomain( CB_TEXTDOMAIN, trailingslashit( WP_PLUGIN_DIR ) . CB_TEXTDOMAIN . '/languages/' . CB_TEXTDOMAIN . '-' . $locale . '.mo' );
 }
 add_action( 'plugins_loaded', 'cb_load_plugin_textdomain', 1 );
+/*
 require_once( CB_PLUGIN_ROOT . 'composer/autoload.php' );
 require_once( CB_PLUGIN_ROOT . 'includes/CB_PostTypes.php' );
 require_once( CB_PLUGIN_ROOT . 'includes/CB_PostTypes_Metaboxes.php' );
@@ -81,3 +82,50 @@ if ( is_admin() ) {
 		require_once( CB_PLUGIN_ROOT . 'admin/Commons_Booking_Admin.php' );
 	}
 }
+
+*/
+
+// Annesley new stuffs
+add_action( 'plugins_loaded', 'cb2_plugins_loaded' );
+require_once( CB_PLUGIN_ROOT . 'includes/CB_Template.php' );
+require_once( CB_PLUGIN_ROOT . 'public/includes/CB_Query.php' ); // register_post_types()
+
+function cb2_plugins_loaded() {
+	if ( ! function_exists( 'qw_init_frontend' ) ) {
+		require_once( CB_PLUGIN_ROOT . 'plugins/query-wrangler/query-wrangler.php' );
+		if ( ! CB_Database::has_table( 'query_wrangler' ) ) {
+			qw_query_wrangler_table();
+			qw_query_override_terms_table();
+		}
+	}
+
+	if ( ! function_exists( 'wpcf7_init' ) ) {
+		require_once( CB_PLUGIN_ROOT . 'plugins/contact-form-7/wp-contact-form-7.php' );
+		if ( ! CB_Database::has_table( 'contact_form_7' ) ) {
+			wpcf7_install();
+		}
+		wpcf7(); // CF7 plugins_loaded hook
+	}
+}
+
+function cb2_admin_init_menus() {
+	$notifications_string = '';
+  add_menu_page( 'CB2', "CB2$notifications_string", 'manage_options', 'cb2', 'cb2_options_page', 'dashicons-video-alt' );
+  add_submenu_page( 'cb2', 'Holidays', 'holidays (1)', 'manage_options', 'cb2-holidays', 'cb2_holidays_page' );
+}
+add_action( 'admin_menu', 'cb2_admin_init_menus' );
+
+function cb2_options_page() {
+	print('hello');
+}
+
+function cb2_holidays_page() {
+	$typenow = 'period';
+	$GLOBALS['hook_suffix'] = TRUE;
+	$screen  = WP_Screen::get( $typenow );
+	$screen->base = 'edit';
+	set_current_screen( $screen );
+	require_once( get_home_path() . 'wp-admin/edit.php' );
+	return TRUE;
+}
+

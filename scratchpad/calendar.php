@@ -1,8 +1,8 @@
 <?php
   /** Loads the WordPress Environment and Template */
-  require( $_SERVER['DOCUMENT_ROOT'] . '/wp-blog-header.php' );
-  require( $_SERVER['DOCUMENT_ROOT'] . '/wp-content/plugins/commons-booking/includes/CB_Template.php' );
-  require( $_SERVER['DOCUMENT_ROOT'] . '/wp-content/plugins/commons-booking/public/includes/CB_Query.php' );
+  require_once( $_SERVER['DOCUMENT_ROOT'] . '/wp-blog-header.php' );
+  require_once( $_SERVER['DOCUMENT_ROOT'] . '/wp-content/plugins/commons-booking/includes/CB_Template.php' );
+  require_once( $_SERVER['DOCUMENT_ROOT'] . '/wp-content/plugins/commons-booking/public/includes/CB_Query.php' );
 ?>
 <html>
   <head>
@@ -42,44 +42,85 @@
     $post_user_ID          = ( isset( $_POST['user_ID'] )          && $_POST['user_ID']          ? $_POST['user_ID']          : NULL );
     $post_period_status_type_id = ( isset( $_POST['period_status_type_id'] ) && $_POST['period_status_type_id'] ? $_POST['period_status_type_id'] : NULL );
 
-    $post_recurrence_type      = ( isset( $_POST['recurrence_type'] ) && $_POST['recurrence_type'] ? $_POST['recurrence_type'] : NULL );
+    $post_name = ( isset( $_POST['name'] ) ? $_POST['name'] : '' );
+		$post_datetime_part_period_start = ( isset( $_POST['datetime_part_period_start'] ) ? $_POST['datetime_part_period_start'] : '2018-07-02 09:00:00' );
+		$post_datetime_part_period_end   = ( isset( $_POST['datetime_part_period_end'] ) ? $_POST['datetime_part_period_end'] : '2018-07-02 13:00:00' );
+		$post_datetime_from              = ( isset( $_POST['datetime_from'] ) ? $_POST['datetime_from'] : NULL );
+		$post_datetime_to                = ( isset( $_POST['datetime_to'] ) ? $_POST['datetime_to'] : NULL );
+
+		$post_recurrence_type      = ( isset( $_POST['recurrence_type'] ) && $_POST['recurrence_type'] ? $_POST['recurrence_type'] : NULL );
     $post_recurrence_frequency = ( isset( $_POST['recurrence_frequency'] ) && $_POST['recurrence_frequency'] ? $_POST['recurrence_frequency'] : NULL );
     $post_recurrence_sequence  = ( isset( $_POST['recurrence_sequence'] ) && $_POST['recurrence_sequence'] ? $_POST['recurrence_sequence'] : NULL );
 
+    // --------------------------------------- Reflection
+    print( '<h2>reflection <a href="#" onclick="this.parentNode.nextSibling.style=0">show</a></h2><div style="display:none;">' );
+    print( '<div style="font-weight:bold;">procedures</div>' );
+    var_dump( CB_Database::procedures() );
+    print( '<div style="font-weight:bold;">tables</div>' );
+    var_dump( CB_Database::tables() );
+    print( '<div style="font-weight:bold;">registered PHP objects</div>' );
+    foreach ( CB_Query::schema_types() as $Class ) {
+			$post_type      = $Class::$static_post_type;
+			$post_type_stub = CB_Query::substring_before( $post_type );
+			print( "<div style='font-weight:bold;'>$Class($post_type):</div><ul>" );
+
+			if ( CB_Database::has_table( "cb2_view_{$post_type_stub}_posts" ) )
+				print( "<li>has posts table cb2_view_{$post_type_stub}_posts</li>" );
+			if ( CB_Database::has_table( "cb2_view_{$post_type_stub}meta" ) )
+				print( "<li>has post meta table cb2_view_{$post_type_stub}meta</li>" );
+			if ( property_exists( $Class, 'database_table' ) && CB_Database::has_table( $Class::$database_table ) )
+				print( "<li>database_table [" . $Class::$database_table . "] exists</li>" );
+			if ( CB_Database::has_procedure( "cb2_{$post_type}_update" ) )
+				print( "<li>UPDATE procedure exists</li>" );
+
+			print( '</ul>' );
+    }
+    print( '</div>' ); // .Reflection
+
+    // --------------------------------------- SQL
     print( '<h2>SQL <a href="#" onclick="this.parentNode.nextSibling.style=0">show</a></h2><div style="display:none;">' );
     if ( count( $_POST ) && isset( $_POST['datetime_part_period_start'] ) ) {
       // TODO: allow string inputs and $arg inputs? like WP_Query?
-      $period = CB_Period_Instance::factory_period(
-        $post_location_ID,
-        $post_item_ID,
-        $post_user_ID,
-        1,
-        0,
-        $_POST['period_group_name'],
-        new DateTime( $_POST['datetime_part_period_start'] ),
-        new DateTime( $_POST['datetime_part_period_end'] ),
-        new DateTime( $_POST['datetime_from'] ),
-        NULL, //new DateTime( $_POST['datetime_to'] ),
-        CB_PeriodStatusType::factory(
-          $post_period_status_type_id
-        ),
-        $post_recurrence_type,      // maybe NULL
-        $post_recurrence_frequency, // maybe NULL
-        CB_Database::bitarray_to_int( $post_recurrence_sequence ),  // Array, maybe NULL
-        (object) $_POST
-      );
-      $period->save();
+      $period = CB_Period::factory(
+				NULL, // $ID,
+				NULL, // $period_id,
+				$post_name,
+				$post_datetime_part_period_start,
+				$post_datetime_part_period_end,
+				$post_datetime_from,
+				$post_datetime_to,
+				CB_PeriodStatusType::factory( NULL, $post_period_status_type_id ),
+				$post_recurrence_type,
+				$post_recurrence_frequency,
+				$post_recurrence_sequence
+			);
+			$ID = $period->save();
+
+      $PeriodItem = CB_PeriodItem::factory_PeriodItem(
+				NULL, // $ID
+				$period,
+				NULL, // $recurrence_index
+				NULL, // $datetime_period_item_start
+				NULL, // $datetime_period_item_end
+
+				NULL, // $timeframe_id
+        CB_Location::factory( $post_location_ID ),
+        CB_Item::factory( $post_item_ID ),
+        CB_User::factory( $post_user_ID )
+			);
+      $ID = $PeriodItem->save();
     }
 
     // --------------------------------------- Query Parameters
-    $startdate_string = ( isset( $_GET['startdate'] ) ? $_GET['startdate'] : '2018-06-01 00:00:00' );
-    $enddate_string   = ( isset( $_GET['enddate']   ) ? $_GET['enddate']   : '2018-07-01 00:00:00' );
-    $location_ID = ( isset( $_GET['location_ID'] ) ? $_GET['location_ID'] : NULL );
-    $item_ID     = ( isset( $_GET['item_ID'] )     ? $_GET['item_ID']     : NULL );
-    $user_ID          = ( isset( $_GET['user_ID'] )          ? $_GET['user_ID']          : NULL );
+    $startdate_string = ( isset( $_GET['startdate'] )   ? $_GET['startdate'] : '2018-07-01 00:00:00' );
+    $enddate_string   = ( isset( $_GET['enddate']   )   ? $_GET['enddate']   : '2018-08-01 00:00:00' );
+    $location_ID      = ( isset( $_GET['location_ID'] ) ? $_GET['location_ID'] : NULL );
+    $item_ID          = ( isset( $_GET['item_ID'] )     ? $_GET['item_ID']     : NULL );
+    $user_ID          = ( isset( $_GET['user_ID'] )     ? $_GET['user_ID']          : NULL );
     $period_group_id  = ( isset( $_GET['period_group_id'] ) ? $_GET['period_group_id'] : NULL );
-    $post_status = ( isset( $_GET['post_status'] ) ? $_GET['post_status'] : NULL );
-    $post_type   = ( isset( $_GET['post_type'] ) ? $_GET['post_type'] : CB_Week::$static_post_type );
+    $period_status_type_id = ( isset( $_GET['period_status_type_id'] ) ? $_GET['period_status_type_id'] : NULL );
+    $schema_type        = ( isset( $_GET['schema_type'] )   ? $_GET['schema_type'] : CB_Week::$static_post_type );
+    $no_auto_draft    = isset( $_GET['no_auto_draft'] );
 
     $output_type      = ( isset( $_GET['output_type'] ) ? $_GET['output_type'] : 'HTML' );
 
@@ -88,19 +129,39 @@
     }
 
     // --------------------------------------- Query
+    $meta_query       = array();
+    $meta_query_items = array();
+    $post_status      = array( 'publish' );
+    if ( ! $no_auto_draft )          array_push( $post_status, 'auto-draft' );
+    if ( $location_ID )           $meta_query_items[ 'location_clause' ]    = array( 'key' => 'location_ID', 'value' => $location_ID );
+    if ( $item_ID )               $meta_query_items[ 'item_clause' ]        = array( 'key' => 'item_ID',     'value' => $item_ID );
+    if ( $period_status_type_id ) $meta_query_items[ 'period_status_type_clause' ] = array( 'key' => 'period_status_type_id', 'value' => $period_status_type_id );
+
+    if ( $meta_query_items ) {
+			// Include the auto-draft which do not have meta
+			$meta_query[ 'relation' ]       = 'OR';
+			$meta_query[ 'without_meta' ]   = CB_Query::$without_meta;
+			$meta_query_items[ 'relation' ] = 'AND';
+			$meta_query[ 'items' ]          = $meta_query_items;
+		}
+
     $args = array(
-      'date_query'    => array(
-        'after'  => $startdate_string,
-        'before' => $enddate_string
+      'author'         => $user_ID,
+      'post_status'    => $post_status, // auto-draft indicates the pseudo Period A created for each day
+      'post_type'      => CB_PeriodItem::$all_post_types,
+      'posts_per_page' => -1,           // Not supported with CB_Query (always current month response)
+      'order'          => 'ASC',        // defaults to post_date
+      'date_query'     => array(
+        'after'   => $startdate_string, // TODO: Needs to compare enddate > after
+        'before'  => $enddate_string,   // TODO: Needs to compare startdate < before
+        'compare' => $schema_type,
       ),
-      'location_ID'   => $location_ID,
-      'item_ID'       => $item_ID,
-      'author'        => $user_ID,
-      'post_status'   => $post_status,
-      'post_type'     => $post_type
+      'meta_query' => $meta_query,      // Location, Item, User
     );
-    $calendar_query = new CB_Query( $args );
-    print( '</div>' );
+    var_dump( $args );
+    $query = new WP_Query( $args );
+		print( "<div class='cb2-debug'>$query->request</div>" );
+    print( '</div>' ); // .SQL
 
 
     // ---------------------------------------- Create Form
@@ -108,8 +169,8 @@
     print( '<i>type</i><br/>' );
     print( "Name: <input name='period_group_name'/><br/>" );
     print( 'Location: <select name="location_ID">' . CB_Query::select_options( CB_Query::location_options(), $post_location_ID ) . '</select>' );
-    print( 'Item: <select name="item_ID">'     . CB_Query::select_options( CB_Query::item_options(), $post_item_ID ) . '</select>' );
-    print( 'User: <select name="user_ID">'          . CB_Query::select_options( CB_Query::user_options(), $post_user_ID ) . '</select>' );
+    print( 'Item: <select name="item_ID">'         . CB_Query::select_options( CB_Query::item_options(), $post_item_ID ) . '</select>' );
+    print( 'User: <select name="user_ID">'         . CB_Query::select_options( CB_Query::user_options(), $post_user_ID ) . '</select>' );
     ?><p class="cb2-help">
       No selection (G Global) = national holidays, general opening times</br>
       Location (L) = opening / closing times, Location specific holidays, discounts, events</br>
@@ -120,8 +181,8 @@
 
     print( '<hr/><i>period definition</i><br/>' );
     print( 'Status: <select name="period_status_type_id">' . CB_Query::select_options( CB_Query::period_status_type_options(), $post_period_status_type_id, FALSE ) . '</select>' );
-    print( "Time Part Start: <input name='datetime_part_period_start' value='2018-06-02 09:00:00'/>" );
-    print( "Time Part End: <input name='datetime_part_period_end' value='2018-06-02 13:00:00'/>" );
+    print( "Time Part Start: <input name='datetime_part_period_start' value='$post_datetime_part_period_start'/>" );
+    print( "Time Part End: <input name='datetime_part_period_end' value='$post_datetime_part_period_end'/>" );
     print( '<br/>' );
 
     print( 'Recurrence: <select name="recurrence_type">' . CB_Query::select_options( array( 'D' => 'daily', 'W' => 'weekly', 'M' => 'monthly', 'Y' => 'yearly' ), $post_recurrence_type ) . '</select>' );
@@ -161,10 +222,11 @@
     print( 'Item: <select name="item_ID">'     . CB_Query::select_options( CB_Query::item_options(), $item_ID ) . '</select>' );
     print( 'User: <select name="user_ID">'          . CB_Query::select_options( CB_Query::user_options(), $user_ID ) . '</select>' );
     print( '<br/>' );
-    print( 'Period Status: <select name="post_status">' . CB_Query::select_options( CB_Query::period_status_type_options(), $post_status, TRUE, TRUE ) . '</select>' );
+    print( 'Period Status: <select name="period_status_type_id">' . CB_Query::select_options( CB_Query::period_status_type_options(), $period_status_type_id, TRUE ) . '</select>' );
+    print( "<input id='no_auto_draft' type='checkbox' name='no_auto_draft'/> <label for='no_auto_draft'>Exclude pseudo-periods (A)</label>" );
     print( '<br/>' );
     print( 'Output type:<select name="output_type">' . CB_Query::select_options( array( 'HTML' => 'HTML', 'JSON' => 'JSON' ), $output_type ) . '</select>' );
-    print( 'Post Type:<select name="post_type">' . CB_Query::select_options( CB_Query::queried_object_types(), $post_type ) . '</select>' );
+    print( 'Post Type:<select name="schema_type">' . CB_Query::select_options( CB_Query::schema_options(), $schema_type ) . '</select>' );
     print( '<br/>' );
     print( '<input class="cb2-submit" type="submit" value="Filter"/>' );
     print( '</form>' );
@@ -181,22 +243,27 @@
     // --------------------------------------- HTML calendar output
     // Title
     print( "<hr/>" );
-    if ( $output_type == 'HTML' && ( $post_type == 'location' || $post_type == 'item' || $post_type == 'user'  || $post_type == 'form' ) )
+    if ( $output_type == 'HTML' && ( $schema_type == 'location' || $schema_type == 'item' || $schema_type == 'user'  || $schema_type == 'form' ) )
       print( '<div class="cb2-help">Calendar rendering of locations / items / users / forms maybe better in JSON output type</div>' );
 
     switch ( $output_type ) {
       case 'JSON':
         print( '<pre>' );
-        print( wp_json_encode( $calendar_query, JSON_PRETTY_PRINT ) );
+        print( wp_json_encode( $query, JSON_PRETTY_PRINT ) );
         print( '</pre>' );
         break;
       case 'HTML':
-				global $post;
-				$post = &$calendar_query;
-				cb_get_template_part( 'commons-booking', $post->template() );
-        break;
-    }
-    ?>
+				?><div class="cb2-calendar"><header class="entry-header"><h1 class="entry-title">calendar</h1></header>
+					<div class="entry-content">
+						<table class="cb2-subposts"><tbody>
+							<?php the_inner_loop( $query ); ?>
+						</tbody></table>
+					</div><!-- .entry-content --></div>
+			<?php
+				wp_reset_postdata();
+				break;
+			}
+			?>
     <hr/>
     <img src="model.png"/>
   </body>
