@@ -169,13 +169,13 @@ function cb2_pre_post_update( $ID, $data ) {
 							exit();
 						}
 						$id = $wpdb->insert_id;
+						if ( CB2_WP_DEBUG ) print( "<div class='cb2-debug cb2-high-debug' style='font-weight:bold;color:#600;'>($Class/$post_type) = INSERTED new post($native_fields_string)</div>" );
 
 						// We need to reset the ID for further edit screens
-						// TODO: this doesn't work yet: maybe try a redirect?
-						// $ID = CB_Query::ID_from_id_post_type( $ID, $post_type );
-						// $_POST[ 'post_ID' ] = $ID;
+						$ID = CB_Query::ID_from_id_post_type( $id, $post_type );
+						wp_redirect( "/wp-admin/post.php?post=$ID&action=edit" );
+						exit();
 
-						if ( CB2_WP_DEBUG ) print( "<div class='cb2-debug cb2-high-debug' style='font-weight:bold;color:#600;'>($Class/$post_type) = INSERTED new post($native_fields_string)</div>" );
 					} else throw new Exception( "Trying to update a [$post->post_status] CB2 post [$post_type] with an invalid ID [$ID]" );
 				} else {
 					// The post has a normal ID
