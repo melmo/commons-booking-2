@@ -146,7 +146,7 @@ function cb2_pre_post_update( $ID, $data ) {
 				$id = CB_Query::id_from_ID( $ID );
 				if ( is_null( $id ) ) {
 					$post = get_post( $ID );
-					if ( $post ) { //&& in_array( $post->post_status, array( 'draft',  'auto-draft' ) ) ) {
+					if ( $post ) { //&&  ) ) {
 						// This post is currently an auto-draft normal post in wp_posts
 						// probably created by the Add New post process
 						// because we have not hooked in to the insert_post process
@@ -172,9 +172,11 @@ function cb2_pre_post_update( $ID, $data ) {
 						if ( CB2_WP_DEBUG ) print( "<div class='cb2-debug cb2-high-debug' style='font-weight:bold;color:#600;'>($Class/$post_type) = INSERTED new post($native_fields_string)</div>" );
 
 						// We need to reset the ID for further edit screens
-						$ID = CB_Query::ID_from_id_post_type( $id, $post_type );
-						wp_redirect( "/wp-admin/post.php?post=$ID&action=edit" );
-						exit();
+						if ( in_array( $post->post_status, array( 'draft',  'auto-draft' ) ) ) {
+							$ID = CB_Query::ID_from_id_post_type( $id, $post_type );
+							wp_redirect( "/wp-admin/post.php?post=$ID&action=edit" );
+							exit();
+						}
 
 					} else throw new Exception( "Trying to update a [$post->post_status] CB2 post [$post_type] with an invalid ID [$ID]" );
 				} else {

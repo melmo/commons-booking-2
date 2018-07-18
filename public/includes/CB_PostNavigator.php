@@ -197,5 +197,48 @@ class CB_PostNavigator {
   function classes() {
 		return '';
   }
+
+  // ------------------------------------------------- Saving
+  function post_meta() {
+		return array();
+	}
+
+  function post_args() {
+		// Taken from https://developer.wordpress.org/reference/functions/wp_insert_post/
+		return array(
+			'post_title'  => ( property_exists( $this, 'name' ) ? $this->name : '' ),
+			'post_status' => 'publish',
+			'post_type'   => $this->post_type(),
+			'meta_input'  => $this->post_meta(),
+
+			/*
+			'post_author' => 1,
+			'post_content' => '',
+			'post_content_filtered' => '',
+			'post_excerpt' => '',
+			'comment_status' => '',
+			'ping_status' => '',
+			'post_password' => '',
+			'to_ping' =>  '',
+			'pinged' => '',
+			'post_parent' => 0,
+			'menu_order' => 0,
+			'guid' => '',
+			'import_id' => 0,
+			'context' => '',
+			*/
+		);
+  }
+
+  function save() {
+		// (int|WP_Error) The post ID on success. The value 0 or WP_Error on failure.
+		$args = $this->post_args();
+		var_dump($args);
+		$ID = wp_insert_post( $args );
+		$args = array( 'ID' => $ID );
+		wp_update_post( $args );
+
+		return $this;
+  }
 }
 

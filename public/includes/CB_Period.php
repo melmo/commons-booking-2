@@ -2,7 +2,7 @@
 require('CB_PeriodStatusType.php');
 require('CB_PeriodGroup.php');
 
-class CB_Period implements JsonSerializable {
+class CB_Period extends CB_PostNavigator implements JsonSerializable {
 	// TODO: use this generic period class
   public static $database_table = 'cb2_periods';
   public static $all = array();
@@ -93,6 +93,20 @@ class CB_Period implements JsonSerializable {
 
   function jsonSerialize() {
 		return $this;
+	}
+
+	function post_meta() {
+		return array(
+			'name' => $this->name,
+			'datetime_part_period_start' => $this->datetime_part_period_start->format( 'c' ),
+			'datetime_part_period_end' => $this->datetime_part_period_end->format( 'c' ),
+			'datetime_from' => $this->datetime_from->format( 'c' ),
+			'datetime_to' => ( $this->datetime_to ? $this->datetime_to->format( 'c' ) : NULL ),
+			'period_status_type' => $this->period_status_type->period_status_type_id,
+			'recurrence_type' => $this->recurrence_type,
+			'recurrence_frequency' => ( $this->recurrence_frequency ? $this->recurrence_frequency : 0 ),
+			'recurrence_sequence' => $this->recurrence_sequence,
+		);
 	}
 }
 

@@ -80,7 +80,6 @@
     // --------------------------------------- SQL
     print( '<h2>SQL <a href="#" onclick="this.parentNode.nextSibling.style=0">show</a></h2><div style="display:none;">' );
     if ( count( $_POST ) && isset( $_POST['datetime_part_period_start'] ) ) {
-      // TODO: allow string inputs and $arg inputs? like WP_Query?
       $period = CB_Period::factory(
 				NULL, // $ID,
 				NULL, // $period_id,
@@ -96,7 +95,12 @@
 			);
 			$ID = $period->save();
 
-      $PeriodItem = CB_PeriodItem::factory_PeriodItem(
+			// TODO: create a period group
+			// TODO: create a periodgroup -> period link
+
+			// Assign period group to timeframe
+			/*
+      $timeframe = CB_PeriodItem_Timeframe::factory(
 				NULL, // $ID
 				$period,
 				NULL, // $recurrence_index
@@ -108,7 +112,8 @@
         CB_Item::factory( $post_item_ID ),
         CB_User::factory( $post_user_ID )
 			);
-      $ID = $PeriodItem->save();
+      $ID = $timeframe->save();
+      */
     }
 
     // --------------------------------------- Query Parameters
