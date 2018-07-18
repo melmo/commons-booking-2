@@ -1,5 +1,5 @@
 <?php
-class CB_PeriodGroup implements JsonSerializable {
+class CB_PeriodGroup extends CB_PostNavigator implements JsonSerializable {
 	// TODO: use this generic period class
   public static $database_table = 'cb2_period_groups';
 	public static $postmeta_table = FALSE;
@@ -10,6 +10,7 @@ class CB_PeriodGroup implements JsonSerializable {
 		'menu_icon' => 'dashicons-admin-settings',
 		'label'     => 'Period Groups',
   );
+  private $periods = array();
 
   function post_type() {return self::$static_post_type;}
 
@@ -18,7 +19,8 @@ class CB_PeriodGroup implements JsonSerializable {
 
 		$object = self::factory(
 			$post->ID,
-			$post->period_id
+			$post->period_group_id,
+			$post->post_title
 		);
 
 		CB_Query::copy_all_properties( $post, $object );
@@ -27,30 +29,55 @@ class CB_PeriodGroup implements JsonSerializable {
 	}
 
   static function &factory(
-		$ID,
-		$period_id
+		$ID              = NULL,
+		$period_group_id = NULL,
+		$name            = NULL
   ) {
     // Design Patterns: Factory Singleton with Multiton
-		if ( isset( self::$all[$ID] ) ) {
+		if ( ! is_null( $ID ) && isset( self::$all[$ID] ) ) {
 			$object = self::$all[$ID];
     } else {
 			$reflection = new ReflectionClass( __class__ );
 			$object     = $reflection->newInstanceArgs( func_get_args() );
-      self::$all[$ID] = $object;
+			if ( ! is_null( $ID ) ) self::$all[$ID] = $object;
     }
 
     return $object;
   }
 
   public function __construct(
-		$ID,
-		$period_id
+		$ID              = NULL,
+		$period_group_id = NULL,
+		$name            = NULL
   ) {
 		CB_Query::assign_all_parameters( $this, func_get_args(), __class__ );
+		$this->id = $period_group_id;
+		parent::__construct( $this->periods );
+  }
+
+  function add_period( $period ) {
+		array_push( $this->periods, $period );
   }
 
   function classes() {
 		return '';
+  }
+
+  function save_posts_linkage() {
+		global $wpdb;
+
+		$table = "{$wpdb->prefix}cb2_period_group_period";
+
+		$wpdb->delete( $table, array(
+			'period_group_id' => $this->id
+		) );
+
+		foreach ( $this->posts as $post ) {
+			$wpdb->insert( $table, array(
+				'period_group_id' => $this->id,
+				'period_id'       => $post->id,
+			) );
+		}
   }
 
   function jsonSerialize() {

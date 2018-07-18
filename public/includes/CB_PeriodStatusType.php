@@ -2,7 +2,7 @@
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
-class CB_PeriodStatusType implements JsonSerializable {
+class CB_PeriodStatusType extends CB_PostNavigator implements JsonSerializable {
   public  static $database_table = 'cb2_period_status_types';
   public  static $all = array();
   public  static $standard_fields = array( 'name' );
@@ -14,7 +14,6 @@ class CB_PeriodStatusType implements JsonSerializable {
   );
 
   function post_type() {return self::$static_post_type;}
-  public function __toString() {return $this->name;}
 
   public function __construct(
 		$ID,
@@ -28,6 +27,7 @@ class CB_PeriodStatusType implements JsonSerializable {
     $use      = NULL
   ) {
 		CB_Query::assign_all_parameters( $this, func_get_args(), __class__ );
+		$this->id = $period_status_type_id;
 
     // WP_Post values
     $this->post_title = $name;
@@ -68,7 +68,8 @@ class CB_PeriodStatusType implements JsonSerializable {
   ) {
     // Design Patterns: Factory Singleton with Multiton
     $key = $period_status_type_id;
-    if ( isset( self::$all[$key] ) ) $object = self::$all[$key];
+    if ( ! is_null( $ID ) &&  isset( self::$all[$key] ) )
+			$object = self::$all[$key];
     else {
       $Class = 'CB_PeriodStatusType';
       // Hardcoded system status types
@@ -83,7 +84,7 @@ class CB_PeriodStatusType implements JsonSerializable {
 
 			$reflection = new ReflectionClass( $Class );
 			$object     = $reflection->newInstanceArgs( func_get_args() );
-      self::$all[$key] = $object;
+			if ( ! is_null( $ID ) ) self::$all[$key] = $object;
     }
 
     return $object;

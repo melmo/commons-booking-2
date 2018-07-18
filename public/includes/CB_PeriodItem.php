@@ -23,6 +23,7 @@ class CB_PeriodItem extends CB_PostNavigator implements JsonSerializable {
 
   protected function __construct(
 		$ID,
+		$period_group,
     $period,
     $recurrence_index,
     $datetime_period_item_start,
@@ -200,6 +201,7 @@ class CB_PeriodItem_Automatic extends CB_PeriodItem {
 
   function __construct(
 		$ID,
+		$period_group,
     $period,
 		$recurrence_index,
 		$datetime_period_item_start,
@@ -209,6 +211,7 @@ class CB_PeriodItem_Automatic extends CB_PeriodItem {
 
     parent::__construct(
 			$ID,
+			$period_group,
 			$period,
 			$recurrence_index,
 			$datetime_period_item_start,
@@ -220,6 +223,7 @@ class CB_PeriodItem_Automatic extends CB_PeriodItem {
 		CB_Query::get_metadata_assign( $post ); // Retrieves ALL meta values
 		$object = self::factory(
 			$post->ID,
+			CB_Query::get_post_type( 'periodgroup', $post->period_group_ID ),
 			CB_Query::get_post_type( 'period', $post->period_ID ),
 			$post->recurrence_index,
 			$post->datetime_period_item_start,
@@ -233,6 +237,7 @@ class CB_PeriodItem_Automatic extends CB_PeriodItem {
 
   static function &factory(
 		$ID,
+		$period_group,
     $period,     // CB_Period
     $recurrence_index,
     $datetime_period_item_start,
@@ -269,6 +274,7 @@ class CB_PeriodItem_Global extends CB_PeriodItem {
 
   function __construct(
 		$ID,
+		$period_group,
     $period,
 		$recurrence_index,
 		$datetime_period_item_start,
@@ -278,6 +284,7 @@ class CB_PeriodItem_Global extends CB_PeriodItem {
   ) {
     parent::__construct(
 			$ID,
+			$period_group,
 			$period,
 			$recurrence_index,
 			$datetime_period_item_start,
@@ -290,6 +297,7 @@ class CB_PeriodItem_Global extends CB_PeriodItem {
 
 		$object = self::factory(
 			$post->ID,
+			CB_Query::get_post_type( 'periodgroup', $post->period_group_ID ),
 			CB_Query::get_post_type( 'period', $post->period_ID ),
 			$post->recurrence_index,
 			$post->datetime_period_item_start,
@@ -305,6 +313,7 @@ class CB_PeriodItem_Global extends CB_PeriodItem {
 
   static function &factory(
 		$ID,
+		$period_group,
     $period,     // CB_Period
     $recurrence_index,
     $datetime_period_item_start,
@@ -347,6 +356,7 @@ class CB_PeriodItem_Location extends CB_PeriodItem {
 
   function __construct(
 		$ID,
+		$period_group,
     $period,
 		$recurrence_index,
 		$datetime_period_item_start,
@@ -357,13 +367,15 @@ class CB_PeriodItem_Location extends CB_PeriodItem {
 	) {
     parent::__construct(
 			$ID,
+			$period_group,
 			$period,
 			$recurrence_index,
 			$date,
 			$datetime_period_item_start,
 			$datetime_period_item_end
     );
-    $this->location = $location;
+		$this->id = $timeframe_id;
+		$this->location = $location;
     $this->location->add_period( $this );
     array_push( $this->posts, $this->location );
   }
@@ -373,6 +385,7 @@ class CB_PeriodItem_Location extends CB_PeriodItem {
 
 		$object = self::factory(
 			$post->ID,
+			CB_Query::get_post_type( 'periodgroup', $post->period_group_ID ),
 			CB_Query::get_post_type( 'period', $post->period_ID ),
 			$post->recurrence_index,
 			$post->datetime_period_item_start,
@@ -389,6 +402,7 @@ class CB_PeriodItem_Location extends CB_PeriodItem {
 
   static function &factory(
 		$ID,
+		$period_group,
     $period,     // CB_Period
     $recurrence_index,
     $datetime_period_item_start,
@@ -398,12 +412,12 @@ class CB_PeriodItem_Location extends CB_PeriodItem {
     $location    // CB_Location
   ) {
     // Design Patterns: Factory Singleton with Multiton
-		if ( isset( self::$all[$ID] ) ) {
+		if ( ! is_null( $ID ) &&  isset( self::$all[$ID] ) ) {
 			$object = self::$all[$ID];
     } else {
 			$reflection = new ReflectionClass( __class__ );
 			$object     = $reflection->newInstanceArgs( func_get_args() );
-      self::$all[$ID] = $object;
+			if ( ! is_null( $ID ) ) self::$all[$ID] = $object;
     }
 
     return $object;
@@ -439,6 +453,7 @@ class CB_PeriodItem_Timeframe extends CB_PeriodItem {
 
   function __construct(
 		$ID,
+		$period_group,
     $period,
 		$recurrence_index,
 		$datetime_period_item_start,
@@ -450,6 +465,7 @@ class CB_PeriodItem_Timeframe extends CB_PeriodItem {
   ) {
     parent::__construct(
 			$ID,
+			$period_group,
 			$period,
 			$recurrence_index,
 			$datetime_period_item_start,
@@ -470,6 +486,7 @@ class CB_PeriodItem_Timeframe extends CB_PeriodItem {
 
 		$object = self::factory(
 			$post->ID,
+			CB_Query::get_post_type( 'periodgroup', $post->period_group_ID ),
 			CB_Query::get_post_type( 'period', $post->period_ID ),
 			$post->recurrence_index,
 			$post->datetime_period_item_start,
@@ -557,6 +574,7 @@ class CB_PeriodItem_Timeframe_User extends CB_PeriodItem {
 
   function __construct(
 		$ID,
+		$period_group,
     $period,
 		$recurrence_index,
 		$datetime_period_item_start,
@@ -569,6 +587,7 @@ class CB_PeriodItem_Timeframe_User extends CB_PeriodItem {
   ) {
     parent::__construct(
 			$ID,
+			$period_group,
 			$period,
 			$recurrence_index,
 			$datetime_period_item_start,
@@ -592,6 +611,7 @@ class CB_PeriodItem_Timeframe_User extends CB_PeriodItem {
 
 		$object = self::factory(
 			$post->ID,
+			CB_Query::get_post_type( 'periodgroup', $post->period_group_ID ),
 			CB_Query::get_post_type( 'period', $post->period_ID ),
 			$post->recurrence_index,
 			$post->datetime_period_item_start,

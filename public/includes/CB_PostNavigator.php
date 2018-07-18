@@ -5,9 +5,6 @@ class CB_PostNavigator {
     if ( is_null( $posts ) ) $this->posts = &$this->zero_array;
     else                     $this->posts = &$posts;
 
-    if ( ! property_exists( $this, 'ID' ) )
-			throw new Exception( get_class( $this ) . ' CB_PostNavigator requires an ID' );
-
     // WP_Post default values
     if ( ! property_exists( $this, 'post_status' ) )   $this->post_status   = 'publish';
     if ( ! property_exists( $this, 'post_password' ) ) $this->post_password = '';
@@ -16,16 +13,16 @@ class CB_PostNavigator {
     if ( ! property_exists( $this, 'post_modified' ) ) $this->post_modified = date( 'c' );
     if ( ! property_exists( $this, 'post_excerpt' ) )  $this->post_excerpt  = $this->get_the_excerpt();
     if ( ! property_exists( $this, 'post_content' ) )  $this->post_content  = $this->get_the_content();
-    $this->post_date_gmt = $this->post_date;
-    $this->post_modified_gmt = $this->post_modified;
-		$this->filter = 'suppress'; // Prevent WP_Query from converting objects to WP_Post
+    if ( ! property_exists( $this, 'post_date_gmt' ) ) $this->post_date_gmt = $this->post_date;
+    if ( ! property_exists( $this, 'post_modified_gmt' ) ) $this->post_modified_gmt = $this->post_modified;
+		if ( ! property_exists( $this, 'filter' ) )        $this->filter = 'suppress'; // Prevent WP_Query from converting objects to WP_Post
 
     // This will cause subsequent WP_Post::get_instance() calls to return $this
     // rather than attempting to access the wp_posts table
-    wp_cache_add( $this->ID, $this, 'posts' );
+    if ( property_exists( $this, 'ID' ) ) wp_cache_add( $this->ID, $this, 'posts' );
   }
 
-  public function __toString() {return get_class( $this ) . "($this->ID)";}
+  public function __toString() {return (string) $this->ID;}
 
   // ------------------------------------------------- Navigation
   function have_posts() {
@@ -200,12 +197,21 @@ class CB_PostNavigator {
 
   // ------------------------------------------------- Saving
   function post_meta() {
-		return array();
+		// Default to this
+		// post_updated will sanitize the list against the database table columns and types
+		$meta = array();
+
+		foreach ( $this as $name => $value ) {
+			if ( ! is_null( $value ) && ! is_array( $value ) )
+				$meta[ $name ] = CB_Database::to_string( $name, $value );
+		}
+
+		return $meta;
 	}
 
   function post_args() {
 		// Taken from https://developer.wordpress.org/reference/functions/wp_insert_post/
-		return array(
+		$args = array(
 			'post_title'  => ( property_exists( $this, 'name' ) ? $this->name : '' ),
 			'post_status' => 'publish',
 			'post_type'   => $this->post_type(),
@@ -228,15 +234,50 @@ class CB_PostNavigator {
 			'context' => '',
 			*/
 		);
+		if ( property_exists( $this, 'ID' ) && ! is_null( $this->ID ) )
+			$args[ 'ID' ] = $this->ID;
+
+		return $args;
   }
 
-  function save() {
-		// (int|WP_Error) The post ID on success. The value 0 or WP_Error on failure.
+  function save_posts_linkage() {
+  }
+
+  function save( $save_posts_links = FALSE ) {
+		global $wpdb;
+
 		$args = $this->post_args();
-		var_dump($args);
-		$ID = wp_insert_post( $args );
-		$args = array( 'ID' => $ID );
-		wp_update_post( $args );
+		if ( WP_DEBUG && FALSE ) var_dump( $args );
+
+		if ( isset( $args [ 'ID' ] ) ) {
+			// Direct existing update
+			if ( $args [ 'ID' ] == 0 ) throw new Exception( "Attempt to update post 0" );
+			wp_update_post( $args );
+		} else {
+			// Create new post in wp_posts
+			// (int|WP_Error) The post ID on success. The value 0 or WP_Error on failure.
+			$id   = wp_insert_post( $args );
+			if ( is_wp_error( $id ) ) {
+				print( "<div id='error-page'><p>$wpdb->last_error</p></div>" );
+				exit();
+			} else {
+				$args = array( 'ID' => $id );
+				// Run the update action to move it to the custom DB structure
+				$result = wp_update_post( $args );
+				if ( is_wp_error( $result ) ) {
+					print( "<div id='error-page'><p>$wpdb->last_error</p></div>" );
+					exit();
+				} else {
+					// Everything worked
+					// Store the ID for further updates
+					$id       = $wpdb->insert_id;
+					$this->ID = CB_Query::ID_from_id_post_type( $id, $this->post_type() );
+					$this->id = $id;
+				}
+			}
+		}
+
+		if ( $save_posts_links ) $this->save_posts_linkage();
 
 		return $this;
   }

@@ -18,13 +18,28 @@ class CB_Database {
   }
 
   // -------------------------------- Utilities
-  static function to_string( $value ) {
+  static function to_string( &$name, $value ) {
     if ( is_object( $value ) ) {
-      switch ( get_class( $value ) ) {
-        case 'DateTime':
-          $value = $value->format( self::$database_date_format );
-          break;
-      }
+			// TODO: Refactor this in to the objects
+			if ( $value instanceof CB_Post ) {
+				if ( property_exists( $value, 'ID' ) ) {
+					$name .= '_ID';
+					$value = $value->ID;
+				} else throw new Exception( "This CB_Post object should have a native ID [$name] property" );
+			} else if ( $value instanceof CB_PostNavigator ) {
+				if ( property_exists( $value, 'id' ) ) {
+					$name .= '_id';
+					$value = $value->id;
+				} else throw new Exception( "This CB_PostNavigator object should have a native id [$name] property" );
+			} else {
+				switch ( get_class( $value ) ) {
+					case 'DateTime':
+						$value = $value->format( self::$database_date_format );
+						break;
+					default:
+						$value = (string) $value;
+				}
+			}
     }
     return $value;
   }
@@ -360,7 +375,7 @@ class CB_Database_Insert extends CB_Database {
 
   function add_field( $name, $value, $format = NULL ) {
     if ( ! is_null( $value ) )  {
-      $this->fields[$name]  = CB_Database::to_string( $value );
+      $this->fields[$name]  = CB_Database::to_string( $name, $value );
       $this->formats[$name] = ( is_null( $format ) ? '%s' : $format );
     }
   }

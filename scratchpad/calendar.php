@@ -42,7 +42,7 @@
     $post_user_ID          = ( isset( $_POST['user_ID'] )          && $_POST['user_ID']          ? $_POST['user_ID']          : NULL );
     $post_period_status_type_id = ( isset( $_POST['period_status_type_id'] ) && $_POST['period_status_type_id'] ? $_POST['period_status_type_id'] : NULL );
 
-    $post_name = ( isset( $_POST['name'] ) ? $_POST['name'] : '' );
+    $post_name = ( isset( $_POST['period_group_name'] ) ? $_POST['period_group_name'] : '' );
 		$post_datetime_part_period_start = ( isset( $_POST['datetime_part_period_start'] ) ? $_POST['datetime_part_period_start'] : '2018-07-02 09:00:00' );
 		$post_datetime_part_period_end   = ( isset( $_POST['datetime_part_period_end'] ) ? $_POST['datetime_part_period_end'] : '2018-07-02 13:00:00' );
 		$post_datetime_from              = ( isset( $_POST['datetime_from'] ) ? $_POST['datetime_from'] : NULL );
@@ -93,15 +93,21 @@
 				$post_recurrence_frequency,
 				$post_recurrence_sequence
 			);
-			$ID = $period->save();
+			$period->save(); // Will populate ID and id
 
-			// TODO: create a period group
-			// TODO: create a periodgroup -> period link
+			$period_group = CB_PeriodGroup::factory(
+				NULL, // $ID,
+				NULL, // $period_group_id,
+				$post_name
+			);
+			$period_group->add_period( $period );
+			$period_group->save( TRUE ); // Will save the period link also in the secondary table
 
 			// Assign period group to timeframe
-			/*
-      $timeframe = CB_PeriodItem_Timeframe::factory(
+			// TODO: We are ASSUMMING a timeframe here, i.e. a Location and an Item
+      $perioditem = CB_PeriodItem_Timeframe::factory(
 				NULL, // $ID
+				$period_group,
 				$period,
 				NULL, // $recurrence_index
 				NULL, // $datetime_period_item_start
@@ -109,11 +115,10 @@
 
 				NULL, // $timeframe_id
         CB_Location::factory( $post_location_ID ),
-        CB_Item::factory( $post_item_ID ),
-        CB_User::factory( $post_user_ID )
+        CB_Item::factory(     $post_item_ID )
 			);
-      $ID = $timeframe->save();
-      */
+			var_dump($perioditem);
+      $perioditem->save();
     }
 
     // --------------------------------------- Query Parameters

@@ -171,6 +171,7 @@ class CB_Query {
 			$Class = $post_classes[$record->post_type];
 			if ( method_exists( $Class, 'factory_from_wp_post' ) ) {
 				$record = $Class::factory_from_wp_post( $record );
+				if ( is_null( $record ) ) throw new Exception( "Failed to create [$Class] class from post" );
 			}
 		}
 
@@ -360,13 +361,15 @@ class CB_Query {
 	}
 
 	static function cast_parameter( $name, $value ) {
-		if      ( substr( $name, 0, 9 ) == 'datetime_' ) $value = self::ensure_datetime( $value );
-		else if ( $name == 'date' )                      $value = self::ensure_datetime( $value );
-		else if ( substr( $name, 0, 5 ) == 'time_' )     $value = $value;
-		else if ( substr( $name, -3 ) == '_id' )         $value = (int) $value;
-		else if ( substr( $name, -6 ) == '_index' )      $value = (int) $value;
-		else if ( substr( $name, -9 ) == '_sequence' )   $value = self::ensure_bitarray( $value );
-		else if ( $name == 'ID' )                        $value = (int) $value;
+		if ( ! is_null( $value ) ) {
+			if      ( substr( $name, 0, 9 ) == 'datetime_' ) $value = self::ensure_datetime( $value );
+			else if ( $name == 'date' )                      $value = self::ensure_datetime( $value );
+			else if ( substr( $name, 0, 5 ) == 'time_' )     $value = $value;
+			else if ( substr( $name, -3 ) == '_id' )         $value = (int) $value;
+			else if ( substr( $name, -6 ) == '_index' )      $value = (int) $value;
+			else if ( substr( $name, -9 ) == '_sequence' )   $value = self::ensure_bitarray( $value );
+			else if ( $name == 'ID' )                        $value = (int) $value;
+		}
 
 		return $value;
 	}

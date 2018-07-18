@@ -5,7 +5,7 @@
 class CB_User extends CB_PostNavigator implements JsonSerializable {
   public static $all    = array();
   public static $schema = 'with-periods'; //this-only, with-periods
-  public function __toString() {return $this->user_login;}
+  public function __toString() {return $this->ID;}
   static $static_post_type     = 'user';
   public static $post_type_args = array(
 		'public' => FALSE,
@@ -15,6 +15,7 @@ class CB_User extends CB_PostNavigator implements JsonSerializable {
 
   protected function __construct( $ID, $user_login = NULL ) {
     $this->periods    = array();
+		$this->id         = $ID;
 
     // WP_Post values
     $this->ID         = $ID;
@@ -63,13 +64,14 @@ class CB_Post extends CB_PostNavigator implements JsonSerializable {
   public static $postmeta_table = FALSE;
   public static $database_table = FALSE;
 
-  public function __toString() {return $this->post_title;}
+  public function __toString() {return (string) $this->ID;}
 
   protected function __construct( $ID ) {
     $this->periods = array();
+		$this->id = $ID;
 
     // WP_Post values
-    $this->ID         = $ID;
+    $this->ID = $ID;
 
     parent::__construct( $this->periods );
   }
@@ -80,7 +82,7 @@ class CB_Post extends CB_PostNavigator implements JsonSerializable {
 
   function get_field_this( $class = '', $date_format = 'H:i' ) {
 		$permalink = get_the_permalink( $this );
-		return "<a href='$permalink' class='$class' title='view $this'>$this</a>";
+		return "<a href='$permalink' class='$class' title='view $this->post_title'>$this->post_title</a>";
 	}
 
 	function get_the_content() {

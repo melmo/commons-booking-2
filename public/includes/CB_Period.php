@@ -13,7 +13,6 @@ class CB_Period extends CB_PostNavigator implements JsonSerializable {
   );
 
   function post_type() {return self::$static_post_type;}
-  public function __toString() {return $this->name;}
 
   static function &factory_from_wp_post( $post ) {
 		// The WP_Post may have all its metadata loaded already
@@ -55,12 +54,12 @@ class CB_Period extends CB_PostNavigator implements JsonSerializable {
 		$recurrence_sequence
   ) {
     // Design Patterns: Factory Singleton with Multiton
-		if ( isset( self::$all[$ID] ) ) {
+		if ( ! is_null( $ID ) && isset( self::$all[$ID] ) ) {
 			$object = self::$all[$ID];
     } else {
 			$reflection = new ReflectionClass( __class__ );
 			$object     = $reflection->newInstanceArgs( func_get_args() );
-      self::$all[$ID] = $object;
+      if ( ! is_null( $ID ) ) self::$all[$ID] = $object;
     }
 
     return $object;
@@ -80,6 +79,7 @@ class CB_Period extends CB_PostNavigator implements JsonSerializable {
     $recurrence_sequence
   ) {
 		CB_Query::assign_all_parameters( $this, func_get_args(), __class__ );
+		$this->id = $period_id;
 
     $this->fullday = ( $this->datetime_part_period_start && $this->datetime_part_period_end )
 			&& ( 	 $this->datetime_part_period_start->format( 'H:i:s' ) == '00:00:00'
@@ -93,20 +93,6 @@ class CB_Period extends CB_PostNavigator implements JsonSerializable {
 
   function jsonSerialize() {
 		return $this;
-	}
-
-	function post_meta() {
-		return array(
-			'name' => $this->name,
-			'datetime_part_period_start' => $this->datetime_part_period_start->format( 'c' ),
-			'datetime_part_period_end' => $this->datetime_part_period_end->format( 'c' ),
-			'datetime_from' => $this->datetime_from->format( 'c' ),
-			'datetime_to' => ( $this->datetime_to ? $this->datetime_to->format( 'c' ) : NULL ),
-			'period_status_type' => $this->period_status_type->period_status_type_id,
-			'recurrence_type' => $this->recurrence_type,
-			'recurrence_frequency' => ( $this->recurrence_frequency ? $this->recurrence_frequency : 0 ),
-			'recurrence_sequence' => $this->recurrence_sequence,
-		);
 	}
 }
 
