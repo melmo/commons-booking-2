@@ -7,9 +7,6 @@ class CB_User extends CB_PostNavigator implements JsonSerializable {
   public static $schema = 'with-periods'; //this-only, with-periods
   public function __toString() {return $this->ID;}
   static $static_post_type     = 'user';
-  public static $post_type_args = array(
-		'public' => FALSE,
-  );
 
   function post_type() {return self::$static_post_type;}
 

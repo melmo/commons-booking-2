@@ -80,9 +80,6 @@ class CB_Month extends CB_TimePostNavigator {
   static $all = array();
   static $static_post_type = 'month';
   public $is_current = FALSE;
-  public static $post_type_args = array(
-		'public' => FALSE,
-  );
 
   function post_type() {return self::$static_post_type;}
   public function __toString() {return $this->post_title;}
@@ -144,9 +141,6 @@ class CB_Week extends CB_TimePostNavigator {
   static $all = array();
   static $static_post_type = 'week';
   public $is_current = FALSE;
-  public static $post_type_args = array(
-		'public' => FALSE,
-  );
 
   function post_type() {return self::$static_post_type;}
   public function __toString() {return $this->post_title;}
@@ -209,9 +203,6 @@ class CB_Day extends CB_TimePostNavigator {
   static $all = array();
   static $static_post_type = 'day';
   public $is_current = FALSE;
-  public static $post_type_args = array(
-		'public' => FALSE,
-  );
 
   function post_type() {return self::$static_post_type;}
   public function __toString() {return $this->post_title;}

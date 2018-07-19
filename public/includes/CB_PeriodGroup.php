@@ -6,7 +6,6 @@ class CB_PeriodGroup extends CB_PostNavigator implements JsonSerializable {
 	public static $all = array();
   static $static_post_type = 'periodgroup';
   public static $post_type_args = array(
-		'public'    => TRUE,
 		'menu_icon' => 'dashicons-admin-settings',
 		'label'     => 'Period Groups',
   );

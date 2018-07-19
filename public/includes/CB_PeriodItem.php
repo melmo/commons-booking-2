@@ -298,9 +298,6 @@ class CB_PeriodItem extends CB_PostNavigator implements JsonSerializable {
 class CB_PeriodItem_Automatic extends CB_PeriodItem {
 	static public $static_post_type = 'perioditem-automatic';
   static $database_table = FALSE;
-  public  static $post_type_args = array(
-		'public'    => FALSE,
-  );
 
   function post_type() {return self::$static_post_type;}
 
@@ -473,7 +470,6 @@ class CB_PeriodItem_Location extends CB_PeriodItem {
 			$period_group,
 			$period,
 			$recurrence_index,
-			$date,
 			$datetime_period_item_start,
 			$datetime_period_item_end
     );

@@ -86,10 +86,11 @@ if ( is_admin() ) {
 */
 
 // Annesley new stuffs
-add_action( 'plugins_loaded', 'cb2_plugins_loaded' );
+// add_action( 'plugins_loaded', 'cb2_plugins_loaded' );
 require_once( CB_PLUGIN_ROOT . 'includes/CB_Template.php' );
 require_once( CB_PLUGIN_ROOT . 'public/includes/CB_Query.php' ); // register_post_types()
 
+/*
 function cb2_plugins_loaded() {
 	if ( ! function_exists( 'qw_init_frontend' ) ) {
 		require_once( CB_PLUGIN_ROOT . 'plugins/query-wrangler/query-wrangler.php' );
@@ -107,6 +108,7 @@ function cb2_plugins_loaded() {
 		wpcf7(); // CF7 plugins_loaded hook
 	}
 }
+*/
 
 function cb2_notification_bubble_in_admin_menu() {
   global $menu, $submenu;
@@ -146,9 +148,20 @@ function cb2_notification_bubble_in_admin_menu() {
 add_action('admin_menu', 'cb2_notification_bubble_in_admin_menu', 110 );
 
 function cb2_admin_init_menus() {
+	global $wpdb;
+
 	$notifications_string = ' (3)';
   add_menu_page( 'CB2', "CB2$notifications_string", 'manage_options', 'cb2', 'cb2_options_page', 'dashicons-video-alt' );
-  add_submenu_page( 'cb2', 'Holidays', 'holidays (1)', 'manage_options', 'cb2-holidays', 'cb2_holidays_page' );
+
+	$pages = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}cb2_admin_pages", OBJECT_K );
+	foreach ( $pages as $menu_slug => $details ) {
+		$capability = $details->capability;
+		if ( ! $capability ) $capability = 'manage_options';
+		$parent_slug = $details->parent_slug;
+		if ( ! $parent_slug ) $parent_slug = 'cb2';
+
+		add_submenu_page( $parent_slug, $details->page_title, $details->menu_title, $capability, $menu_slug, 'cb2_settings_auto_page' );
+	}
 }
 add_action( 'admin_menu', 'cb2_admin_init_menus' );
 
@@ -156,7 +169,7 @@ function cb2_options_page() {
 	print('hello');
 }
 
-function cb2_holidays_page() {
+function cb2_settings_auto_page() {
 	global $wpdb;
 
 	if ( isset( $_GET[ 'page' ] ) ) {
@@ -165,7 +178,7 @@ function cb2_holidays_page() {
 
 		// Bring stored parameters on to the query-string
 		$details = $wpdb->get_results( $wpdb->prepare(
-			"SELECT * FROM {$wpdb->prefix}cb2_admin_pages WHERE page = %s",
+			"SELECT * FROM {$wpdb->prefix}cb2_admin_pages WHERE menu_slug = %s LIMIT 1",
 			array( $page )
 		), OBJECT_K );
 		if ( count( $details ) ) {

@@ -361,13 +361,18 @@ function cb2_init_register_post_types() {
 	foreach ( CB_Query::schema_types() as $post_type => $Class ) {
 		if ( ! property_exists( $Class, 'register_post_type' ) || $Class::$register_post_type ) {
 			$args = array(
-				'label'        => ucfirst($post_type) . 's',
-				'labels'       => array(
+				'label'  => ucfirst($post_type) . 's',
+				'labels' => array(
 				),
-				'public'       => TRUE,
-				'has_archive'  => TRUE,
-				'show_in_rest' => TRUE,
-				'supports'     => array(
+				// 'public'             => TRUE,
+				'show_in_nav_menus'  => TRUE,
+				'show_ui'            => TRUE,
+				'show_in_menu'       => FALSE, // Hides in the admin suite
+				'publicly_queryable' => TRUE,
+
+				'has_archive'        => TRUE,
+				'show_in_rest'       => TRUE,
+				'supports' => array(
 					'custom-fields',
 					'title',
 					'editor',
@@ -384,9 +389,30 @@ function cb2_init_register_post_types() {
 }
 
 function cb2_post_row_actions( $actions, $post ) {
+	global $wpdb;
+
 	$post = CB_Query::ensure_correct_class( $post );
 	if ( $post instanceof CB_PostNavigator && method_exists( $post, 'add_actions' ) )
 		$post->add_actions( $actions );
+
+	if ( basename( $_SERVER['PHP_SELF'] ) == 'admin.php' && isset( $_GET[ 'page' ] ) ) {
+		$page          = $_GET[ 'page' ];
+		$action_string = $wpdb->get_var( $wpdb->prepare(
+			"SELECT actions FROM {$wpdb->prefix}cb2_admin_pages WHERE menu_slug = %s LIMIT 1",
+			array( $page )
+		) );
+		if ( $action_string ) {
+			$new_actions = explode( ',', $action_string );
+			foreach ( $new_actions as $new_action ) {
+				foreach ( $post as $name => $value ) {
+					if ( strstr( $new_action, "%$name%" ) !== FALSE )
+						$new_action = str_replace( "%$name%", $value, $new_action );
+				}
+				array_push( $actions, $new_action );
+			}
+		}
+	}
+
 	return $actions;
 }
 
@@ -399,6 +425,7 @@ function cb2_query_show( $sql ) {
 // ------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------
 // WP_Query integration
+/*
 function cb2_query_wrangler_date_filter_callback( $args, $filter ) {
 	// Query Wrangler does not have date filter at the moment
 	// So we set it here using QW callback option
@@ -413,6 +440,7 @@ function cb2_query_wrangler_date_filter_callback( $args, $filter ) {
 	$args[ 'post_type'   ] = CB_PeriodItem::$all_post_types;
 	return $args;
 }
+*/
 
 function cb2_pre_get_posts_redirect_wpdb( &$wp_query ) {
 	global $wpdb;
@@ -553,9 +581,19 @@ function cb2_pre_get_posts_query_string_extensions() {
   if ( isset( $_GET[ 'meta_key' ] ) )   set_query_var( 'meta_key',   $_GET[ 'meta_key' ] );
   if ( isset( $_GET[ 'meta_value' ] ) ) set_query_var( 'meta_value', $_GET[ 'meta_value' ] );
 
-  if ( isset( $_GET[ 'period_status_type' ] ) ) {
-		set_query_var( 'meta_key',   'period_status_type_name' );
-		set_query_var( 'meta_value', $_GET[ 'period_status_type' ] );
+  $meta_query_items = array();
+	if ( isset( $_GET[ 'location_ID' ] ) )             $meta_query_items[ 'location_clause' ]    = array( 'key' => 'location_ID', 'value' => $_GET[ 'location_ID' ] );
+	if ( isset( $_GET[ 'item_ID' ] ) )                 $meta_query_items[ 'item_clause' ]        = array( 'key' => 'item_ID',     'value' => $_GET[ 'item_ID' ] );
+	if ( isset( $_GET[ 'period_status_type_id' ] ) )   $meta_query_items[ 'period_status_type_clause' ] = array( 'key' => 'period_status_type_id', 'value' => $_GET[ 'period_status_type_id' ] );
+	if ( isset( $_GET[ 'period_status_type_name' ] ) ) $meta_query_items[ 'period_status_type_clause' ] = array( 'key' => 'period_status_type_name', 'value' => $_GET[ 'period_status_type_name' ] );
+
+	if ( $meta_query_items ) {
+		// Include the auto-draft which do not have meta
+		$meta_query[ 'relation' ]       = 'OR';
+		$meta_query[ 'without_meta' ]   = CB_Query::$without_meta;
+		$meta_query_items[ 'relation' ] = 'AND';
+		$meta_query[ 'items' ]          = $meta_query_items;
+		set_query_var( 'meta_query', $meta_query );
 	}
 }
 

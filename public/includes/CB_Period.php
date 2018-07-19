@@ -8,7 +8,6 @@ class CB_Period extends CB_PostNavigator implements JsonSerializable {
   public static $all = array();
   static $static_post_type = 'period';
   public static $post_type_args = array(
-		'public' => TRUE,
 		'menu_icon' => 'dashicons-admin-settings',
   );
 
