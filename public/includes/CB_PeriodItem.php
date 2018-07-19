@@ -20,6 +20,8 @@ class CB_PeriodItem extends CB_PostNavigator implements JsonSerializable {
 		'perioditem-user',
 	);
   private static $null_recurrence_index = 0;
+  private $priority_overlap_periods     = array();
+  private $top_priority_overlap_period  = NULL;
 
   protected function __construct(
 		$ID,
@@ -31,19 +33,120 @@ class CB_PeriodItem extends CB_PostNavigator implements JsonSerializable {
   ) {
 		CB_Query::assign_all_parameters( $this, func_get_args(), __class__ );
 
+		// Some sanity checks
+		if ( $this->datetime_period_item_start > $this->datetime_period_item_end )
+			throw new Exception( 'datetime_period_item_start > datetime_period_item_end' );
+
 		// Add the period to all the days it appears in
 		// CB_Day::factory() will lazy create singleton CB_Day's
 		if ( $this->datetime_period_item_start ) {
-			$date     = CB_Query::ensure_datetime( $this->datetime_period_item_start );
-			$date_end = CB_Query::ensure_datetime( $this->datetime_period_item_end );
+			$date     = clone $this->datetime_period_item_start;
+			$date_end = clone $this->datetime_period_item_end;
 			do {
 				$day = CB_Day::factory( $date );
 				$day->add_period( $this );
 				$date->add( new DateInterval( 'P1D' ) );
 			} while ( $date < $date_end );
+
+			// Overlapping periods
+			// Might partially overlap many different non-overlapping periods
+			foreach ( self::$all as $existing_period ) {
+				if ( $this->overlaps( $existing_period ) ) {
+					$existing_period->add_new_overlap( $this );
+					$this->add_new_overlap( $existing_period );
+				}
+			}
 		}
 
     parent::__construct();
+
+    if ( ! is_null( $ID ) ) self::$all[$ID] = $this;
+  }
+
+  static function factory_subclass(
+		$ID,
+		$period_group, // CB_PeriodGroup
+    $period,       // CB_Period
+    $recurrence_index,
+    $datetime_period_item_start,
+    $datetime_period_item_end,
+
+    $timeframe_id,
+    $location = NULL,   // CB_Location
+    $item     = NULL,   // CB_Item
+    $user     = NULL    // CB_User
+  ) {
+		// provides appropriate sub-class based on final object parameters
+		$object = NULL;
+		if      ( $user )     $object = new CB_PeriodItem_Timeframe_User(
+				$ID,
+				$period_group,
+				$period,
+				$recurrence_index,
+				$datetime_period_item_start,
+				$datetime_period_item_end,
+				$timeframe_id,
+				$location,
+				$item,
+				$user
+			);
+		else if ( $item )     $object = new CB_PeriodItem_Timeframe(
+				$ID,
+				$period_group,
+				$period,
+				$recurrence_index,
+				$datetime_period_item_start,
+				$datetime_period_item_end,
+				$timeframe_id,
+				$location,
+				$item
+			);
+		else if ( $location ) $object = new CB_PeriodItem_Location(
+				$ID,
+				$period_group,
+				$period,
+				$recurrence_index,
+				$datetime_period_item_start,
+				$datetime_period_item_end,
+				$timeframe_id,
+				$location
+			);
+		else                  $object = new CB_PeriodItem_Global(
+				$ID,
+				$period_group,
+				$period,
+				$recurrence_index,
+				$datetime_period_item_start,
+				$datetime_period_item_end,
+				$timeframe_id
+			);
+
+		return $object;
+  }
+
+  function overlaps( $period ) {
+		return ( $this->datetime_period_item_start >= $period->datetime_period_item_start
+			    && $this->datetime_period_item_start <= $period->datetime_period_item_end )
+			||   ( $this->datetime_period_item_end   >= $period->datetime_period_item_start
+			    && $this->datetime_period_item_end   <= $period->datetime_period_item_end );
+  }
+
+  function priority() {
+		$priority = $this->period->period_status_type->priority;
+		return (int) $priority;
+  }
+
+  function add_new_overlap( $new_period ) {
+		// A Linked list of overlapping periods is not logical
+		// Just because A overlaps B and B overlaps C
+		//   does not mean that A overlaps C
+		if ( $new_period->priority() > $this->priority() ) {
+			$this->priority_overlap_periods[ $new_period->priority() ] = $new_period;
+			if ( is_null( $this->top_priority_overlap_period )
+				|| $new_period->priority() > $this->top_priority_overlap_period->priority()
+			)
+				$this->top_priority_overlap_period = $new_period;
+		}
   }
 
   function seconds_in_day( $datetime ) {
@@ -76,7 +179,8 @@ class CB_PeriodItem extends CB_PostNavigator implements JsonSerializable {
   function classes() {
     $classes = '';
     if ( $this->period ) $classes .= $this->period->period_status_type->classes();
-    $classes .= 'cb2-period-group-type-' . $this->type();
+    $classes .= ' cb2-period-group-type-' . $this->post_type();
+    $classes .= ( $this->top_priority_overlap_period ? ' cb2-perioditem-has-overlap' : ' cb2-perioditem-no-overlap' );
     return $classes;
   }
 
@@ -150,6 +254,7 @@ class CB_PeriodItem extends CB_PostNavigator implements JsonSerializable {
 				if      ( $value instanceof DateTime ) $value = $value->format( 'c' );
 				else if ( is_array( $value ) ) $value = 'Array(' . count( $value ) . ')';
 				else if ( $value instanceof WP_Post ) $value = 'WP_Post(' . $value->post_title . ')';
+				else if ( $value instanceof WP_User ) $value = 'WP_User(' . $value->user_login . ')';
 				$debug .= "<tr><td>$name</td><td>$value</td></tr>";
 			}
 		}
@@ -244,12 +349,11 @@ class CB_PeriodItem_Automatic extends CB_PeriodItem {
     $datetime_period_item_end
   ) {
     // Design Patterns: Factory Singleton with Multiton
-		if ( isset( self::$all[$ID] ) ) {
+		if ( ! is_null( $ID ) && isset( self::$all[$ID] ) ) {
 			$object = self::$all[$ID];
     } else {
 			$reflection = new ReflectionClass( __class__ );
 			$object     = $reflection->newInstanceArgs( func_get_args() );
-      self::$all[$ID] = $object;
     }
 
     return $object;
@@ -322,12 +426,11 @@ class CB_PeriodItem_Global extends CB_PeriodItem {
     $timeframe_id
   ) {
     // Design Patterns: Factory Singleton with Multiton
-		if ( isset( self::$all[$ID] ) ) {
+		if ( ! is_null( $ID ) &&  isset( self::$all[$ID] ) ) {
 			$object = self::$all[$ID];
     } else {
 			$reflection = new ReflectionClass( __class__ );
 			$object     = $reflection->newInstanceArgs( func_get_args() );
-      self::$all[$ID] = $object;
     }
 
     return $object;
@@ -412,12 +515,11 @@ class CB_PeriodItem_Location extends CB_PeriodItem {
     $location    // CB_Location
   ) {
     // Design Patterns: Factory Singleton with Multiton
-		if ( ! is_null( $ID ) &&  isset( self::$all[$ID] ) ) {
+		if ( ! is_null( $ID ) && isset( self::$all[$ID] ) ) {
 			$object = self::$all[$ID];
     } else {
 			$reflection = new ReflectionClass( __class__ );
 			$object     = $reflection->newInstanceArgs( func_get_args() );
-			if ( ! is_null( $ID ) ) self::$all[$ID] = $object;
     }
 
     return $object;
@@ -514,12 +616,11 @@ class CB_PeriodItem_Timeframe extends CB_PeriodItem {
     $item        // CB_Item
   ) {
     // Design Patterns: Factory Singleton with Multiton
-		if ( isset( self::$all[$ID] ) ) {
+		if ( ! is_null( $ID ) && isset( self::$all[$ID] ) ) {
 			$object = self::$all[$ID];
     } else {
 			$reflection = new ReflectionClass( __class__ );
 			$object     = $reflection->newInstanceArgs( func_get_args() );
-      self::$all[$ID] = $object;
     }
 
     return $object;
@@ -641,12 +742,11 @@ class CB_PeriodItem_Timeframe_User extends CB_PeriodItem {
     $user        // CB_User
   ) {
     // Design Patterns: Factory Singleton with Multiton
-		if ( isset( self::$all[$ID] ) ) {
+		if ( ! is_null( $ID ) && isset( self::$all[$ID] ) ) {
 			$object = self::$all[$ID];
     } else {
 			$reflection = new ReflectionClass( __class__ );
 			$object     = $reflection->newInstanceArgs( func_get_args() );
-      self::$all[$ID] = $object;
     }
 
     return $object;

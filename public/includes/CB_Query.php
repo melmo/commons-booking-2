@@ -104,7 +104,7 @@ class CB_Query {
 		if ( $Class = CB_Query::schema_type_class( $post_type ) ) {
 			if ( property_exists( $Class, 'all' ) ) {
 				if ( $values_only ) $all = array_values( $Class::$all );
-				else $all = &$Class::$all;
+				else $all = $Class::$all;
 			}
 		}
 		return $all;
@@ -278,13 +278,17 @@ class CB_Query {
 
 			if ( ! property_exists( $post, '_get_metadata_assign' ) ) {
 				if ( $Class = self::schema_type_class( $post->post_type ) ) {
-					if ( property_exists( $Class, 'posts_table' ) && $Class::$posts_table !== FALSE ) {
-						$posts_table = "cb2_view_{$Class::$static_post_type}_posts";
-						if ( property_exists( $Class, 'posts_table' ) && is_string( $Class::$posts_table ) )
-							$posts_table    = $Class::$posts_table;
-						$meta_type         = $post->post_type;
-						$table             = "{$meta_type}meta";
-						$wpdb->$table      = "{$wpdb->prefix}cb2_view_{$table}";
+					// get_metadata( $meta_type, ... )
+					//   meta.php has _get_meta_table( $meta_type );
+					//   $table_name = $meta_type . 'meta';
+					if ( ! property_exists( $Class, 'postmeta_table' ) || $Class::$postmeta_table !== FALSE ) {
+						$post_type_stub         = CB_Query::substring_before( $post->post_type );
+						$meta_type              = $post_type_stub;
+						$meta_table_stub        = "{$meta_type}meta";
+						$meta_table             = "cb2_view_{$meta_table_stub}";
+						if ( property_exists( $Class, 'postmeta_table' ) && is_string( $Class::$postmeta_table ) )
+							$meta_table = $Class::$posts_table;
+						$wpdb->$meta_table_stub = "$wpdb->prefix$meta_table";
 					}
 				}
 

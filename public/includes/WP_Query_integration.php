@@ -13,6 +13,7 @@ add_filter( 'pre_get_posts',    'cb2_pre_get_posts_query_string_extensions');
 //   based on this plugin
 define( 'CB2_WP_DEBUG',                       WP_DEBUG && FALSE );
 define( 'CB2_WP_DEBUG_CUTOFF',                300 );
+//add_filter( 'query',            'cb2_query_show' );
 add_filter( 'query',             'cb2_wpdb_query_select' );
 add_filter( 'get_post_metadata', 'cb2_get_post_metadata', 10, 4 );
 
@@ -23,7 +24,6 @@ add_filter( 'get_post_metadata', 'cb2_get_post_metadata', 10, 4 );
 // when they are UPDATEed using update_post_meta
 
 // --------------------------------------------- Updating posts
-//add_filter( 'query',            'cb2_query_show' );
 // UPDATE queries not trapped: save_post used instead
 //add_filter( 'query',            'cb2_wpdb_query_update' );
 // save_post fires after saving
@@ -391,7 +391,7 @@ function cb2_post_row_actions( $actions, $post ) {
 }
 
 function cb2_query_show( $sql ) {
-	if ( CB2_WP_DEBUG ) print( "<div class='cb2-debug'>$sql</div>" );
+	if ( WP_DEBUG ) print( "<div class='cb2-debug'>$sql</div>" );
 	return $sql;
 }
 

@@ -6,7 +6,6 @@ class CB_PeriodStatusType extends CB_PostNavigator implements JsonSerializable {
   public  static $database_table = 'cb2_period_status_types';
   public  static $all = array();
   public  static $standard_fields = array( 'name' );
-  private $db_insert;
   static  $static_post_type = 'periodstatustype';
   public  static $post_type_args = array(
 		'menu_icon' => 'dashicons-admin-settings',
@@ -32,10 +31,14 @@ class CB_PeriodStatusType extends CB_PostNavigator implements JsonSerializable {
     // WP_Post values
     $this->post_title = $name;
 		$this->post_type  = self::$static_post_type;
+
+		if ( ! is_null( $ID ) ) self::$all[$ID] = $this;
   }
 
   static function &factory_from_wp_post( $post ) {
 		CB_Query::get_metadata_assign( $post ); // Retrieves ALL meta values
+
+		if ( is_null( $post->priority ) ) throw new Exception( "post_status_type has no priority" );
 
 		$object = self::factory(
 			$post->ID,
@@ -67,24 +70,22 @@ class CB_PeriodStatusType extends CB_PostNavigator implements JsonSerializable {
     $use      = NULL
   ) {
     // Design Patterns: Factory Singleton with Multiton
-    $key = $period_status_type_id;
-    if ( ! is_null( $ID ) &&  isset( self::$all[$key] ) )
-			$object = self::$all[$key];
+    if ( ! is_null( $ID ) &&  isset( self::$all[$ID] ) )
+			$object = self::$all[$ID];
     else {
       $Class = 'CB_PeriodStatusType';
       // Hardcoded system status types
       // TODO: create a trigger preventing deletion of these
       switch ( $period_status_type_id ) {
-        case 1: $Class = 'CB_PeriodStatusType_Available'; break;
-        case 2: $Class = 'CB_PeriodStatusType_Booked';    break;
-        case 3: $Class = 'CB_PeriodStatusType_Closed';    break;
-        case 4: $Class = 'CB_PeriodStatusType_Open';      break;
-        case 5: $Class = 'CB_PeriodStatusType_Repair';    break;
+        case PERIOD_STATUS_TYPE_AVAILABLE: $Class = 'CB_PeriodStatusType_Available'; break;
+        case PERIOD_STATUS_TYPE_BOOKED:    $Class = 'CB_PeriodStatusType_Booked';    break;
+        case PERIOD_STATUS_TYPE_CLOSED:    $Class = 'CB_PeriodStatusType_Closed';    break;
+        case PERIOD_STATUS_TYPE_OPEN:      $Class = 'CB_PeriodStatusType_Open';      break;
+        case PERIOD_STATUS_TYPE_REPAIR:    $Class = 'CB_PeriodStatusType_Repair';    break;
       }
 
 			$reflection = new ReflectionClass( $Class );
 			$object     = $reflection->newInstanceArgs( func_get_args() );
-			if ( ! is_null( $ID ) ) self::$all[$key] = $object;
     }
 
     return $object;

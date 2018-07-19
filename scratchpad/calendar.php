@@ -105,7 +105,7 @@
 
 			// Assign period group to timeframe
 			// TODO: We are ASSUMMING a timeframe here, i.e. a Location and an Item
-      $perioditem = CB_PeriodItem_Timeframe::factory(
+      $perioditem = CB_PeriodItem::factory_subclass(
 				NULL, // $ID
 				$period_group,
 				$period,
@@ -115,9 +115,10 @@
 
 				NULL, // $timeframe_id
         CB_Location::factory( $post_location_ID ),
-        CB_Item::factory(     $post_item_ID )
+        CB_Item::factory(     $post_item_ID ),
+        CB_User::factory(     $post_user_ID )
 			);
-			var_dump($perioditem);
+			if ( WP_DEBUG ) var_dump( $perioditem );
       $perioditem->save();
     }
 
@@ -129,7 +130,8 @@
     $user_ID          = ( isset( $_GET['user_ID'] )     ? $_GET['user_ID']          : NULL );
     $period_group_id  = ( isset( $_GET['period_group_id'] ) ? $_GET['period_group_id'] : NULL );
     $period_status_type_id = ( isset( $_GET['period_status_type_id'] ) ? $_GET['period_status_type_id'] : NULL );
-    $schema_type        = ( isset( $_GET['schema_type'] )   ? $_GET['schema_type'] : CB_Week::$static_post_type );
+    $schema_type      = ( isset( $_GET['schema_type'] )   ? $_GET['schema_type'] : CB_Week::$static_post_type );
+    $template_part    = ( isset( $_GET['template_part'] ) ? $_GET['template_part'] : NULL );
     $no_auto_draft    = isset( $_GET['no_auto_draft'] );
 
     $output_type      = ( isset( $_GET['output_type'] ) ? $_GET['output_type'] : 'HTML' );
@@ -237,6 +239,7 @@
     print( '<br/>' );
     print( 'Output type:<select name="output_type">' . CB_Query::select_options( array( 'HTML' => 'HTML', 'JSON' => 'JSON' ), $output_type ) . '</select>' );
     print( 'Post Type:<select name="schema_type">' . CB_Query::select_options( CB_Query::schema_options(), $schema_type ) . '</select>' );
+    print( 'Template Part:<select name="template_part">' . CB_Query::select_options( array( 'available' => 'available' ), $template_part ) . '</select>' );
     print( '<br/>' );
     print( '<input class="cb2-submit" type="submit" value="Filter"/>' );
     print( '</form>' );
@@ -266,7 +269,7 @@
 				?><div class="cb2-calendar"><header class="entry-header"><h1 class="entry-title">calendar</h1></header>
 					<div class="entry-content">
 						<table class="cb2-subposts"><tbody>
-							<?php the_inner_loop( $query ); ?>
+							<?php the_inner_loop( $query, 'list', $template_part ); ?>
 						</tbody></table>
 					</div><!-- .entry-content --></div>
 			<?php

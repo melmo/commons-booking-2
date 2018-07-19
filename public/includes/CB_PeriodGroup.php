@@ -39,7 +39,6 @@ class CB_PeriodGroup extends CB_PostNavigator implements JsonSerializable {
     } else {
 			$reflection = new ReflectionClass( __class__ );
 			$object     = $reflection->newInstanceArgs( func_get_args() );
-			if ( ! is_null( $ID ) ) self::$all[$ID] = $object;
     }
 
     return $object;
@@ -53,6 +52,7 @@ class CB_PeriodGroup extends CB_PostNavigator implements JsonSerializable {
 		CB_Query::assign_all_parameters( $this, func_get_args(), __class__ );
 		$this->id = $period_group_id;
 		parent::__construct( $this->periods );
+		if ( ! is_null( $ID ) ) self::$all[$ID] = $this;
   }
 
   function add_period( $period ) {

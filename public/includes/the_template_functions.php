@@ -114,15 +114,19 @@ function cb2_post_class( $classes, $class, $ID ) {
 		}
 	}
 
-	if ( $post_type
-		&& ( $lookup = CB_Query::schema_type_all_objects( $post_type ) )
-		&& $lookup
-		&& isset( $lookup[$ID] )
-		&& ( $object = $lookup[$ID] )
-	) {
-		// Add the objects classes()
-		if ( $object_classes = $object->classes() ) {
-			array_push( $classes, $object_classes );
+	if ( $post_type ) {
+		if ( $Class = CB_Query::schema_type_class( $post_type ) ) {
+			if ( property_exists( $Class, 'all' ) ) {
+				$lookup = $Class::$all;
+				if ( isset( $lookup[$ID] ) ) {
+					if ( $object = $lookup[$ID] ) {
+						// Add the objects classes()
+						if ( $object_classes = $object->classes() ) {
+							array_push( $classes, $object_classes );
+						}
+					} else throw new Exception( "Object [$ID] NULL in general $Class::\$all(" . count( $lookup ) . ") lookup" );
+				} //else throw new Exception( "Object [$ID] not found in general $Class::\$all(" . count( $lookup ) . ") lookup" );
+			} else throw new Exception( "$Class::\$all lookup property required" );
 		}
 	}
 
@@ -219,8 +223,12 @@ function cb2_template_include_custom_plugin_templates( $current_template_path = 
 	return $current_template_path;
 }
 
+/*
 function cb2_form_elements( $form ) {
   // Process all normal shortcodes in CF7 forms
+  // CF7 is not used for the booking form management now
+  // So this function is no longer necessary
   return do_shortcode( $form );
 }
 add_filter( 'wpcf7_form_elements', 'cb2_form_elements' );
+*/

@@ -59,7 +59,6 @@ class CB_Period extends CB_PostNavigator implements JsonSerializable {
     } else {
 			$reflection = new ReflectionClass( __class__ );
 			$object     = $reflection->newInstanceArgs( func_get_args() );
-      if ( ! is_null( $ID ) ) self::$all[$ID] = $object;
     }
 
     return $object;
@@ -85,6 +84,7 @@ class CB_Period extends CB_PostNavigator implements JsonSerializable {
 			&& ( 	 $this->datetime_part_period_start->format( 'H:i:s' ) == '00:00:00'
 					&& $this->datetime_part_period_end->format(   'H:i:s' ) == '23:59:59'
 				 );
+    if ( ! is_null( $ID ) ) self::$all[$ID] = $this;
   }
 
   function classes() {

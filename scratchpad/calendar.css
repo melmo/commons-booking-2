@@ -70,6 +70,14 @@ body .cb2-low-debug {
 }
 
 /* ---------------------- indicators */
+.cb2-perioditem-has-overlap {
+	opacity: 0.5;
+	color: #333;
+	border: 1px dotted #000;
+}
+.cb2-perioditem-has-overlap .cb2-period-period-status-type-name .cb2-field-value {
+	background-color:#777;
+}
 .cb2-indicators ul {
   list-style:none;
 	padding:0px;

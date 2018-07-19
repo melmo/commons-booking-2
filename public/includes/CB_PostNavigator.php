@@ -246,30 +246,37 @@ class CB_PostNavigator {
   function save( $save_posts_links = FALSE ) {
 		global $wpdb;
 
-		$args = $this->post_args();
+		$error = NULL;
+		$args  = $this->post_args();
 		if ( WP_DEBUG && FALSE ) var_dump( $args );
 
 		if ( isset( $args [ 'ID' ] ) ) {
 			// Direct existing update
+			// wp_update_post() triggers the hooks below
 			if ( $args [ 'ID' ] == 0 ) throw new Exception( "Attempt to update post 0" );
-			wp_update_post( $args );
+			$result = wp_update_post( $args );
+			if ( is_wp_error( $result ) ) {
+				$error = $wpdb->last_error;
+			}
 		} else {
 			// Create new post in wp_posts
+			// wp_insert_post() will not trigger any hooks in this intergration
+			// wp_update_post() triggers the hooks below
 			// (int|WP_Error) The post ID on success. The value 0 or WP_Error on failure.
 			$id   = wp_insert_post( $args );
 			if ( is_wp_error( $id ) ) {
-				print( "<div id='error-page'><p>$wpdb->last_error</p></div>" );
-				exit();
+				$error = $wpdb->last_error;
 			} else {
 				$args = array( 'ID' => $id );
 				// Run the update action to move it to the custom DB structure
 				$result = wp_update_post( $args );
 				if ( is_wp_error( $result ) ) {
-					print( "<div id='error-page'><p>$wpdb->last_error</p></div>" );
-					exit();
+					$error = $wpdb->last_error;
 				} else {
 					// Everything worked
-					// Store the ID for further updates
+					// Store the ID and id for further updates
+					// Other saving objects can now use the id to write their records:
+					//   e.g. ->period->id
 					$id       = $wpdb->insert_id;
 					$this->ID = CB_Query::ID_from_id_post_type( $id, $this->post_type() );
 					$this->id = $id;
@@ -277,7 +284,14 @@ class CB_PostNavigator {
 			}
 		}
 
-		if ( $save_posts_links ) $this->save_posts_linkage();
+		if ( $error ) {
+			print( "<div id='error-page'><p>$error</p></div>" );
+			exit();
+		} else {
+			// save_posts_linkage() is for writing other records in the DB
+			// e.g. CB_PeriodItem writes a period_group as well as its own record
+			if ( $save_posts_links ) $this->save_posts_linkage();
+		}
 
 		return $this;
   }

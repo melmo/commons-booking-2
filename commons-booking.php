@@ -108,8 +108,45 @@ function cb2_plugins_loaded() {
 	}
 }
 
+function cb2_notification_bubble_in_admin_menu() {
+  global $menu, $submenu;
+
+  foreach ($menu as &$amenuitem) {
+    if ( is_array($amenuitem) ) {
+      $menuitem = &$amenuitem[0];
+      if ( substr( $menuitem, -1 ) == ')' ) {
+        $menuitem = preg_replace( '/\(([0-9]+)\)$/', '<span class="update-plugins count-$1"><span class="update-count">$1</span></span>', $menuitem );
+      }
+      else if ( substr( $menuitem, -1 ) == ']' ) {
+        $menuitem = preg_replace( '/\[([0-9]+)\]$/', '<span class="menu-item-number count-$1">$1</span>', $menuitem );
+      }
+    }
+  }
+
+  foreach ($submenu as $menu_name => &$menuitems) {
+    $first = TRUE;
+    foreach ($menuitems as &$amenuitem) {
+      if ( is_array($amenuitem) ) {
+        $menuitem = &$amenuitem[0];
+        if ( $first ) {
+          $menuitem = preg_replace( '/\(([0-9]+)\)$|\[([0-9]+)\]$/', '', $menuitem );
+        } else {
+          if ( substr( $menuitem, -1 ) == ')' ) {
+            $menuitem = preg_replace( '/\(([0-9]+)\)$/', '<span class="update-plugins count-$1"><span class="update-count">$1</span></span>', $menuitem );
+          }
+          else if ( substr( $menuitem, -1 ) == ']' ) {
+            $menuitem = preg_replace( '/\[([0-9]+)\]$/', '<span class="menu-item-number count-$1">$1</span>', $menuitem );
+          }
+        }
+      }
+      $first = FALSE;
+    }
+  }
+}
+add_action('admin_menu', 'cb2_notification_bubble_in_admin_menu', 110 );
+
 function cb2_admin_init_menus() {
-	$notifications_string = '';
+	$notifications_string = ' (3)';
   add_menu_page( 'CB2', "CB2$notifications_string", 'manage_options', 'cb2', 'cb2_options_page', 'dashicons-video-alt' );
   add_submenu_page( 'cb2', 'Holidays', 'holidays (1)', 'manage_options', 'cb2-holidays', 'cb2_holidays_page' );
 }
@@ -120,12 +157,34 @@ function cb2_options_page() {
 }
 
 function cb2_holidays_page() {
-	$typenow = 'period';
-	$GLOBALS['hook_suffix'] = TRUE;
-	$screen  = WP_Screen::get( $typenow );
-	$screen->base = 'edit';
-	set_current_screen( $screen );
-	require_once( get_home_path() . 'wp-admin/edit.php' );
+	global $wpdb;
+
+	if ( isset( $_GET[ 'page' ] ) ) {
+		$page    = $_GET[ 'page' ];
+		$typenow = NULL;
+
+		// Bring stored parameters on to the query-string
+		$details = $wpdb->get_results( $wpdb->prepare(
+			"SELECT * FROM {$wpdb->prefix}cb2_admin_pages WHERE page = %s",
+			array( $page )
+		), OBJECT_K );
+		if ( count( $details ) ) {
+			$details_page  = $details[$page];
+			$wp_query_args = $details_page->wp_query_args;
+			foreach ( explode( ',', $wp_query_args ) as $arg_detail_string ) {
+				$arg_details   = explode( '=', $arg_detail_string, 2 );
+				$name          = $arg_details[0];
+				$value         = ( count( $arg_details ) > 1 ? $arg_details[1] : '' );
+				$_GET[ $name ] = $value;
+				if ( $name == 'post_type' ) $typenow = $value;
+			}
+
+			$screen = WP_Screen::get( $typenow );
+			set_current_screen( $screen );
+			require_once( get_home_path() . 'wp-admin/edit.php' );
+		} else throw new Exception( 'CB2 admin page cannot find its location in the db' );
+	} else throw new Exception( 'CB2 admin page does not understand its location. A querystring ?page= parameter is needed' );
+
 	return TRUE;
 }
 

@@ -24,17 +24,18 @@ class CB_User extends CB_PostNavigator implements JsonSerializable {
     $this->post_type  = self::$static_post_type;
 
     parent::__construct( $this->periods );
+
+    self::$all[$ID] = $this;
   }
 
   static function factory( $ID, $user_login = NULL ) {
     // Design Patterns: Factory Singleton with Multiton
-    $key = $ID;
+    $object = NULL;
 
-    if ( isset( self::$all[$key] ) ) $object = self::$all[$key];
-    else {
-      $object = new self( $ID, $user_login );
-      self::$all[$key] = $object;
-    }
+    if ( ! is_null( $ID ) ) {
+			if ( isset( self::$all[$ID] ) ) $object = self::$all[$ID];
+			else $object = new self( $ID, $user_login );
+		}
 
     return $object;
   }
@@ -59,6 +60,7 @@ CB_Query::register_schema_type( 'CB_User' );
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 class CB_Post extends CB_PostNavigator implements JsonSerializable {
+  public static $all = array();
   public static $schema         = 'with-periods'; //this-only, with-periods
   public static $posts_table    = FALSE;
   public static $postmeta_table = FALSE;
@@ -74,6 +76,8 @@ class CB_Post extends CB_PostNavigator implements JsonSerializable {
     $this->ID = $ID;
 
     parent::__construct( $this->periods );
+
+    self::$all[$ID] = $this;
   }
 
   function add_period( &$period ) {
@@ -104,7 +108,6 @@ class CB_Post extends CB_PostNavigator implements JsonSerializable {
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 class CB_Location extends CB_Post implements JsonSerializable {
-  public static $all = array();
   static $static_post_type  = 'location';
   public static $post_type_args = array(
 		'menu_icon' => 'dashicons-admin-tools',
@@ -134,13 +137,13 @@ class CB_Location extends CB_Post implements JsonSerializable {
 
   static function factory( $ID ) {
     // Design Patterns: Factory Singleton with Multiton
-    $key = $ID;
+    $object = NULL;
+    $key    = $ID;
 
-    if ( isset( self::$all[$key] ) ) $object = self::$all[$key];
-    else {
-      $object = new self( $ID );
-      self::$all[$key] = $object;
-    }
+    if ( ! is_null( $ID ) ) {
+			if ( isset( self::$all[$ID] ) ) $object = self::$all[$ID];
+			else $object = new self( $ID );
+		}
 
     return $object;
   }
@@ -163,7 +166,6 @@ CB_Query::register_schema_type( 'CB_Location' );
 // --------------------------------------------------------------------
 // --------------------------------------------------------------------
 class CB_Item extends CB_Post implements JsonSerializable {
-  public static $all = array();
   static $static_post_type   = 'item';
   public static $post_type_args = array(
 		'menu_icon' => 'dashicons-video-alt',
@@ -192,13 +194,12 @@ class CB_Item extends CB_Post implements JsonSerializable {
 
   static function &factory( $ID ) {
     // Design Patterns: Factory Singleton with Multiton
-    $key = $ID;
+    $object = NULL;
 
-    if ( isset( self::$all[$key] ) ) $object = self::$all[$key];
-    else {
-      $object = new self( $ID );
-      self::$all[$key] = $object;
-    }
+    if ( ! is_null( $ID ) ) {
+			if ( isset( self::$all[$ID] ) ) $object = self::$all[$ID];
+			else $object = new self( $ID );
+		}
 
     return $object;
   }
