@@ -10,7 +10,8 @@ function the_inner_loop( $post_navigator = NULL, $context = 'list', $template_ty
 		while ( $post_navigator->have_posts() ) : $post_navigator->the_post();
 			print( $before );
 			// We can also require( 'template-loader.php' ); instead
-			cb_get_template_part( 'commons-booking', $post->templates( $context, $template_type ) );
+			// MELTODO : commons-booking-2 shouldn't be hardcoded
+			cb_get_template_part( 'commons-booking-2', $post->templates( $context, $template_type ) );
 			print( $after );
 		endwhile;
 		$post = &$outer_post;
@@ -149,8 +150,8 @@ function is_list( $post = '' ) {
 // -------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------
 // TODO: move functions to CB_Templates utilities files
-add_filter( 'template_include', 'cb2_template_include_ensure_correct_class', 1 );
-add_filter( 'template_include', 'cb2_template_include_custom_plugin_templates' );
+add_filter( 'the_content', 'cb2_template_include_ensure_correct_class', 1 );
+add_filter( 'the_content', 'cb2_template_include_custom_plugin_templates' );
 
 /*
 add_filter( "get_template_part_{$slug}", $slug, $name )
@@ -192,7 +193,11 @@ function cb2_template_include_custom_plugin_templates( $current_template_path = 
 		$post_template_suggestions = NULL;
 		$post_type                 = $post->post_type;
 		$context                   = CB_Query::template_loader_context();
+
+		echo $context;
 		$post_template_suggestions = $post->templates( $context );
+
+		print_r($post_template_suggestions);
 
 		// Read the plugin templates directory
 		// TODO: lazy cache this and check for contents:
@@ -218,9 +223,11 @@ function cb2_template_include_custom_plugin_templates( $current_template_path = 
 			}
 			// 3) Check for next priority
 		}
+
+		include $current_template_path;
 	}
 
-	return $current_template_path;
+	
 }
 
 /*

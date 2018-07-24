@@ -1,8 +1,8 @@
 <?php
   /** Loads the WordPress Environment and Template */
-  require_once( $_SERVER['DOCUMENT_ROOT'] . '/wp-blog-header.php' );
-  require_once( $_SERVER['DOCUMENT_ROOT'] . '/wp-content/plugins/commons-booking/includes/CB_Template.php' );
-  require_once( $_SERVER['DOCUMENT_ROOT'] . '/wp-content/plugins/commons-booking/public/includes/CB_Query.php' );
+  require_once( $_SERVER['DOCUMENT_ROOT'] . 'cb_02_framework' . '/wp-blog-header.php' );
+  require_once( $_SERVER['DOCUMENT_ROOT'] . 'cb_02_framework'. '/wp-content/plugins/commons-booking-2/includes/CB_Template.php' );
+  require_once( $_SERVER['DOCUMENT_ROOT'] . 'cb_02_framework'. '/wp-content/plugins/commons-booking-2/public/includes/CB_Query.php' );
 ?>
 <html>
   <head>
