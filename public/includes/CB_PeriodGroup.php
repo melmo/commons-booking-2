@@ -9,7 +9,9 @@ class CB_PeriodGroup extends CB_PostNavigator implements JsonSerializable {
 		'menu_icon' => 'dashicons-admin-settings',
 		'label'     => 'Period Groups',
   );
-  private $periods = array();
+
+  // MELTODO : better way to copy
+  public $periods = array();
 
   function post_type() {return self::$static_post_type;}
 

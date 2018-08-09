@@ -1,3 +1,5 @@
+<?php echo "template : list-day-available.php <br>"; ?>
+
 <td id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 	<header class="entry-header">
 		<?php the_title( '<h3 class="entry-title">', '</h3>' ); ?>

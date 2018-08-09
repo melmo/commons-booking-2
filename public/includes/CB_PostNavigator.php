@@ -143,7 +143,6 @@ class CB_PostNavigator {
   function templates( $context = NULL, $type = NULL ) {
 		$templates = array();
 		$post_type = $this->post_type;
-    echo 'post tpye: ' . $post_type;
 		do {
 			if ( $context && $type ) array_push( $templates, "$context-$post_type-$type" );
 			if ( $context )          array_push( $templates, "$context-$post_type" );

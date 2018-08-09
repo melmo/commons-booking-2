@@ -184,6 +184,10 @@ class CB_PeriodItem extends CB_PostNavigator implements JsonSerializable {
     return $classes;
   }
 
+  function is_top_priority() {
+  	return !$this->top_priority_overlap_period;
+  }
+
   function styles() {
     $styles = '';
 

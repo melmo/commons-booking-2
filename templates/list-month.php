@@ -1,3 +1,5 @@
+<?php echo "template : list-month.php <br>"; ?>
+
 <tr id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 	<?php the_content(); ?>
 
