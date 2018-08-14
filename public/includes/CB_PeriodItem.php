@@ -50,6 +50,7 @@ class CB_PeriodItem extends CB_PostNavigator implements JsonSerializable {
 
 			// Overlapping periods
 			// Might partially overlap many different non-overlapping periods
+			// TO DO: location-location doesn't overlap, item-item doesn't overlap
 			foreach ( self::$all as $existing_period ) {
 				if ( $this->overlaps( $existing_period ) ) {
 					$existing_period->add_new_overlap( $this );

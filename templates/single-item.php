@@ -22,6 +22,8 @@ $startdate   = new DateTime();
 $enddate     = (clone $startdate)->add( new DateInterval('P1M') );
 $view_mode   = 'week'; // CB_Weeks
 
+// ask for item id AND anything without item ID
+
 $period_query = new WP_Query( array(
 	'post_status'    => array(
 		'publish',

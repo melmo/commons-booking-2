@@ -12,7 +12,7 @@
 		?>
 	</header>
 	<div class="entry-content">
-		<?php the_content(); ?>
+		<?php// the_content(); ?>
 		<table class="cb2-subposts"><tbody>
 			<?php the_inner_loop( NULL, 'list', 'available' ); ?>
 		</tbody></table>
